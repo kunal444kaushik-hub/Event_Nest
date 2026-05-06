@@ -1,0 +1,327 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curate Combo Package - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --step-color: #ff6600; }
+        body { background: #fdfdfd; min-height: 100vh; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        
+        .creation-container { max-width: 1200px; margin: 40px auto; display: grid; grid-template-columns: 1fr 400px; gap: 40px; padding: 0 20px; }
+        .creation-flow { background: white; padding: 40px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; position: relative; }
+
+        .step-indicator { display: flex; gap: 10px; margin-bottom: 30px; }
+        .step-dot { height: 6px; flex: 1; background: #eee; border-radius: 3px; transition: 0.4s; }
+        .step-dot.active { background: var(--step-color); box-shadow: 0 0 10px rgba(255,102,0,0.3); }
+
+        .form-step { display: none; animation: slideIn 0.5s ease forwards; }
+        .form-step.active { display: block; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+        .type-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 20px; }
+        .type-card { border: 2px solid #f5f5f5; padding: 20px; border-radius: 20px; text-align: center; cursor: pointer; transition: 0.3s; background: #fafafa; }
+        .type-card i { font-size: 1.6rem; color: #888; margin-bottom: 10px; display: block; }
+        .type-card span { font-size: 0.85rem; font-weight: 700; color: #666; }
+        .type-card:hover { border-color: #ff6600; background: #fff9f5; transform: translateY(-3px); }
+        .type-card.selected { border-color: #ff6600; background: #ff6600; }
+        .type-card.selected i, .type-card.selected span { color: white; }
+
+        .service-selection-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px; }
+        .service-chip { 
+            display: flex; align-items: center; gap: 12px; padding: 15px; 
+            background: #fafafa; border: 2px solid #f0f0f0; border-radius: 15px; 
+            cursor: pointer; transition: 0.3s; 
+        }
+        .service-chip i { font-size: 1.2rem; color: #bbb; transition: 0.3s; }
+        .service-chip span { font-weight: 700; color: #666; font-size: 0.9rem; }
+        .service-chip:hover { border-color: #ff6600; background: white; }
+        .service-chip.active { border-color: #ff6600; background: #fff9f5; }
+        .service-chip.active i { color: #ff6600; transform: scale(1.2); }
+        .service-chip.active span { color: #1a1a1a; }
+
+        .input-group { margin-bottom: 25px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 700; color: #1a1a1a; font-size: 0.9rem; }
+        .input-group input, .input-group textarea, .input-group select { width: 100%; padding: 14px 18px; border-radius: 12px; border: 2px solid #f0f0f0; background: #fafafa; font-size: 0.95rem; transition: 0.3s; }
+        .input-group input:focus, .input-group textarea:focus { border-color: #ff6600; background: white; outline: none; box-shadow: 0 8px 20px rgba(255,102,0,0.05); }
+
+        .btn-row { display: flex; gap: 15px; margin-top: 30px; }
+        .btn-next { background: #1a1a1a; color: white; border: none; padding: 14px 30px; border-radius: 12px; font-weight: 700; cursor: pointer; flex: 1; transition: 0.3s; }
+        .btn-next:hover { background: #333; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .btn-prev { background: #f5f5f5; color: #666; border: none; padding: 14px 25px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+
+        .preview-pane { position: sticky; top: 40px; height: fit-content; }
+        .package-preview-card { background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.06); border: 1px solid #f0f0f0; }
+        .preview-img { height: 180px; background: #fdf9f6; display: flex; align-items: center; justify-content: center; color: #ff6600; font-size: 2.5rem; overflow: hidden; }
+        .preview-body { padding: 25px; }
+        .preview-tag { font-size: 0.7rem; background: #1a1a1a; color: white; padding: 4px 10px; border-radius: 20px; font-weight: 800; display: inline-block; margin-bottom: 10px; text-transform: uppercase; }
+        .preview-name { font-size: 1.25rem; font-weight: 800; margin-bottom: 12px; color: #1a1a1a; }
+        
+        .preview-bundle { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+        .bundle-item { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: #666; font-weight: 600; background: #f9f9f9; padding: 8px 12px; border-radius: 10px; }
+        .bundle-item i { color: #ff6600; font-size: 0.7rem; }
+
+        .preview-price { font-size: 1.4rem; font-weight: 800; color: #ff6600; }
+    </style>
+</head>
+<body>
+<a href="{% url 'provider_dashboard' %}" class="back-btn" style="position: absolute; top: 25px; left: 25px; z-index: 100;">
+    <i class="fa-solid fa-arrow-left"></i> Exit
+</a>
+
+{% if messages %}
+    <div style="max-width: 1200px; margin: 20px auto 0; padding: 0 20px;">
+        {% for message in messages %}
+            <div style="padding: 15px 25px; background: {% if message.tags == 'error' %}#fff1f0{% else %}#f6ffed{% endif %}; border: 1px solid {% if message.tags == 'error' %}#ffa39e{% else %}#b7eb8f{% endif %}; border-radius: 12px; color: {% if message.tags == 'error' %}#cf1322{% else %}#389e0d{% endif %}; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid {% if message.tags == 'error' %}fa-circle-xmark{% else %}fa-circle-check{% endif %}"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="creation-container">
+    <div class="creation-flow">
+        <div class="step-indicator">
+            <div class="step-dot active" id="dot-1"></div>
+            <div class="step-dot" id="dot-2"></div>
+            <div class="step-dot" id="dot-3"></div>
+            <div class="step-dot" id="dot-4"></div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" id="packageForm">
+            {% csrf_token %}
+            
+            <!-- STEP 1: PACKAGE THEME -->
+            <div class="form-step active" id="step-1">
+                <h1 style="font-size: 1.8rem; margin-bottom: 8px;">What's the occasion?</h1>
+                <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Select the primary event category for this combo package.</p>
+                
+                <input type="hidden" name="package_type" id="package_type_input" required>
+                <div class="type-grid">
+                    <div class="type-card" onclick="selectType('Birthday Package', 'fa-cake-candles')">
+                        <i class="fa-solid fa-cake-candles"></i>
+                        <span>Birthday</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Marriage Package', 'fa-ring')">
+                        <i class="fa-solid fa-ring"></i>
+                        <span>Marriage</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Office Party Package', 'fa-building-user')">
+                        <i class="fa-solid fa-building-user"></i>
+                        <span>Corporate</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Bachelor Party Package', 'fa-glass-cheers')">
+                        <i class="fa-solid fa-glass-cheers"></i>
+                        <span>Bachelor Party</span>
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button type="button" class="btn-next" onclick="nextStep(2)">Build the Bundle</button>
+                </div>
+            </div>
+
+            <!-- STEP 2: BUNDLE BUILDER -->
+            <div class="form-step" id="step-2">
+                <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Bundle Builder</h1>
+                <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Select the services included in this special combo.</p>
+
+                <div class="service-selection-grid">
+                    <div class="service-chip" onclick="toggleService(this, 'Decoration')">
+                        <input type="checkbox" name="included_services" value="Decoration" style="display:none">
+                        <i class="fa-solid fa-wand-sparkles"></i>
+                        <span>Decoration</span>
+                    </div>
+                    <div class="service-chip" onclick="toggleService(this, 'Catering')">
+                        <input type="checkbox" name="included_services" value="Catering" style="display:none">
+                        <i class="fa-solid fa-utensils"></i>
+                        <span>Catering</span>
+                    </div>
+                    <div class="service-chip" onclick="toggleService(this, 'DJ & Music')">
+                        <input type="checkbox" name="included_services" value="DJ & Music" style="display:none">
+                        <i class="fa-solid fa-music"></i>
+                        <span>DJ & Music</span>
+                    </div>
+                    <div class="service-chip" onclick="toggleService(this, 'Photography')">
+                        <input type="checkbox" name="included_services" value="Photography" style="display:none">
+                        <i class="fa-solid fa-camera-retro"></i>
+                        <span>Photography</span>
+                    </div>
+                    <div class="service-chip" onclick="toggleService(this, 'Lighting Setup')">
+                        <input type="checkbox" name="included_services" value="Lighting Setup" style="display:none">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>Lighting Setup</span>
+                    </div>
+                    <div class="service-chip" onclick="toggleService(this, 'Event Planning')">
+                        <input type="checkbox" name="included_services" value="Event Planning" style="display:none">
+                        <i class="fa-solid fa-calendar-day"></i>
+                        <span>Event Planning</span>
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button type="button" class="btn-prev" onclick="prevStep(1)">Back</button>
+                    <button type="button" class="btn-next" onclick="nextStep(3)">Details & Pricing</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: DETAILS & PRICING -->
+            <div class="form-step" id="step-3">
+                <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Details & Pricing</h1>
+                <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Name your package and set a competitive combo price.</p>
+
+                <div class="input-group">
+                    <label>Package Name</label>
+                    <input type="text" name="package_name" id="name_input" placeholder="e.g. Platinum Wedding Bundle" oninput="updatePreview()" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Total Combo Price (₹)</label>
+                    <input type="number" name="total_price" id="price_input" placeholder="0" oninput="updatePreview()" required>
+                    <p style="font-size: 0.75rem; color: #888; margin-top: 8px;"><i class="fa-solid fa-tag"></i> Combo prices should be lower than individual service totals to attract bookings.</p>
+                </div>
+
+                <div class="input-group">
+                    <label>What's included in this deal?</label>
+                    <textarea name="description" id="desc_input" rows="4" placeholder="Briefly explain the value proposition..." oninput="updatePreview()" required></textarea>
+                </div>
+
+                <div class="btn-row">
+                    <button type="button" class="btn-prev" onclick="prevStep(2)">Back</button>
+                    <button type="button" class="btn-next" onclick="nextStep(4)">Final Showcase</button>
+                </div>
+            </div>
+
+            <!-- STEP 4: SHOWCASE -->
+            <div class="form-step" id="step-4">
+                <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Final Showcase</h1>
+                <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Upload a cover image that represents the entire package.</p>
+
+                <div class="input-group">
+                    <label>Package Cover Photo</label>
+                    <input type="file" name="image" id="img_input" accept="image/*" onchange="previewImage(this)">
+                </div>
+
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 15px; border: 1px solid #c8e6c9; margin-bottom: 25px;">
+                    <p style="font-size: 0.85rem; color: #2e7d32; font-weight: 600;">
+                        <i class="fa-solid fa-circle-check"></i> Combo packages increase booking probability by 45%.
+                    </p>
+                </div>
+
+                <div class="btn-row">
+                    <button type="button" class="btn-prev" onclick="prevStep(3)">Back</button>
+                    <button type="submit" class="btn-next" style="background: #ff6600;">Launch Combo Package</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- PREVIEW SIDEBAR -->
+    <div class="preview-pane">
+        <div style="font-size: 0.8rem; font-weight: 800; color: #bbb; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">Bundle Preview</div>
+        <div class="package-preview-card">
+            <div class="preview-img" id="card_img_preview">
+                <i class="fa-solid fa-boxes-stacked" id="card_icon"></i>
+            </div>
+            <div class="preview-body">
+                <span class="preview-tag">Combo Deal</span>
+                <h3 class="preview-name" id="card_name">Package Name</h3>
+                
+                <div id="preview_bundle_list" class="preview-bundle">
+                    <div class="bundle-item" style="background:transparent; padding:0; opacity:0.5">Select services to see bundle...</div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #f9f9f9;">
+                    <div class="preview-price" id="card_price">₹0</div>
+                    <div style="font-size: 0.75rem; color: #2e7d32; font-weight: 700; background: #e8f5e9; padding: 4px 8px; border-radius: 5px;">Best Value</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function selectType(type, icon) {
+        document.getElementById('package_type_input').value = type;
+        document.querySelectorAll('.type-card').forEach(card => card.classList.remove('selected'));
+        event.currentTarget.classList.add('selected');
+        document.getElementById('card_icon').className = 'fa-solid ' + icon;
+    }
+
+    function toggleService(el, name) {
+        const checkbox = el.querySelector('input');
+        checkbox.checked = !checkbox.checked;
+        el.classList.toggle('active');
+        updateBundlePreview();
+    }
+
+    function updateBundlePreview() {
+        const list = document.getElementById('preview_bundle_list');
+        list.innerHTML = '';
+        const selected = document.querySelectorAll('input[name="included_services"]:checked');
+        
+        if(selected.length === 0) {
+            list.innerHTML = '<div class="bundle-item" style="background:transparent; padding:0; opacity:0.5">Select services to see bundle...</div>';
+            return;
+        }
+
+        selected.forEach(s => {
+            const div = document.createElement('div');
+            div.className = 'bundle-item';
+            div.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${s.value}`;
+            list.appendChild(div);
+        });
+    }
+
+    function nextStep(step) {
+        if(step === 2 && !document.getElementById('package_type_input').value) {
+            alert("Select a package type first!"); return;
+        }
+        if(step === 3 && document.querySelectorAll('input[name="included_services"]:checked').length === 0) {
+            alert("Select at least one service for the bundle!"); return;
+        }
+
+        document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+        document.getElementById('step-' + step).classList.add('active');
+        
+        document.querySelectorAll('.step-dot').forEach((d, idx) => {
+            if(idx < step) d.classList.add('active');
+            else d.classList.remove('active');
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function prevStep(step) {
+        document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+        document.getElementById('step-' + step).classList.add('active');
+        
+        document.querySelectorAll('.step-dot').forEach((d, idx) => {
+            if(idx < step) d.classList.add('active');
+            else d.classList.remove('active');
+        });
+    }
+
+    function updatePreview() {
+        document.getElementById('card_name').innerText = document.getElementById('name_input').value || "Package Name";
+        document.getElementById('card_price').innerText = '₹' + (document.getElementById('price_input').value || "0");
+    }
+
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('card_img_preview');
+                preview.innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+
+</body>
+</html>

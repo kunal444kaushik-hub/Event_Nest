@@ -1,0 +1,292 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Package Builder - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .custom-hero {
+            background: linear-gradient(135deg, #1a1a1a, #333);
+            color: white;
+            padding: 100px 5% 60px;
+            text-align: center;
+        }
+        .custom-hero h1 { font-size: 2.8rem; margin-bottom: 10px; color: #ff6600; }
+        .custom-hero p { font-size: 1.1rem; opacity: 0.8; }
+
+        .builder-container { padding: 60px 10%; background: #f8f9fa; }
+        
+        /* Event Type Selection UI */
+        .event-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .event-type-card {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            transition: 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+        }
+        .event-type-card:hover { transform: translateY(-10px); border-color: #ff6600; }
+        .event-type-card i { font-size: 3rem; color: #ff6600; margin-bottom: 20px; }
+        .event-type-card h3 { margin-bottom: 15px; font-size: 1.3rem; }
+        .event-type-card p { color: #888; font-size: 0.9rem; line-height: 1.6; }
+
+        /* Builder Layout */
+        .builder-layout {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 40px;
+            align-items: flex-start;
+        }
+
+        .service-type-section { margin-bottom: 50px; }
+        .service-type-section h2 { margin-bottom: 25px; font-size: 1.6rem; color: #333; border-left: 5px solid #ff6600; padding-left: 15px; }
+
+        .service-selection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .selection-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            cursor: pointer;
+            border: 2px solid #eee;
+            transition: 0.3s;
+            position: relative;
+        }
+        .selection-card:hover { border-color: #ff6600; background: #fffdfb; }
+        .selection-card.selected { border-color: #ff6600; background: #fff8f1; box-shadow: 0 5px 15px rgba(255,102,0,0.1); }
+        
+        .selection-card input { display: none; }
+        .selection-img { width: 70px; height: 70px; border-radius: 12px; object-fit: cover; }
+        .selection-icon { width: 70px; height: 70px; border-radius: 12px; background: #fdf2f0; color: #ff6600; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        
+        .selection-info h4 { font-size: 1rem; margin-bottom: 5px; color: #333; }
+        .selection-info p { font-size: 0.85rem; color: #888; margin-bottom: 5px; }
+        .selection-info b { color: #ff6600; font-size: 1rem; }
+
+        /* Summary Sidebar */
+        .summary-sidebar {
+            background: white;
+            padding: 35px;
+            border-radius: 25px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 100px;
+        }
+        .summary-sidebar h2 { margin-bottom: 25px; font-size: 1.4rem; }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #f5f5f5; font-size: 0.9rem; }
+        .summary-total { display: flex; justify-content: space-between; margin-top: 25px; font-size: 1.3rem; font-weight: 800; color: #ff6600; }
+        
+        .builder-btn {
+            width: 100%;
+            background: #ff6600;
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-top: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .builder-btn:hover { background: #e65c00; transform: translateY(-2px); }
+
+        .date-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #eee; margin-bottom: 15px; outline: none; }
+    </style>
+</head>
+<body style="background: #f4f7f6;">
+
+<a href="{% url 'packages' %}" class="back-btn">
+    <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+
+<header>
+    <nav>
+        <a href="{% url 'home' %}" class="logo">
+            <i class="fa-solid fa-feather-pointed"></i> EventNest
+        </a>
+        <ul class="nav-links">
+            <li><a href="{% if request.user.is_authenticated %}{% if request.user.profile.role == 'provider' %}{% url 'provider_home' %}{% else %}{% url 'user_home' %}{% endif %}{% else %}{% url 'home' %}{% endif %}">Home</a></li>
+            <li><a href="{% url 'services' %}">Services</a></li>
+            <li><a href="{% url 'packages' %}" class="active">Packages</a></li>
+            <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+            {% if request.user.is_authenticated %}
+                <div class="profile-dropdown">
+                    <button class="profile-icon-btn" onclick="toggleProfileMenu()">
+                        <i class="fa-solid fa-user"></i>
+                    </button>
+                    <div class="profile-menu-box" id="profileMenu">
+                        <div class="profile-menu-header">
+                            <div class="profile-avatar">{{ request.user.username|slice:":1"|upper }}</div>
+                            <div>
+                                <h4>{{ request.user.username }}</h4>
+                                <p>{{ request.user.profile.role|title }}</p>
+                            </div>
+                        </div>
+                        <a href="{% if request.user.profile.role == 'provider' %}{% url 'provider_dashboard' %}{% else %}{% url 'user_dashboard' %}{% endif %}"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                        <a href="{% url 'my_profile' %}"><i class="fa-solid fa-user"></i> My Profile</a>
+                        <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+                        <a href="{% url 'logout' %}" class="logout-menu"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'login' %}" class="admin-link" style="background: var(--primary); color: white !important;">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+</header>
+
+<div class="custom-hero">
+    <h1>Custom Package Builder</h1>
+    <p>Handpick your favorite services and create a celebration that is uniquely yours.</p>
+</div>
+
+<div class="builder-container">
+    {% if not selected_event %}
+        <h2 style="text-align: center; font-size: 2rem; margin-bottom: 40px;">Select Your Event Type</h2>
+        <div class="event-type-grid">
+            {% for event, services in event_requirements.items %}
+            <a href="{% url 'make_custom_package' %}?event_type={{ event }}" class="event-type-card">
+                {% if event == "Birthday Event" %}<i class="fa-solid fa-cake-candles"></i>
+                {% elif event == "Marriage Event" %}<i class="fa-solid fa-ring"></i>
+                {% elif event == "Office Party" %}<i class="fa-solid fa-briefcase"></i>
+                {% elif event == "Bachelor Party" %}<i class="fa-solid fa-champagne-glasses"></i>
+                {% else %}<i class="fa-solid fa-graduation-cap"></i>{% endif %}
+                <h3>{{ event }}</h3>
+                <p>Commonly includes: {% for service in services %}{{ service }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+            </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <form method="POST" id="customPackageForm">
+            {% csrf_token %}
+            <input type="hidden" name="event_type" value="{{ selected_event }}">
+            
+            <div class="builder-layout">
+                <div class="builder-main">
+                    <h2 style="font-size: 2.2rem; margin-bottom: 10px;">{{ selected_event }}</h2>
+                    <p style="color: #666; margin-bottom: 40px;">Select one or more services to add to your custom package.</p>
+
+                    {% for type, services in services_by_type.items %}
+                    <div class="service-type-section">
+                        <h2>{{ type }}</h2>
+                        <div class="service-selection-grid">
+                            {% for service in services %}
+                            <label class="selection-card" id="card-{{ service.id }}">
+                                <input type="checkbox" name="selected_services" value="{{ service.id }}" 
+                                       data-name="{{ service.service_name }}" data-price="{{ service.price }}"
+                                       onchange="toggleSelection(this, '{{ service.id }}')">
+                                {% if service.image %}
+                                    <img src="{{ service.image.url }}" class="selection-img">
+                                {% else %}
+                                    <div class="selection-icon"><i class="fa-solid fa-briefcase"></i></div>
+                                {% endif %}
+                                <div class="selection-info">
+                                    <h4>{{ service.service_name }}</h4>
+                                    <p>by {{ service.provider.username }}</p>
+                                    <b>₹{{ service.price }}</b>
+                                </div>
+                            </label>
+                            {% empty %}
+                            <p style="color: #999; font-style: italic;">No {{ type }} services available.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <aside class="summary-sidebar">
+                    <h2>Package Summary</h2>
+                    <div style="margin-bottom: 25px;">
+                        <label style="font-size: 0.9rem; font-weight: 700; color: #444; display: block; margin-bottom: 8px;">Event Date</label>
+                        <input type="date" name="event_date" class="date-input" required>
+                        <textarea name="message" class="date-input" rows="4" placeholder="Special requests or instructions..."></textarea>
+                    </div>
+
+                    <div id="summaryList">
+                        <p style="color: #999; text-align: center; padding: 20px 0;">No services selected</p>
+                    </div>
+
+                    <div class="summary-total">
+                        <span>Total</span>
+                        <span id="totalDisplay">₹0</span>
+                    </div>
+
+                    <button type="submit" class="builder-btn">Submit Request</button>
+                </aside>
+            </div>
+        </form>
+    {% endif %}
+</div>
+
+<footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
+    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
+    <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
+    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
+        © 2026 EventNest | All Rights Reserved
+    </div>
+</footer>
+
+<script>
+    function toggleSelection(checkbox, id) {
+        const card = document.getElementById('card-' + id);
+        if (checkbox.checked) {
+            card.classList.add('selected');
+        } else {
+            card.classList.remove('selected');
+        }
+        updateSummary();
+    }
+
+    function updateSummary() {
+        const checkboxes = document.querySelectorAll('input[name="selected_services"]:checked');
+        const summaryList = document.getElementById('summaryList');
+        const totalDisplay = document.getElementById('totalDisplay');
+        let total = 0;
+        let html = '';
+
+        if (checkboxes.length === 0) {
+            summaryList.innerHTML = '<p style="color: #999; text-align: center; padding: 20px 0;">No services selected</p>';
+            totalDisplay.innerText = '₹0';
+            return;
+        }
+
+        checkboxes.forEach(cb => {
+            const name = cb.dataset.name;
+            const price = parseInt(cb.dataset.price);
+            total += price;
+            html += `<div class="summary-item"><span>${name}</span><b>₹${price}</b></div>`;
+        });
+
+        summaryList.innerHTML = html;
+        totalDisplay.innerText = '₹' + total.toLocaleString();
+    }
+
+    function toggleProfileMenu() {
+        document.getElementById("profileMenu").classList.toggle("show-profile-menu");
+    }
+</script>
+
+</body>
+</html>

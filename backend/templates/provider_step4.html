@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Provider Register - Final Step</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="login-body">
+
+<div class="login-logo">
+    <i class="fa-solid fa-feather-pointed"></i> EventNest
+</div>
+
+<div class="login-box" style="max-width: 500px;">
+    <div class="reg-steps">
+        <div class="step-dot active"></div>
+        <div class="step-dot active"></div>
+        <div class="step-dot active"></div>
+        <div class="step-dot active"></div>
+        <div class="step-dot active"></div>
+    </div>
+
+    <h2>Final Details</h2>
+    <p class="subtitle">Complete your profile for admin verification</p>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <label>Which services do you provide?</label>
+        <div class="checkbox-group">
+            <label class="checkbox-item">
+                <input type="checkbox" name="service_types" value="DJ & Music"> DJ & Music
+            </label>
+            <label class="checkbox-item">
+                <input type="checkbox" name="service_types" value="Catering" id="cateringCheck"> Catering
+            </label>
+            <label class="checkbox-item">
+                <input type="checkbox" name="service_types" value="Decoration"> Decoration
+            </label>
+            <label class="checkbox-item">
+                <input type="checkbox" name="service_types" value="Photography"> Photography
+            </label>
+            <label class="checkbox-item">
+                <input type="checkbox" name="service_types" value="Lighting Setup"> Lighting Setup
+            </label>
+            <label class="checkbox-item">
+                <input type="checkbox" name="service_types" value="Event Planning"> Event Planning
+            </label>
+        </div>
+
+        <textarea name="bio" placeholder="Briefly describe your business" required></textarea>
+        <input type="text" name="experience" placeholder="Experience (e.g. 5+ Years)" required>
+
+        <p style="font-size: 0.8rem; color: #888; margin-top: 15px; line-height: 1.4;">
+            <i class="fa-solid fa-circle-info"></i> Verification documents (GST, ID Proof, etc.) can be uploaded later from your <b>Settings</b> page.
+        </p>
+
+        {% if error %}
+            <div class="error-msg">{{ error }}</div>
+        {% endif %}
+
+        <button type="submit">Complete Registration</button>
+    </form>
+</div>
+
+
+</body>
+</html>

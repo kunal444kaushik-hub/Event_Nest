@@ -1,0 +1,199 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Packages - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .packages-hero {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1600&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 350px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            padding: 0 5%;
+        }
+        .packages-hero h1 { font-size: 3rem; margin-bottom: 10px; }
+        .packages-hero p { font-size: 1.1rem; opacity: 0.9; }
+
+        .packages-container { padding: 80px 10%; background: #f8f9fa; }
+        
+        .section-header { text-align: center; margin-bottom: 60px; }
+        .section-header h2 { font-size: 2.2rem; color: #1a1a1a; margin-bottom: 10px; }
+        .section-header p { color: #777; font-size: 1.1rem; }
+
+        .packages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .package-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            transition: 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid transparent;
+        }
+        .package-card:hover {
+            transform: translateY(-10px);
+            border-color: #ff6600;
+            box-shadow: 0 15px 40px rgba(255, 102, 0, 0.1);
+        }
+
+        .package-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 102, 0, 0.1);
+            color: #ff6600;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 25px;
+            transition: 0.3s;
+        }
+        .package-card:hover .package-icon {
+            background: #ff6600;
+            color: white;
+        }
+
+        .package-card h3 { font-size: 1.3rem; margin-bottom: 20px; color: #1a1a1a; }
+        
+        .custom-highlight {
+            background: #1a1a1a;
+            color: white;
+        }
+        .custom-highlight h3 { color: white; }
+        .custom-highlight p { color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 20px; }
+        .custom-highlight .package-icon { background: rgba(255,255,255,0.1); color: #ff6600; }
+        .custom-highlight:hover { border-color: white; }
+
+        .view-link {
+            font-weight: 700;
+            color: #ff6600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body style="background: #f4f7f6;">
+
+<a href="{% if request.user.is_staff or request.user.is_superuser %}{% url 'admin_home' %}{% elif request.user.is_authenticated %}{% url 'user_home' %}{% else %}{% url 'home' %}{% endif %}" class="back-btn">
+    <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+
+<header>
+    <nav>
+        <a href="{% url 'home' %}" class="logo">
+            <i class="fa-solid fa-feather-pointed"></i> EventNest
+        </a>
+        <ul class="nav-links">
+            <li><a href="{% if request.user.is_authenticated %}{% if request.user.profile.role == 'provider' %}{% url 'provider_home' %}{% else %}{% url 'user_home' %}{% endif %}{% else %}{% url 'home' %}{% endif %}">Home</a></li>
+            <li><a href="{% url 'services' %}">Services</a></li>
+            <li><a href="{% url 'packages' %}" class="active">Packages</a></li>
+            <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+            {% if request.user.is_authenticated %}
+                <div class="profile-dropdown">
+                    <button class="profile-icon-btn" onclick="toggleProfileMenu()">
+                        <i class="fa-solid fa-user"></i>
+                    </button>
+                    <div class="profile-menu-box" id="profileMenu">
+                        <div class="profile-menu-header">
+                            <div class="profile-avatar">{{ request.user.username|slice:":1"|upper }}</div>
+                            <div>
+                                <h4>{{ request.user.username }}</h4>
+                                <p>{{ request.user.profile.role|title }}</p>
+                            </div>
+                        </div>
+                        <a href="{% if request.user.profile.role == 'provider' %}{% url 'provider_dashboard' %}{% else %}{% url 'user_dashboard' %}{% endif %}"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                        <a href="{% url 'my_profile' %}"><i class="fa-solid fa-user"></i> My Profile</a>
+                        <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+                        <a href="{% url 'logout' %}" class="logout-menu"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'login' %}" class="admin-link" style="background: var(--primary); color: white !important;">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+</header>
+
+<div class="packages-hero">
+    <h1>Bundled for Your Joy</h1>
+    <p>Choose from our expertly curated event packages or build your own dream celebration.</p>
+</div>
+
+<div class="packages-container">
+    <div class="section-header">
+        <h2>Choose Event Type</h2>
+        <p>Select a package category to see available curated options.</p>
+    </div>
+
+    <div class="packages-grid">
+        {% for type in event_types %}
+        <a href="{% url 'package_by_type' type %}" class="package-card">
+            <div class="package-icon">
+                {% if type == "Birthday Package" %}
+                    <i class="fa-solid fa-cake-candles"></i>
+                {% elif type == "Marriage Package" %}
+                    <i class="fa-solid fa-ring"></i>
+                {% elif type == "Office Party Package" %}
+                    <i class="fa-solid fa-briefcase"></i>
+                {% elif type == "Bachelor Party Package" %}
+                    <i class="fa-solid fa-champagne-glasses"></i>
+                {% else %}
+                    <i class="fa-solid fa-layer-group"></i>
+                {% endif %}
+            </div>
+            <h3>{{ type }}</h3>
+            <div class="view-link">View Packages <i class="fa-solid fa-arrow-right"></i></div>
+        </a>
+        {% endfor %}
+
+        <a href="{% url 'make_custom_package' %}" class="package-card custom-highlight">
+            <div class="package-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+            <h3>Custom Package</h3>
+            <p>Don't see what you need? Pick your own services and build a personalized experience.</p>
+            <div class="view-link" style="color: white;">Start Building <i class="fa-solid fa-arrow-right"></i></div>
+        </a>
+    </div>
+</div>
+
+<footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
+    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
+    <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
+    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
+        © 2026 EventNest | All Rights Reserved
+    </div>
+</footer>
+
+<script>
+    function toggleProfileMenu() {
+        document.getElementById("profileMenu").classList.toggle("show-profile-menu");
+    }
+</script>
+
+</body>
+</html>

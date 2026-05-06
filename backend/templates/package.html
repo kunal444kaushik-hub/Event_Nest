@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Packages - EventNest</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+  <a href="#" onclick="history.back()" class="back-btn">
+  <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+<header>
+  <nav>
+    <div class="logo">EventNest</div>
+    <ul>
+      <li><a href="{% url 'home' %}">Home</a></li>
+      <li><a href="{% url 'services' %}">Services</a></li>
+      <li><a href="{% url 'contact' %}">Contact</a></li>
+      <li><a href="{% url 'login' %}">Log In</a></li>
+    </ul>
+  </nav>
+</header>
+
+<section class="package-section">
+  <h1>Event Packages</h1>
+
+  <div class="package-box">
+    <h2>Birthday Package</h2>
+    <p>Decoration + Cake + DJ</p>
+    <h3>₹15,000</h3>
+    <button>Book Package</button>
+  </div>
+
+  <div class="package-box">
+    <h2>Wedding Package</h2>
+    <p>Full Decoration + Catering + Photography</p>
+    <h3>₹2,50,000</h3>
+    <button>Book Package</button>
+  </div>
+</section>
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

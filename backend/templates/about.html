@@ -1,0 +1,147 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .about-hero {
+            background: linear-gradient(135deg, #ff6600, #ff9933);
+            color: white;
+            padding: 100px 5% 60px;
+            text-align: center;
+        }
+        .about-hero h1 { font-size: 3.5rem; margin-bottom: 20px; }
+        .about-hero p { font-size: 1.2rem; opacity: 0.9; max-width: 800px; margin: 0 auto; }
+
+        .about-section { padding: 80px 10%; }
+        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+        .about-image img { width: 100%; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-top: 50px; }
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: 0.3s;
+            text-align: center;
+        }
+        .feature-card:hover { transform: translateY(-10px); }
+        .feature-card i { font-size: 2.5rem; color: #ff6600; margin-bottom: 20px; }
+        .feature-card h3 { margin-bottom: 15px; color: #333; }
+        .feature-card p { color: #666; line-height: 1.6; }
+    </style>
+</head>
+<body style="background: #f4f7f6;">
+
+<a href="{% if request.user.profile.role == 'provider' %}{% url 'provider_home' %}{% elif request.user.is_authenticated %}{% url 'user_home' %}{% else %}{% url 'home' %}{% endif %}" class="back-btn">
+    <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+
+<header>
+    <nav>
+        <a href="{% url 'home' %}" class="logo">
+            <i class="fa-solid fa-feather-pointed"></i> EventNest
+        </a>
+        <ul class="nav-links">
+            <li><a href="{% if request.user.is_authenticated %}{% if request.user.profile.role == 'provider' %}{% url 'provider_home' %}{% else %}{% url 'user_home' %}{% endif %}{% else %}{% url 'home' %}{% endif %}">Home</a></li>
+            <li><a href="{% url 'services' %}">Services</a></li>
+            <li><a href="{% url 'packages' %}">Packages</a></li>
+            <li><a href="{% url 'about' %}" class="active">About</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+            {% if request.user.is_authenticated %}
+                <div class="profile-dropdown">
+                    <button class="profile-icon-btn" onclick="toggleProfileMenu()">
+                        <i class="fa-solid fa-user"></i>
+                    </button>
+                    <div class="profile-menu-box" id="profileMenu">
+                        <div class="profile-menu-header">
+                            <div class="profile-avatar">{{ request.user.username|slice:":1"|upper }}</div>
+                            <div>
+                                <h4>{{ request.user.username }}</h4>
+                                <p>{{ request.user.profile.role|title }}</p>
+                            </div>
+                        </div>
+                        <a href="{% if request.user.profile.role == 'provider' %}{% url 'provider_dashboard' %}{% else %}{% url 'user_dashboard' %}{% endif %}"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                        <a href="{% url 'my_profile' %}"><i class="fa-solid fa-user"></i> My Profile</a>
+                        <a href="{% url 'settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
+                        <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+                        <a href="{% url 'logout' %}" class="logout-menu"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'login' %}" class="admin-link" style="background: #ff6600; color: white !important;">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+</header>
+
+<div class="about-hero">
+    <h1>Redefining Event Planning</h1>
+    <p>EventNest is your all-in-one destination for creating unforgettable memories. From intimate gatherings to grand celebrations, we bring your vision to life.</p>
+</div>
+
+<div class="about-section">
+    <div class="about-grid">
+        <div class="about-text">
+            <h2 style="color: #ff6600; font-size: 2.5rem; margin-bottom: 25px;">Our Mission</h2>
+            <p style="font-size: 1.1rem; color: #555; line-height: 1.8; margin-bottom: 20px;">
+                At EventNest, we believe that every celebration deserves to be special. Our mission is to bridge the gap between event planners and the best service providers in the industry.
+            </p>
+            <p style="font-size: 1.1rem; color: #555; line-height: 1.8;">
+                We provide a seamless platform where users can discover top-tier catering, photography, decoration, and music services with just a few clicks. For providers, we offer a powerful toolkit to showcase their talent and grow their business efficiently.
+            </p>
+        </div>
+        <div class="about-image">
+            <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80" alt="Event Planning">
+        </div>
+    </div>
+
+    <h2 style="text-align: center; margin-top: 100px; font-size: 2.5rem; color: #333;">Why Choose EventNest?</h2>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <i class="fa-solid fa-shield-check"></i>
+            <h3>Verified Providers</h3>
+            <p>Every provider on our platform undergoes a rigorous background check and verification process to ensure quality.</p>
+        </div>
+        <div class="feature-card">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <h3>Custom Packages</h3>
+            <p>Build your own dream event package by picking and choosing the exact services you need for your special day.</p>
+        </div>
+        <div class="feature-card">
+            <i class="fa-solid fa-comments-dollar"></i>
+            <h3>Transparent Pricing</h3>
+            <p>No hidden costs. Compare prices directly and choose the services that fit your budget perfectly.</p>
+        </div>
+    </div>
+</div>
+
+<footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
+    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
+    <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
+    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
+        © 2026 EventNest | All Rights Reserved
+    </div>
+</footer>
+
+<script>
+    function toggleProfileMenu() {
+        document.getElementById("profileMenu").classList.toggle("show-profile-menu");
+    }
+    window.onclick = function(event) {
+        if (!event.target.closest(".profile-dropdown")) {
+            const menu = document.getElementById("profileMenu");
+            if (menu) menu.classList.remove("show-profile-menu");
+        }
+    }
+</script>
+
+</body>
+</html>

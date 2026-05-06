@@ -1,0 +1,262 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .revenue-card {
+            grid-column: span 2;
+            background: linear-gradient(135deg, #1a1a1a, #333);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .revenue-card::after {
+            content: '\f156';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: -20px;
+            bottom: -20px;
+            font-size: 8rem;
+            opacity: 0.1;
+            transform: rotate(-15deg);
+        }
+        .revenue-info h3 { font-size: 2.5rem; color: #ff6600; margin-bottom: 5px; }
+        
+        .quick-actions-panel {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .quick-btn {
+            background: #f8f9fa;
+            border: 1px solid #eee;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: #333;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .quick-btn:hover { background: #ff6600; color: white; border-color: #ff6600; transform: translateY(-5px); }
+        .quick-btn i { font-size: 1.5rem; color: #ff6600; }
+        .quick-btn:hover i { color: white; }
+    </style>
+</head>
+<body class="admin-premium-body">
+
+<div class="admin-premium-layout">
+  <!-- SIDEBAR -->
+  <aside class="admin-premium-sidebar">
+    <div class="admin-logo">
+      <i class="fa-solid fa-feather-pointed"></i>
+      <h2>EventNest</h2>
+      <p>Admin Panel</p>
+    </div>
+
+    <a href="{% url 'admin_home' %}">
+      <i class="fa-solid fa-house"></i> Admin Home
+    </a>
+
+    <a href="{% url 'custom_admin_dashboard' %}" class="admin-nav-active">
+      <i class="fa-solid fa-chart-line"></i> Analytics
+    </a>
+
+    <a href="{% url 'admin_users' %}">
+      <i class="fa-solid fa-users"></i> Users
+    </a>
+
+    <a href="{% url 'admin_providers' %}">
+      <i class="fa-solid fa-store"></i> Providers
+    </a>
+
+    <a href="{% url 'admin_services' %}">
+      <i class="fa-solid fa-briefcase"></i> Services
+    </a>
+
+    <a href="{% url 'admin_packages' %}">
+      <i class="fa-solid fa-box-open"></i> Packages
+    </a>
+
+    <a href="{% url 'admin_bookings' %}">
+      <i class="fa-solid fa-calendar-check"></i> Bookings
+    </a>
+
+    <a href="{% url 'admin_reviews' %}">
+      <i class="fa-solid fa-star"></i> Reviews
+    </a>
+
+    <a href="{% url 'logout' %}" class="admin-site-link">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout & Back to Site
+    </a>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="admin-premium-main">
+    <div class="admin-topbar">
+      <div>
+        <h1>Command Center Overview</h1>
+        <p>Real-time platform metrics and administrative tools.</p>
+      </div>
+
+      <div class="admin-profile-pill">
+        <i class="fa-solid fa-user-shield"></i>
+        {{ request.user.username }}
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="quick-actions-panel">
+      <h2 style="font-size: 1.2rem; color: #666; font-weight: 600;">Quick Actions</h2>
+      <div class="quick-actions-grid">
+        <a href="{% url 'admin_providers' %}" class="quick-btn">
+          <i class="fa-solid fa-user-check"></i>
+          <span>Approve Providers</span>
+        </a>
+        <a href="{% url 'admin_services' %}" class="quick-btn">
+          <i class="fa-solid fa-plus-circle"></i>
+          <span>Audit Services</span>
+        </a>
+        <a href="{% url 'admin_bookings' %}" class="quick-btn">
+          <i class="fa-solid fa-receipt"></i>
+          <span>Check Bookings</span>
+        </a>
+        <a href="{% url 'admin_users' %}" class="quick-btn">
+          <i class="fa-solid fa-user-slash"></i>
+          <span>Manage Blocks</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- STATS GRID -->
+    <div class="admin-premium-stats">
+      <!-- REVENUE CARD -->
+      <div class="admin-premium-card revenue-card">
+        <div class="revenue-info">
+          <p style="opacity: 0.7; text-transform: uppercase; font-size: 0.8rem; font-weight: 700; letter-spacing: 1px;">Platform Revenue</p>
+          <h3>₹{{ total_revenue|default:"0" }}</h3>
+          <p style="color: #4cd137;"><i class="fa-solid fa-arrow-trend-up"></i> +12% this month</p>
+        </div>
+        <div style="font-size: 3rem; opacity: 0.5;"><i class="fa-solid fa-wallet"></i></div>
+      </div>
+
+      <div class="admin-premium-card">
+        <i class="fa-solid fa-users"></i>
+        <h2>{{ total_users }}</h2>
+        <p>Active Customers</p>
+      </div>
+
+      <div class="admin-premium-card">
+        <i class="fa-solid fa-store"></i>
+        <h2>{{ total_providers }}</h2>
+        <p>Verified Partners</p>
+      </div>
+
+      <div class="admin-premium-card {% if pending_providers > 0 %}warning{% endif %}">
+        <i class="fa-solid fa-hourglass-half"></i>
+        <h2>{{ pending_providers }}</h2>
+        <p>Pending Approval</p>
+      </div>
+
+      <div class="admin-premium-card">
+        <i class="fa-solid fa-briefcase"></i>
+        <h2>{{ total_services }}</h2>
+        <p>Live Services</p>
+      </div>
+    </div>
+
+    <div class="admin-premium-grid">
+      <!-- RECENT BOOKINGS -->
+      <div class="admin-premium-panel">
+        <div class="admin-panel-head">
+          <h2>Recent Bookings</h2>
+          <a href="{% url 'admin_bookings' %}" class="admin-view-all">View All <i class="fa-solid fa-chevron-right"></i></a>
+        </div>
+
+        <div class="admin-table-wrap">
+          <table class="admin-premium-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Provider</th>
+                <th>Service</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for booking in recent_bookings %}
+              <tr>
+                <td>{{ booking.user.username }}</td>
+                <td>{{ booking.provider.username }}</td>
+                <td>{{ booking.service.service_name }}</td>
+                <td>
+                  <span class="admin-status status-{{ booking.status|lower }}">
+                    {{ booking.status }}
+                  </span>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" style="text-align: center; padding: 40px; color: #999;">No recent bookings found.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- NEW PROVIDERS -->
+      <div class="admin-premium-panel">
+        <div class="admin-panel-head">
+          <h2>New Provider Applications</h2>
+          <a href="{% url 'admin_providers' %}" class="admin-view-all">Manage <i class="fa-solid fa-chevron-right"></i></a>
+        </div>
+
+        <div class="admin-provider-list">
+          {% for profile in recent_providers %}
+            <div class="admin-provider-item">
+              <div class="admin-provider-avatar">
+                {{ profile.user.username|slice:":1"|upper }}
+              </div>
+
+              <div>
+                <h4>{{ profile.business_name|default:profile.user.username }}</h4>
+                <p>{{ profile.service_type|default:"Awaiting Setup" }}</p>
+
+                {% if profile.is_approved %}
+                  <span class="admin-small-badge approved">Approved</span>
+                {% else %}
+                  <span class="admin-small-badge pending">Pending</span>
+                {% endif %}
+              </div>
+            </div>
+          {% empty %}
+            <p style="text-align: center; padding: 40px; color: #999;">No new providers yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

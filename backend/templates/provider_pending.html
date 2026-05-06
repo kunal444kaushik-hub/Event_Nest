@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registration Pending - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="login-body">
+
+<div class="login-logo">
+    <i class="fa-solid fa-feather-pointed"></i> EventNest
+</div>
+
+<div class="login-box">
+    <div style="font-size: 4rem; color: #ff6600; margin-bottom: 20px;">
+        <i class="fa-solid fa-hourglass-half"></i>
+    </div>
+    
+    <h2>Application Received</h2>
+    <p class="subtitle">Thank you for registering with EventNest!</p>
+    
+    <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 12px; margin-bottom: 25px; color: rgba(255, 255, 255, 0.8); text-align: left; font-size: 0.95rem;">
+        <p style="margin-bottom: 10px;"><i class="fa-solid fa-circle-check" style="color: #27ae60;"></i> Your business profile has been created.</p>
+        <p style="margin-bottom: 10px;"><i class="fa-solid fa-circle-check" style="color: #27ae60;"></i> Documents are queued for verification.</p>
+        <p><i class="fa-solid fa-clock" style="color: #ff6600;"></i> Admin will review your details within 24-48 hours.</p>
+    </div>
+
+    <p style="color: #fff; margin-bottom: 20px;">We'll notify you via email once your account is approved.</p>
+
+    <a href="{% url 'home' %}" style="display: block; width: 100%; padding: 14px; background: rgba(255, 255, 255, 0.1); color: #fff; text-decoration: none; border-radius: 12px; font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.1);">Back to Home</a>
+</div>
+
+</body>
+</html>

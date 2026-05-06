@@ -1,0 +1,341 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launch Your Service - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --step-color: #ff6600; }
+        body { background: #fdfdfd; min-height: 100vh; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        
+        .creation-container { max-width: 1200px; margin: 40px auto; display: grid; grid-template-columns: 1fr 400px; gap: 40px; padding: 0 20px; }
+        .creation-flow { background: white; padding: 40px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; position: relative; }
+
+        .step-indicator { display: flex; gap: 10px; margin-bottom: 30px; }
+        .step-dot { height: 6px; flex: 1; background: #eee; border-radius: 3px; transition: 0.4s; }
+        .step-dot.active { background: var(--step-color); box-shadow: 0 0 10px rgba(255,102,0,0.3); }
+
+        .form-step { display: none; animation: slideIn 0.5s ease forwards; }
+        .form-step.active { display: block; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+        .type-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 20px; }
+        .type-card { border: 2px solid #f5f5f5; padding: 15px; border-radius: 18px; text-align: center; cursor: pointer; transition: 0.3s; background: #fafafa; }
+        .type-card i { font-size: 1.4rem; color: #888; margin-bottom: 8px; display: block; }
+        .type-card span { font-size: 0.8rem; font-weight: 700; color: #666; }
+        .type-card:hover { border-color: #ff6600; background: #fff9f5; transform: translateY(-3px); }
+        .type-card.selected { border-color: #ff6600; background: #ff6600; }
+        .type-card.selected i, .type-card.selected span { color: white; }
+
+        .input-group { margin-bottom: 25px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 700; color: #1a1a1a; font-size: 0.9rem; }
+        .input-group input, .input-group textarea, .input-group select { width: 100%; padding: 14px 18px; border-radius: 12px; border: 2px solid #f0f0f0; background: #fafafa; font-size: 0.95rem; transition: 0.3s; }
+        .input-group input:focus, .input-group textarea:focus { border-color: #ff6600; background: white; outline: none; box-shadow: 0 8px 20px rgba(255,102,0,0.05); }
+
+        .dynamic-section { background: #fdf9f6; padding: 25px; border-radius: 20px; border: 1px dashed #ffd8be; margin-top: 20px; display: none; }
+        .dynamic-section.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .btn-row { display: flex; gap: 15px; margin-top: 30px; }
+        .btn-next { background: #1a1a1a; color: white; border: none; padding: 14px 30px; border-radius: 12px; font-weight: 700; cursor: pointer; flex: 1; transition: 0.3s; }
+        .btn-next:hover { background: #333; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .btn-prev { background: #f5f5f5; color: #666; border: none; padding: 14px 25px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+
+        .preview-pane { position: sticky; top: 40px; height: fit-content; }
+        .service-preview-card { background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.06); border: 1px solid #f0f0f0; }
+        .preview-img { height: 200px; background: #fdf9f6; display: flex; align-items: center; justify-content: center; color: #ff6600; font-size: 2.5rem; overflow: hidden; }
+        .preview-body { padding: 25px; }
+        .preview-type { font-size: 0.7rem; background: #fff5ed; color: #ff6600; padding: 4px 10px; border-radius: 20px; font-weight: 800; display: inline-block; margin-bottom: 10px; text-transform: uppercase; }
+        .preview-name { font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; color: #1a1a1a; }
+        .preview-price { font-size: 1.2rem; font-weight: 800; color: #ff6600; }
+        
+        .chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .chip { background: white; border: 1px solid #eee; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: #555; }
+    </style>
+</head>
+<body>
+<a href="{% url 'provider_dashboard' %}" class="back-btn" style="position: absolute; top: 25px; left: 25px; z-index: 100;">
+    <i class="fa-solid fa-arrow-left"></i> Exit
+</a>
+
+{% if messages %}
+    <div style="max-width: 1200px; margin: 20px auto 0; padding: 0 20px;">
+        {% for message in messages %}
+            <div style="padding: 15px 25px; background: {% if message.tags == 'error' %}#fff1f0{% else %}#f6ffed{% endif %}; border: 1px solid {% if message.tags == 'error' %}#ffa39e{% else %}#b7eb8f{% endif %}; border-radius: 12px; color: {% if message.tags == 'error' %}#cf1322{% else %}#389e0d{% endif %}; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid {% if message.tags == 'error' %}fa-circle-xmark{% else %}fa-circle-check{% endif %}"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="creation-container">
+    <div class="creation-flow">
+        <div class="step-indicator">
+            <div class="step-dot active" id="dot-1"></div>
+            <div class="step-dot" id="dot-2"></div>
+            <div class="step-dot" id="dot-3"></div>
+            <div class="step-dot" id="dot-4"></div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" id="serviceForm">
+            {% csrf_token %}
+            
+            <!-- STEP 1: CATEGORY -->
+            <div class="form-step active" id="step-1">
+                <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Pick your expertise</h1>
+                <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Select the primary category for this service.</p>
+                
+                <input type="hidden" name="service_type" id="service_type_input" required>
+                <div class="type-grid">
+                    <div class="type-card" onclick="selectType('Catering', 'fa-utensils')">
+                        <i class="fa-solid fa-utensils"></i>
+                        <span>Catering</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Photography', 'fa-camera-retro')">
+                        <i class="fa-solid fa-camera-retro"></i>
+                        <span>Photography</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('DJ & Music', 'fa-music')">
+                        <i class="fa-solid fa-music"></i>
+                        <span>DJ & Music</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Decoration', 'fa-holly-berry')">
+                        <i class="fa-solid fa-holly-berry"></i>
+                        <span>Decoration</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Lighting Setup', 'fa-lightbulb')">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>Lighting</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Event Planning', 'fa-calendar-day')">
+                        <i class="fa-solid fa-calendar-day"></i>
+                        <span>Planning</span>
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button type="button" class="btn-next" onclick="nextStep(2)">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 2: CATEGORY SPECIFIC DETAILS -->
+            <div class="form-step" id="step-2">
+                <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Professional Details</h1>
+                <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Provide specific info to help customers understand your offer.</p>
+
+                <!-- CATERING SECTION -->
+                <div class="dynamic-section" id="section-Catering">
+                    <div class="input-group">
+                        <label>Menu Type</label>
+                        <select name="detail_menu_type">
+                            <option value="Veg Only">Veg Only</option>
+                            <option value="Non-Veg Included">Non-Veg Included</option>
+                            <option value="Both Available">Both Available</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Featured Items / Signature Dishes</label>
+                        <textarea name="detail_items" rows="3" placeholder="e.g. Paneer Tikka, Chicken Biryani, Chocolate Lava Cake..."></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Max Serving Capacity (Guests)</label>
+                        <input type="number" name="detail_capacity" placeholder="e.g. 500">
+                    </div>
+                </div>
+
+                <!-- PHOTOGRAPHY SECTION -->
+                <div class="dynamic-section" id="section-Photography">
+                    <div class="input-group">
+                        <label>Shoot Types</label>
+                        <input type="text" name="detail_shoot_types" placeholder="e.g. Candid, Traditional, Pre-wedding">
+                    </div>
+                    <div class="input-group">
+                        <label>Equipment / Gear</label>
+                        <input type="text" name="detail_gear" placeholder="e.g. Sony A7R IV, Prime Lenses, Drones">
+                    </div>
+                    <div class="input-group">
+                        <label>Delivery Time (Days)</label>
+                        <input type="number" name="detail_delivery" placeholder="e.g. 15">
+                    </div>
+                </div>
+
+                <!-- DJ & MUSIC SECTION -->
+                <div class="dynamic-section" id="section-DJ-Music">
+                    <div class="input-group">
+                        <label>Music Genres</label>
+                        <input type="text" name="detail_genres" placeholder="e.g. Bollywood, EDM, Sufi, Retro">
+                    </div>
+                    <div class="input-group">
+                        <label>Sound System Power</label>
+                        <input type="text" name="detail_sound" placeholder="e.g. 5000 Watts JBL System">
+                    </div>
+                    <div class="input-group">
+                        <label>Performance Duration (Hours)</label>
+                        <input type="number" name="detail_duration" placeholder="e.g. 4">
+                    </div>
+                </div>
+
+                <!-- DEFAULT SECTION (DECO/LIGHTS/PLANNING) -->
+                <div class="dynamic-section" id="section-Default">
+                    <div class="input-group">
+                        <label>Special Themes Available</label>
+                        <input type="text" name="detail_themes" placeholder="e.g. Floral, Vintage, Royal, Minimalist">
+                    </div>
+                    <div class="input-group">
+                        <label>Setup Time (Hours)</label>
+                        <input type="number" name="detail_setup_time" placeholder="e.g. 6">
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button type="button" class="btn-prev" onclick="prevStep(1)">Back</button>
+                    <button type="button" class="btn-next" onclick="nextStep(3)">Looks Good</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: ESSENTIALS -->
+            <div class="form-step" id="step-3">
+                <h1 style="font-size: 1.8rem; margin-bottom: 8px;">The Basics</h1>
+                <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Headline, price and your story.</p>
+
+                <div class="input-group">
+                    <label>Service Headline</label>
+                    <input type="text" name="service_name" id="name_input" placeholder="e.g. Premium Wedding Buffet" oninput="updatePreview()" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Starting Price (₹)</label>
+                    <input type="number" name="price" id="price_input" placeholder="0" oninput="updatePreview()" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Description</label>
+                    <textarea name="description" id="desc_input" rows="4" placeholder="Briefly describe your service..." oninput="updatePreview()" required></textarea>
+                </div>
+
+                <div class="btn-row">
+                    <button type="button" class="btn-prev" onclick="prevStep(2)">Back</button>
+                    <button type="button" class="btn-next" onclick="nextStep(4)">Almost Done</button>
+                </div>
+            </div>
+
+            <!-- STEP 4: MEDIA -->
+            <div class="form-step" id="step-4">
+                <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Final Touches</h1>
+                <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Upload a photo and set your base location.</p>
+
+                <div class="input-group">
+                    <label>Base City</label>
+                    <input type="text" name="location" id="loc_input" placeholder="e.g. Jorhat, Assam" oninput="updatePreview()" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Showcase Photo</label>
+                    <input type="file" name="image" id="img_input" accept="image/*" onchange="previewImage(this)">
+                </div>
+
+                <div class="btn-row">
+                    <button type="button" class="btn-prev" onclick="prevStep(3)">Back</button>
+                    <button type="submit" class="btn-next" style="background: #ff6600;">Launch My Service</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- PREVIEW SIDEBAR -->
+    <div class="preview-pane">
+        <div style="font-size: 0.8rem; font-weight: 800; color: #bbb; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">Live Preview</div>
+        <div class="service-preview-card">
+            <div class="preview-img" id="card_img_preview">
+                <i class="fa-solid fa-wand-magic-sparkles" id="card_icon"></i>
+            </div>
+            <div class="preview-body">
+                <span class="preview-type" id="card_type">Service Category</span>
+                <h3 class="preview-name" id="card_name">Service Headline</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #f9f9f9;">
+                    <div class="preview-price" id="card_price">₹0</div>
+                    <div style="font-size: 0.75rem; color: #888; font-weight: 600;"><i class="fa-solid fa-location-dot" style="color: #ff6600;"></i> <span id="card_loc">Location</span></div>
+                </div>
+                <div id="preview_chips" class="chip-group"></div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 20px; background: #fff8f1; border-radius: 18px; border: 1px solid #ffe8d6;">
+            <p style="font-size: 0.8rem; color: #8d6e63; line-height: 1.6; font-weight: 600;">
+                <i class="fa-solid fa-circle-info" style="color: #ff6600;"></i> Adding specific details like <b>items</b> or <b>equipment</b> makes your profile 70% more likely to be booked.
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function selectType(type, icon) {
+        document.getElementById('service_type_input').value = type;
+        document.getElementById('card_type').innerText = type;
+        
+        document.querySelectorAll('.type-card').forEach(card => card.classList.remove('selected'));
+        event.currentTarget.classList.add('selected');
+        
+        document.getElementById('card_icon').className = 'fa-solid ' + icon;
+
+        // Reset dynamic sections
+        document.querySelectorAll('.dynamic-section').forEach(s => s.classList.remove('active'));
+        
+        let sectionId = 'section-Default';
+        if(type === 'Catering') sectionId = 'section-Catering';
+        else if(type === 'Photography') sectionId = 'section-Photography';
+        else if(type === 'DJ & Music') sectionId = 'section-DJ-Music';
+        
+        document.getElementById(sectionId).classList.add('active');
+    }
+
+    function nextStep(step) {
+        if(step === 2 && !document.getElementById('service_type_input').value) {
+            alert("Select a category first!"); return;
+        }
+
+        document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+        document.getElementById('step-' + step).classList.add('active');
+        
+        document.querySelectorAll('.step-dot').forEach((d, idx) => {
+            if(idx < step) d.classList.add('active');
+            else d.classList.remove('active');
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function prevStep(step) {
+        document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+        document.getElementById('step-' + step).classList.add('active');
+        
+        document.querySelectorAll('.step-dot').forEach((d, idx) => {
+            if(idx < step) d.classList.add('active');
+            else d.classList.remove('active');
+        });
+    }
+
+    function updatePreview() {
+        document.getElementById('card_name').innerText = document.getElementById('name_input').value || "Service Headline";
+        document.getElementById('card_price').innerText = '₹' + (document.getElementById('price_input').value || "0");
+        document.getElementById('card_loc').innerText = document.getElementById('loc_input').value || "Location";
+    }
+
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('card_img_preview');
+                preview.innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+
+</body>
+</html>

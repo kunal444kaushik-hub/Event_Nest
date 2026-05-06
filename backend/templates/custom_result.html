@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Your Package</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body class="profile-body">
+  <a href="#" onclick="history.back()" class="back-btn">
+  <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+
+<div class="profile-card">
+  <h2>Your Custom Package</h2>
+
+  {% for s in services %}
+    <p>{{ s.service_name }} - ₹{{ s.price }}</p>
+  {% endfor %}
+
+  <h3>Total: ₹{{ total }}</h3>
+
+  <button>Book Now</button>
+</div>
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

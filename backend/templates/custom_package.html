@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Create Custom Package</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body class="profile-body">
+  <a href="#" onclick="history.back()" class="back-btn">
+  <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+
+<div class="profile-card service-form-card">
+  <h2>Create Your Own Package</h2>
+
+  <form method="POST">
+    {% csrf_token %}
+
+    {% for service in services %}
+      <label>
+        <input type="checkbox" name="services" value="{{ service.id }}">
+        {{ service.service_name }} (₹{{ service.price }})
+      </label><br>
+    {% endfor %}
+
+    <br>
+    <button type="submit">Create Package</button>
+  </form>
+</div>
+
+</body>
+</html>

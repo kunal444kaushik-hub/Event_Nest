@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Details - {{ profile.business_name }}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-premium-body">
+
+<div class="admin-premium-layout">
+  <!-- SIDEBAR -->
+  <aside class="admin-premium-sidebar">
+    <div class="admin-logo">
+      <i class="fa-solid fa-feather-pointed"></i>
+      <h2>EventNest</h2>
+      <p>Admin Panel</p>
+    </div>
+
+    <a href="{% url 'admin_home' %}"><i class="fa-solid fa-house"></i> Admin Home</a>
+    <a href="{% url 'admin_users' %}"><i class="fa-solid fa-users"></i> Users</a>
+    <a href="{% url 'admin_providers' %}" class="admin-nav-active"><i class="fa-solid fa-store"></i> Providers</a>
+    <a href="{% url 'admin_services' %}"><i class="fa-solid fa-briefcase"></i> Services</a>
+    <a href="{% url 'admin_bookings' %}"><i class="fa-solid fa-calendar-check"></i> Bookings</a>
+    
+    <a href="{% url 'logout' %}" class="admin-site-link">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </a>
+  </aside>
+
+  <main class="admin-premium-main">
+    <div class="admin-topbar">
+      <div>
+        <h1>Provider: {{ profile.business_name }}</h1>
+        <p>Managing services provided by this business.</p>
+      </div>
+      <a href="{% url 'admin_providers' %}" class="admin-btn-table" style="background:#444;"><i class="fa-solid fa-arrow-left"></i> Back to Providers</a>
+    </div>
+
+    <div style="display:grid; grid-template-columns: 1fr 2fr; gap:30px;">
+        <!-- BUSINESS CARD -->
+        <div class="admin-premium-panel">
+            <h3>Business Information</h3>
+            <div style="margin-top:20px; display:flex; flex-direction:column; gap:15px;">
+                <div><label style="color:#888; font-size:0.8rem;">Business Name</label><div>{{ profile.business_name }}</div></div>
+                <div><label style="color:#888; font-size:0.8rem;">Owner</label><div>{{ profile.owner_name }}</div></div>
+                <div><label style="color:#888; font-size:0.8rem;">Email</label><div>{{ profile.user.email }}</div></div>
+                <div><label style="color:#888; font-size:0.8rem;">Service Type</label><div>{{ profile.service_type }}</div></div>
+                <div><label style="color:#888; font-size:0.8rem;">Status</label>
+                    <div>
+                        {% if profile.is_approved %}
+                        <span class="admin-small-badge approved">Verified</span>
+                        {% else %}
+                        <span class="admin-small-badge pending">Pending Approval</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
+                
+                <a href="{% url 'delete_provider_admin' profile.id %}" class="admin-btn-table danger" onclick="return confirm('Are you sure you want to delete this provider? All services and packages will be removed.')" style="width:100%; text-align:center;">Delete Provider Account</a>
+            </div>
+        </div>
+
+        <!-- SERVICES CARD -->
+        <div class="admin-premium-panel">
+            <h3>Offered Services & Packages</h3>
+            
+            <div class="admin-table-wrap" style="margin-top:20px;">
+                <h4 style="margin-bottom:10px; color:#555;">Individual Services</h4>
+                <table class="admin-premium-table">
+                    <thead>
+                        <tr>
+                            <th>Service Name</th>
+                            <th>Price</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for service in services %}
+                        <tr>
+                            <td>{{ service.service_name }}</td>
+                            <td>₹{{ service.price }}</td>
+                            <td>{{ service.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'delete_service_admin' service.id %}" class="admin-btn-table danger" onclick="return confirm('Delete this service listing?')">Delete</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" style="text-align:center; padding:20px; color:#888;">No individual services listed.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <h4 style="margin-top:30px; margin-bottom:10px; color:#555;">Packages</h4>
+                <table class="admin-premium-table">
+                    <thead>
+                        <tr>
+                            <th>Package Name</th>
+                            <th>Total Price</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for package in packages %}
+                        <tr>
+                            <td>{{ package.package_name }}</td>
+                            <td>₹{{ package.total_price }}</td>
+                            <td>{{ package.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'delete_package_admin' package.id %}" class="admin-btn-table danger" onclick="return confirm('Delete this package listing?')">Delete</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" style="text-align:center; padding:20px; color:#888;">No packages listed.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

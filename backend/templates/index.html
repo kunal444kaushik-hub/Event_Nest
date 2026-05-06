@@ -1,0 +1,133 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>EventNest</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    </style>
+</head>
+
+<body>
+
+<header>
+  <nav>
+    <a href="{% url 'home' %}" class="logo">
+      <i class="fa-solid fa-feather-pointed"></i> EventNest
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="{% url 'home' %}" class="active">Home</a></li>
+      <li><a href="{% url 'about' %}">About</a></li>
+      <li><a href="{% url 'services' %}">Services</a></li>
+      <li><a href="{% url 'packages' %}">Packages</a></li>
+      <li><a href="{% url 'contact' %}">Contact</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      {% if request.user.is_authenticated %}
+        <div class="profile-dropdown">
+            {% if request.user.is_staff or request.user.is_superuser %}
+                <a href="{% url 'admin_home' %}" class="admin-link" style="background:#1a1a1a; color:white !important; border-radius:12px; padding:10px 24px; text-decoration:none;">
+                    <i class="fa-solid fa-chart-line" style="margin-right:8px;"></i> Dashboard
+                </a>
+            {% elif request.user.profile and request.user.profile.role == 'provider' %}
+                <a href="{% url 'provider_home' %}" class="admin-link" style="background:#1a1a1a; color:white !important; border-radius:12px; padding:10px 24px; text-decoration:none;">
+                    <i class="fa-solid fa-chart-line" style="margin-right:8px;"></i> Dashboard
+                </a>
+            {% else %}
+                <a href="{% url 'user_home' %}" class="admin-link" style="background:#1a1a1a; color:white !important; border-radius:12px; padding:10px 24px; text-decoration:none;">
+                    <i class="fa-solid fa-chart-line" style="margin-right:8px;"></i> Dashboard
+                </a>
+            {% endif %}
+            <a href="{% url 'logout' %}" style="margin-left:15px; color:#666; text-decoration:none; font-weight:600; font-size:0.9rem;">
+              <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+        </div>
+      {% else %}
+        <a href="{% url 'login' %}" class="admin-link" style="background:#ff6600; color:white !important; padding:10px 24px; border-radius:12px; text-decoration:none; font-weight:700;">
+          Login / Join
+        </a>
+      {% endif %}
+    </div>
+  </nav>
+</header>
+
+{% if messages %}
+  <div style="position: fixed; top: 100px; right: 20px; z-index: 1000; max-width: 400px;">
+    {% for message in messages %}
+      <div style="background: white; padding: 15px 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-left: 5px solid {% if message.tags == 'success' %}#2e7d32{% else %}#ff6600{% endif %}; margin-bottom: 10px; font-weight: 600; animation: slideIn 0.3s ease;">
+        <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check{% else %}fa-circle-info{% endif %}" style="margin-right: 10px; color: {% if message.tags == 'success' %}#2e7d32{% else %}#ff6600{% endif %};"></i>
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<section class="hero">
+  <h1>Celebrate Every Moment with EventNest</h1>
+  <p>From college festivals to weddings, birthdays, bachelor parties, and corporate celebrations — we bring every occasion to life with style, care, and creativity.</p>
+
+  <div>
+    <a href="{% url 'services' %}" class="btn">Book Your Event</a>
+    <a href="{% url 'packages' %}" class="btn">View Packages</a>
+  </div>
+</section>
+
+<section class="home-section">
+    <div class="about-row">
+        <div class="about-col">
+            <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80" alt="Event Planning">
+        </div>
+        <div class="about-col">
+            <h3>Creating Moments That Last Forever</h3>
+            <p>At EventNest, we believe that every celebration deserves to be extraordinary. Whether it's a grand wedding, a high-energy college fest, or an intimate birthday gathering, our platform connects you with the finest service providers to make your vision a reality.</p>
+            <p>With years of expertise and a passion for perfection, we handle the logistics so you can focus on making memories. Our curated list of photographers, decorators, and caterers ensures quality and reliability every step of the way.</p>
+            <a href="{% url 'about' %}" class="btn">Learn More About Us</a>
+        </div>
+    </div>
+</section>
+
+<section class="home-section" style="background: #fdfaf8;">
+    <div class="section-title">
+        <h2>How It Works</h2>
+        <p>Planning your dream event is now as easy as three simple steps.</p>
+    </div>
+    <div class="how-grid">
+        <div class="how-card">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <h4>Discover Services</h4>
+            <p>Browse through hundreds of verified photographers, caterers, and decorators in your area.</p>
+        </div>
+        <div class="how-card">
+            <i class="fa-solid fa-calendar-check"></i>
+            <h4>Book Your Favorites</h4>
+            <p>Directly communicate with providers and book services or pre-designed packages with ease.</p>
+        </div>
+        <div class="how-card">
+            <i class="fa-solid fa-face-smile-beam"></i>
+            <h4>Enjoy Your Event</h4>
+            <p>Relax and enjoy your special day while our professional providers handle the rest.</p>
+        </div>
+    </div>
+</section>
+
+<div class="cta-banner">
+    <h2>Ready to Host an Unforgettable Event?</h2>
+    <p>Join thousands of happy users who trust EventNest for their most important celebrations. Start building your custom event today.</p>
+    <a href="{% url 'register' %}" class="btn" style="background: #ff6600; border: none;">Get Started Now</a>
+</div>
+
+<footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
+    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
+    <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
+    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
+        © 2026 EventNest | All Rights Reserved
+    </div>
+</footer>
+
+</body>
+</html>

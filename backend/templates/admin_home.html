@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Home - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-premium-body">
+
+<div class="admin-premium-layout">
+  <!-- SIDEBAR -->
+  <aside class="admin-premium-sidebar">
+    <div class="admin-logo">
+      <i class="fa-solid fa-feather-pointed"></i>
+      <h2>EventNest</h2>
+      <p>Admin Panel</p>
+    </div>
+
+    <a href="{% url 'admin_home' %}" class="admin-nav-active">
+      <i class="fa-solid fa-house"></i> Admin Home
+    </a>
+
+    <a href="{% url 'custom_admin_dashboard' %}">
+      <i class="fa-solid fa-chart-line"></i> Analytics
+    </a>
+
+    <a href="{% url 'admin_users' %}">
+      <i class="fa-solid fa-users"></i> Users
+    </a>
+
+    <a href="{% url 'admin_providers' %}">
+      <i class="fa-solid fa-store"></i> Providers
+    </a>
+
+    <a href="{% url 'admin_services' %}">
+      <i class="fa-solid fa-briefcase"></i> Services
+    </a>
+
+    <a href="{% url 'admin_packages' %}">
+      <i class="fa-solid fa-box-open"></i> Packages
+    </a>
+
+    <a href="{% url 'admin_bookings' %}">
+      <i class="fa-solid fa-calendar-check"></i> Bookings
+    </a>
+
+    <a href="{% url 'admin_reviews' %}">
+      <i class="fa-solid fa-star"></i> Reviews
+    </a>
+
+    <a href="{% url 'logout' %}" class="admin-site-link">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout & Back to Site
+    </a>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="admin-premium-main">
+    <div class="admin-topbar">
+      <div>
+        <h1>Admin Control Center</h1>
+        <p>Welcome back, Admin. High-level platform management start here.</p>
+      </div>
+
+      <div class="admin-profile-pill">
+        <i class="fa-solid fa-user-shield"></i>
+        {{ request.user.username }}
+      </div>
+    </div>
+
+    <!-- WELCOME HERO -->
+    <div class="quick-actions-panel" style="background: linear-gradient(135deg, #ff6600, #ff9933); color: white; padding: 50px;">
+        <h1 style="font-size: 3rem; margin-bottom: 10px;">Welcome Admin! 👑</h1>
+        <p style="font-size: 1.2rem; opacity: 0.9; margin-bottom: 30px;">Manage your EventNest ecosystem with precision and ease.</p>
+        <a href="{% url 'custom_admin_dashboard' %}" class="admin-btn-table" style="background: white; color: #ff6600; padding: 15px 30px; font-size: 1rem; border-radius: 15px;">
+            Go to Full Analytics Dashboard
+        </a>
+    </div>
+
+    <div class="admin-premium-grid" style="margin-top: 30px;">
+        <!-- MODULE CARDS -->
+        <div class="admin-premium-panel">
+            <h3>User Management</h3>
+            <p style="color: #888; font-size: 0.9rem; margin-bottom: 20px;">Control access, verify identities, and handle user disputes.</p>
+            <a href="{% url 'admin_users' %}" class="admin-btn-table">Manage Users</a>
+        </div>
+
+        <div class="admin-premium-panel" style="position: relative;">
+            <h3>Provider Portal</h3>
+            <p style="color: #888; font-size: 0.9rem; margin-bottom: 20px;">Approve new business applications and monitor provider health.</p>
+            <a href="{% url 'admin_providers' %}" class="admin-btn-table">Manage Providers</a>
+            
+            {% if pending_count > 0 %}
+            <div style="position: absolute; top: 20px; right: 20px; background: #e63946; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; box-shadow: 0 4px 10px rgba(230,57,70,0.3);">
+                {{ pending_count }} PENDING
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="admin-premium-panel">
+            <h3>Platform Listings</h3>
+            <p style="color: #888; font-size: 0.9rem; margin-bottom: 20px;">Audit services and packages to maintain platform quality.</p>
+            <a href="{% url 'admin_services' %}" class="admin-btn-table">Manage Listings</a>
+        </div>
+
+        <div class="admin-premium-panel">
+            <h3>Bookings & Revenue</h3>
+            <p style="color: #888; font-size: 0.9rem; margin-bottom: 20px;">Track transaction success and handle booking escalations.</p>
+            <a href="{% url 'admin_bookings' %}" class="admin-btn-table">Manage Bookings</a>
+        </div>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>

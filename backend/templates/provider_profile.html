@@ -1,0 +1,213 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Provider Profile - EventNest</title>
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+
+<body class="provider-profile-body">
+
+<a href="#" onclick="history.back()" class="back-btn">
+  <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+
+<section class="provider-profile-page">
+
+  <div class="provider-cover">
+    {% if profile.cover_image %}
+      <img src="{{ profile.cover_image.url }}">
+    {% else %}
+      <div class="default-cover"></div>
+    {% endif %}
+  </div>
+
+  <div class="provider-main-card">
+
+    <div class="provider-avatar-box">
+      {% if profile.profile_image %}
+        <img src="{{ profile.profile_image.url }}">
+      {% else %}
+        <div class="default-avatar">
+          {{ provider.username|slice:":1"|upper }}
+        </div>
+      {% endif %}
+    </div>
+
+    <h1>{{ profile.business_name|default:provider.username }}</h1>
+    {% if request.user.is_authenticated and request.user.id == provider.id %}
+    <div class="edit-profile-btn">
+      <a href="{% url 'edit_provider_profile' %}" class="small-btn">
+        <i class="fa-solid fa-pen"></i> Edit Profile
+      </a>
+    </div>
+    {% endif %}
+</div>
+    <p class="provider-owner">
+      <i class="fa-solid fa-user"></i>
+      Owner: {{ profile.owner_name|default:"Not added" }}
+    </p>
+
+    <p class="provider-location">
+      <i class="fa-solid fa-location-dot"></i>
+      {{ profile.location|default:"Location not added" }}
+    </p>
+
+    <p class="provider-exp">
+      <i class="fa-solid fa-briefcase"></i>
+      Experience: {{ profile.experience|default:"Not added" }}
+    </p>
+
+    <div class="provider-rating">
+      {% if avg_rating %}
+        <span>{{ avg_rating|floatformat:1 }}</span>
+        {% for i in "12345" %}
+          {% if forloop.counter <= avg_rating %}
+            <i class="fa-solid fa-star"></i>
+          {% else %}
+            <i class="fa-regular fa-star"></i>
+          {% endif %}
+        {% endfor %}
+        <small>({{ review_count }} reviews)</small>
+      {% else %}
+        <span>No ratings yet</span>
+      {% endif %}
+    </div>
+  
+  </div>
+
+  <div class="provider-stats-grid">
+
+    <div class="provider-stat-card">
+      <i class="fa-solid fa-briefcase"></i>
+      <h2>{{ service_count }}</h2>
+      <p>Services</p>
+    </div>
+
+    <div class="provider-stat-card">
+      <i class="fa-solid fa-box-open"></i>
+      <h2>{{ package_count }}</h2>
+      <p>Packages</p>
+    </div>
+
+    <div class="provider-stat-card">
+      <i class="fa-solid fa-calendar-check"></i>
+      <h2>{{ total_bookings }}</h2>
+      <p>Total Bookings</p>
+    </div>
+
+    <div class="provider-stat-card">
+      <i class="fa-solid fa-circle-check"></i>
+      <h2>{{ completed_bookings }}</h2>
+      <p>Completed</p>
+    </div>
+
+  </div>
+
+  <div class="provider-about-box">
+    <h2>About Provider</h2>
+    <p>
+      {{ profile.bio|default:"This provider has not added a bio yet." }}
+    </p>
+  </div>
+
+  <h2 class="section-title">Services</h2>
+
+  <div class="services-grid">
+    {% for service in services %}
+      <div class="service-card">
+        {% if service.image %}
+          <img src="{{ service.image.url }}" class="service-img">
+        {% else %}
+          <i class="fa-solid fa-calendar-check"></i>
+        {% endif %}
+
+        <h3>{{ service.service_name }}</h3>
+        <p>{{ service.service_type }}</p>
+        <p>{{ service.description }}</p>
+        <p><b>₹{{ service.price }}</b></p>
+
+        <a href="{% url 'book_service' service.id %}" class="small-btn">Book Now</a>
+      </div>
+    {% empty %}
+      <div class="empty-card">No services listed yet.</div>
+    {% endfor %}
+  </div>
+
+  <h2 class="section-title">Packages</h2>
+
+  <div class="services-grid">
+    {% for package in packages %}
+      <div class="service-card">
+        {% if package.image %}
+          <img src="{{ package.image.url }}" class="service-img">
+        {% else %}
+          <i class="fa-solid fa-box-open"></i>
+        {% endif %}
+
+        <h3>{{ package.package_name }}</h3>
+        <p>{{ package.package_type }}</p>
+        <p><b>Includes:</b> {{ package.included_services }}</p>
+        <p><b>₹{{ package.total_price }}</b></p>
+      </div>
+    {% empty %}
+      <div class="empty-card">No packages listed yet.</div>
+    {% endfor %}
+  </div>
+
+  <h2 class="section-title">Reviews</h2>
+
+  <div class="reviews-area">
+    {% for review in reviews %}
+      <div class="review-card">
+        <div class="review-header">
+          <b>{{ review.user.username }}</b>
+          <span>
+            {% for i in "12345" %}
+              {% if forloop.counter <= review.rating %}
+                ⭐
+              {% else %}
+                ☆
+              {% endif %}
+            {% endfor %}
+          </span>
+        </div>
+        <p>{{ review.comment }}</p>
+      </div>
+    {% empty %}
+      <div class="empty-card">No reviews yet.</div>
+    {% endfor %}
+  </div>
+
+  {% if request.user.is_authenticated %}
+  <div class="add-review-box">
+    <h2>Add Review</h2>
+
+    <form method="POST" action="{% url 'add_review' provider.id %}">
+      {% csrf_token %}
+
+      <select name="rating" required>
+        <option value="">Select Rating</option>
+        <option value="5">⭐⭐⭐⭐⭐</option>
+        <option value="4">⭐⭐⭐⭐</option>
+        <option value="3">⭐⭐⭐</option>
+        <option value="2">⭐⭐</option>
+        <option value="1">⭐</option>
+      </select>
+
+      <textarea name="comment" placeholder="Write your review"></textarea>
+
+      <button type="submit">Submit Review</button>
+    </form>
+  </div>
+  {% endif %}
+
+</section>
+
+<script src="{% static 'js/main.js' %}"></script>
+
+</body>
+</html>

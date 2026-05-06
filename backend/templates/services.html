@@ -1,0 +1,249 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Services - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .services-hero {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1600&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            padding: 0 5%;
+        }
+        .services-hero h1 { font-size: 3.5rem; margin-bottom: 15px; letter-spacing: -1px; }
+        .services-hero p { font-size: 1.2rem; opacity: 0.9; max-width: 700px; }
+
+        .services-container { padding: 80px 10%; background: #f8f9fa; }
+        
+        .search-container {
+            max-width: 800px;
+            margin: -40px auto 60px;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            position: relative;
+            z-index: 10;
+        }
+        .search-input {
+            flex-grow: 1;
+            border: 1px solid #eee;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 1rem;
+            outline: none;
+            background: #f9f9f9;
+        }
+        .search-btn {
+            background: #ff6600;
+            color: white;
+            padding: 15px 35px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+        }
+        .search-btn:hover { background: #e65c00; transform: scale(1.02); }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 40px;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .category-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 20px 50px rgba(255, 102, 0, 0.1);
+            border-color: rgba(255, 102, 0, 0.2);
+        }
+
+        .icon-box {
+            width: 90px;
+            height: 90px;
+            background: #fdf9f6;
+            color: #ff6600;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 25px;
+            transition: 0.3s;
+        }
+        .category-card:hover .icon-box {
+            background: #ff6600;
+            color: white;
+            transform: rotate(-10deg);
+        }
+
+        .category-card h3 { font-size: 1.5rem; color: #1a1a1a; margin-bottom: 15px; }
+        .category-card p { color: #777; line-height: 1.6; margin-bottom: 25px; font-size: 0.95rem; }
+        
+        .view-btn {
+            color: #ff6600;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+        .category-card:hover .view-btn { gap: 15px; }
+    </style>
+</head>
+<body style="background: #f4f7f6;">
+
+<a href="{% if request.user.is_staff or request.user.is_superuser %}{% url 'admin_home' %}{% elif request.user.is_authenticated %}{% url 'user_home' %}{% else %}{% url 'home' %}{% endif %}" class="back-btn">
+    <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+
+<header>
+    <nav>
+        <a href="{% url 'home' %}" class="logo">
+            <i class="fa-solid fa-feather-pointed"></i> EventNest
+        </a>
+        <ul class="nav-links">
+            <li><a href="{% if request.user.is_authenticated %}{% if request.user.profile.role == 'provider' %}{% url 'provider_home' %}{% else %}{% url 'user_home' %}{% endif %}{% else %}{% url 'home' %}{% endif %}">Home</a></li>
+            <li><a href="{% url 'services' %}" class="active">Services</a></li>
+            <li><a href="{% url 'packages' %}">Packages</a></li>
+            <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+            {% if request.user.is_authenticated %}
+                <div class="profile-dropdown">
+                    <button class="profile-icon-btn" onclick="toggleProfileMenu()">
+                        <i class="fa-solid fa-user"></i>
+                    </button>
+                    <div class="profile-menu-box" id="profileMenu">
+                        <div class="profile-menu-header">
+                            <div class="profile-avatar">{{ request.user.username|slice:":1"|upper }}</div>
+                            <div>
+                                <h4>{{ request.user.username }}</h4>
+                                <p>{{ request.user.profile.role|title }}</p>
+                            </div>
+                        </div>
+                        <a href="{% if request.user.profile.role == 'provider' %}{% url 'provider_dashboard' %}{% else %}{% url 'user_dashboard' %}{% endif %}"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                        <a href="{% url 'my_profile' %}"><i class="fa-solid fa-user"></i> My Profile</a>
+                        <a href="{% url 'settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
+                        <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+                        <a href="{% url 'logout' %}" class="logout-menu"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'login' %}" class="admin-link" style="background: var(--primary); color: white !important;">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+</header>
+
+<div class="services-hero">
+    <h1>Explore Our Services</h1>
+    <p>Discover top-rated professionals for your weddings, birthdays, corporate events, and parties.</p>
+</div>
+
+<div class="services-container">
+    <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search for DJs, Caterers, Decorators...">
+        <a href="{% url 'search_services' %}" class="search-btn">
+            <i class="fa-solid fa-magnifying-glass"></i> Search Services
+        </a>
+    </div>
+
+    <div class="services-grid">
+        <a href="{% url 'service_by_type' 'DJ & Music' %}" class="category-card">
+            <div class="icon-box"><i class="fa-solid fa-music"></i></div>
+            <h3>DJ & Music</h3>
+            <p>Professional DJs, high-end sound systems, and spectacular lighting for any venue.</p>
+            <div class="view-btn">Explore Providers <i class="fa-solid fa-arrow-right"></i></div>
+        </a>
+
+        <a href="{% url 'service_by_type' 'Catering' %}" class="category-card">
+            <div class="icon-box"><i class="fa-solid fa-utensils"></i></div>
+            <h3>Catering</h3>
+            <p>Delicious menus including local, continental, and live counters tailored to your taste.</p>
+            <div class="view-btn">Explore Providers <i class="fa-solid fa-arrow-right"></i></div>
+        </a>
+
+        <a href="{% url 'service_by_type' 'Decoration' %}" class="category-card">
+            <div class="icon-box"><i class="fa-solid fa-gifts"></i></div>
+            <h3>Decoration</h3>
+            <p>Transform your venue with stunning theme-based floral and aesthetic decorations.</p>
+            <div class="view-btn">Explore Providers <i class="fa-solid fa-arrow-right"></i></div>
+        </a>
+
+        <a href="{% url 'service_by_type' 'Photography' %}" class="category-card">
+            <div class="icon-box"><i class="fa-solid fa-camera"></i></div>
+            <h3>Photography</h3>
+            <p>Capture every moment with professional photographers and cinematic videography.</p>
+            <div class="view-btn">Explore Providers <i class="fa-solid fa-arrow-right"></i></div>
+        </a>
+
+        <a href="{% url 'service_by_type' 'Lighting Setup' %}" class="category-card">
+            <div class="icon-box"><i class="fa-solid fa-lightbulb"></i></div>
+            <h3>Lighting Setup</h3>
+            <p>Stage lights, ambient lighting, and special effects to set the perfect mood.</p>
+            <div class="view-btn">Explore Providers <i class="fa-solid fa-arrow-right"></i></div>
+        </a>
+
+        <a href="{% url 'service_by_type' 'Event Planning' %}" class="category-card">
+            <div class="icon-box"><i class="fa-solid fa-calendar-check"></i></div>
+            <h3>Event Planning</h3>
+            <p>Hassle-free event management from conceptualization to execution by experts.</p>
+            <div class="view-btn">Explore Providers <i class="fa-solid fa-arrow-right"></i></div>
+        </a>
+    </div>
+</div>
+
+<footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
+    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
+    <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
+    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
+        © 2026 EventNest | All Rights Reserved
+    </div>
+</footer>
+
+<script>
+    function toggleProfileMenu() {
+        document.getElementById("profileMenu").classList.toggle("show-profile-menu");
+    }
+    window.onclick = function(event) {
+        if (!event.target.closest(".profile-dropdown")) {
+            const menu = document.getElementById("profileMenu");
+            if (menu) menu.classList.remove("show-profile-menu");
+        }
+    }
+</script>
+
+</body>
+</html>

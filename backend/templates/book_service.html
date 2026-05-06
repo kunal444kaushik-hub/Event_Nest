@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book {{ service.service_name }} - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #fdfdfd; font-family: 'Inter', sans-serif; min-height: 100vh; }
+        .booking-hero { background: white; padding: 100px 10% 60px; text-align: center; border-bottom: 1px solid #eee; }
+        .booking-hero h1 { font-size: 2.5rem; color: #1a1a1a; margin-bottom: 10px; }
+        
+        .booking-container { max-width: 900px; margin: 40px auto; display: grid; grid-template-columns: 1fr 350px; gap: 30px; padding: 0 20px; }
+        
+        .booking-form-box { background: white; padding: 40px; border-radius: 25px; box-shadow: 0 15px 45px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
+        
+        .input-group { margin-bottom: 25px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 700; color: #1a1a1a; font-size: 0.9rem; }
+        .input-group input, .input-group textarea { width: 100%; padding: 14px 18px; border-radius: 12px; border: 2px solid #f0f0f0; background: #fafafa; font-size: 0.95rem; transition: 0.3s; }
+        .input-group input:focus, .input-group textarea:focus { border-color: #ff6600; background: white; outline: none; }
+
+        .summary-card { background: white; border-radius: 25px; border: 1px solid #eee; overflow: hidden; position: sticky; top: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+        .summary-img { height: 180px; overflow: hidden; }
+        .summary-img img { width: 100%; height: 100%; object-fit: cover; }
+        .summary-body { padding: 25px; }
+        .summary-price { font-size: 1.5rem; font-weight: 800; color: #ff6600; margin-top: 15px; }
+
+        .btn-book { background: #ff6600; color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.3s; margin-top: 20px; }
+        .btn-book:hover { background: #e65c00; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<a href="{% url 'service_by_type' service.service_type %}" class="back-btn" style="position: fixed; top: 30px; left: 30px; z-index: 100; background: white; border: 1px solid #eee; padding: 10px 20px; border-radius: 12px; text-decoration: none; color: #1a1a1a; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px;">
+    <i class="fa-solid fa-arrow-left"></i> Back to List
+</a>
+
+<div class="booking-hero">
+    <h1>Finalize Your Booking</h1>
+    <p>Fill in the details to request a booking from <b>{{ service.provider.username }}</b>.</p>
+</div>
+
+<div class="booking-container">
+    <div class="booking-form-box">
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="input-group">
+                <label>Event Date</label>
+                <input type="date" name="event_date" required min="{{ today|date:'Y-m-d' }}">
+            </div>
+
+            {% if service.service_type == "Catering" %}
+            <div class="input-group">
+                <label>Estimated Guest Count</label>
+                <input type="number" name="number_of_guests" placeholder="How many people?" required>
+            </div>
+            {% else %}
+            <div class="input-group">
+                <label>Number of Days</label>
+                <input type="number" name="number_of_days" placeholder="For how many days?" required>
+            </div>
+            {% endif %}
+
+            <div class="input-group">
+                <label>Additional Requirements / Message</label>
+                <textarea name="message" rows="5" placeholder="Any special requests? (e.g. dietary restrictions, specific themes)"></textarea>
+            </div>
+
+            <div style="background: #fff8f1; padding: 20px; border-radius: 15px; border: 1px solid #ffe8d6; margin-bottom: 25px;">
+                <p style="font-size: 0.85rem; color: #8d6e63; line-height: 1.5;">
+                    <i class="fa-solid fa-circle-info" style="color: #ff6600;"></i> <b>Note:</b> This is a booking request. The provider will review your details and confirm availability. Payment will be handled after confirmation.
+                </p>
+            </div>
+
+            <button type="submit" class="btn-book">Send Booking Request</button>
+        </form>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-img">
+            {% if service.image %}
+                <img src="{{ service.image.url }}" alt="{{ service.service_name }}">
+            {% else %}
+                <div style="width: 100%; height: 100%; background: #fdf9f6; display: flex; align-items: center; justify-content: center; color: #ff6600; font-size: 3rem;">
+                    <i class="fa-solid fa-briefcase"></i>
+                </div>
+            {% endif %}
+        </div>
+        <div class="summary-body">
+            <span style="font-size: 0.7rem; background: #fff5ed; color: #ff6600; padding: 4px 10px; border-radius: 20px; font-weight: 800; text-transform: uppercase;">{{ service.service_type }}</span>
+            <h3 style="margin-top: 10px; font-size: 1.2rem;">{{ service.service_name }}</h3>
+            <p style="color: #888; font-size: 0.85rem; margin-top: 5px;">Provider: {{ service.provider.username }}</p>
+            
+            <div class="summary-price">₹{{ service.price }} <span style="font-size: 0.8rem; color: #888; font-weight: 400;">/ starting</span></div>
+        </div>
+    </div>
+</div>
+
+<footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
+    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
+    <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
+</footer>
+
+</body>
+</html>

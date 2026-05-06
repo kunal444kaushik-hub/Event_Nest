@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Provider Login - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="login-body">
+
+<a href="{% url 'login' %}" class="back-btn">
+    <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+
+<div class="login-logo">
+    <i class="fa-solid fa-feather-pointed"></i> EventNest
+</div>
+
+<div class="login-box">
+    <h2>Provider Login</h2>
+    <p class="subtitle">Access your business dashboard</p>
+
+    <form method="POST" action="{% url 'provider_login' %}">
+        {% csrf_token %}
+
+        <input type="text" name="username" placeholder="Provider Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+
+        {% if error %}
+            <div class="error-msg">{{ error }}</div>
+        {% endif %}
+
+        <button type="submit">Login</button>
+    </form>
+
+    <p class="register-link">
+        New provider?
+        <a href="{% url 'provider_step1' %}">Register business</a>
+    </p>
+</div>
+
+</body>
+</html>

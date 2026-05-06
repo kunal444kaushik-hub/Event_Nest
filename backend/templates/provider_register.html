@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Provider Register - EventNest</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="login-body">
+
+<div class="login-logo">
+    EventNest 🪶
+</div>
+
+<div class="login-box register-box">
+    <h2>Provider Register</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <input type="text" name="business_name" placeholder="Business Name" required>
+
+        <input type="text" name="owner_name" placeholder="Owner Name" required>
+
+        <input type="text" name="username" placeholder="Username" required>
+
+        <input type="email" name="email" placeholder="Email Address" required>
+
+        <input type="text" name="service_type" placeholder="Service Type (DJ, Catering, etc.)" required>
+
+        <input type="password" name="password" placeholder="Password" required>
+
+        <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+
+        {% if error %}
+            <p style="color:white; margin-bottom:10px;">{{ error }}</p>
+        {% endif %}
+
+        <button type="submit">Register Provider</button>
+    </form>
+
+    <p class="register-link">
+        Already registered?
+        <a href="{% url 'provider_login' %}">Login here</a>
+    </p>
+</div>
+
+</body>
+</html>

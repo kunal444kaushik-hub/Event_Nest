@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Edit Provider Profile - EventNest</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="profile-body">
+
+<a href="#" onclick="history.back()" class="back-btn">
+  <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+
+<div class="profile-card service-form-card">
+  <h2>Edit Provider Profile</h2>
+
+  {% if messages %}
+    {% for message in messages %}
+      <p style="color:#ff6600; font-weight:bold;">{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <input type="text" name="business_name" placeholder="Business Name" value="{{ profile.business_name }}">
+
+    <input type="text" name="owner_name" placeholder="Owner Name" value="{{ profile.owner_name }}">
+
+    <input type="text" name="phone" placeholder="Phone Number" value="{{ profile.phone }}">
+
+    <input type="text" name="location" placeholder="Location" value="{{ profile.location }}">
+
+    <select name="service_type">
+      <option value="">Select Main Service Type</option>
+      <option value="DJ & Music" {% if profile.service_type == "DJ & Music" %}selected{% endif %}>DJ & Music</option>
+      <option value="Catering" {% if profile.service_type == "Catering" %}selected{% endif %}>Catering</option>
+      <option value="Decoration" {% if profile.service_type == "Decoration" %}selected{% endif %}>Decoration</option>
+      <option value="Photography" {% if profile.service_type == "Photography" %}selected{% endif %}>Photography</option>
+      <option value="Lighting Setup" {% if profile.service_type == "Lighting Setup" %}selected{% endif %}>Lighting Setup</option>
+      <option value="Event Planning" {% if profile.service_type == "Event Planning" %}selected{% endif %}>Event Planning</option>
+    </select>
+
+    <input type="text" name="experience" placeholder="Experience e.g. 3+ Years" value="{{ profile.experience }}">
+
+    <textarea name="bio" placeholder="Write about your business">{{ profile.bio }}</textarea>
+
+    <label>Profile Image</label>
+    {% if profile.profile_image %}
+      <img src="{{ profile.profile_image.url }}" class="edit-preview-img">
+      <label class="remove-check">
+        <input type="checkbox" name="remove_profile_image"> Remove profile image
+      </label>
+    {% endif %}
+    <input type="file" name="profile_image" accept="image/*">
+
+    <label>Cover Image</label>
+    {% if profile.cover_image %}
+      <img src="{{ profile.cover_image.url }}" class="edit-preview-cover">
+      <label class="remove-check">
+        <input type="checkbox" name="remove_cover_image"> Remove cover image
+      </label>
+    {% endif %}
+    <input type="file" name="cover_image" accept="image/*">
+
+    <button type="submit">Update Profile</button>
+  </form>
+</div>
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

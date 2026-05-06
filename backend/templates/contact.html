@@ -1,0 +1,254 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .contact-hero {
+            background: linear-gradient(135deg, #ff6600, #ff9933);
+            color: white;
+            padding: 100px 5% 60px;
+            text-align: center;
+        }
+        .contact-hero h1 { font-size: 3rem; margin-bottom: 15px; }
+        .contact-hero p { font-size: 1.1rem; opacity: 0.8; }
+
+        .contact-wrapper {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 50px;
+            padding: 80px 10%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .info-card {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.05);
+            height: fit-content;
+        }
+        .info-card h2 { color: #ff6600; margin-bottom: 30px; font-size: 1.8rem; }
+        
+        .info-item { display: flex; gap: 20px; margin-bottom: 30px; align-items: flex-start; }
+        .info-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 102, 0, 0.1);
+            color: #ff6600;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .info-text h3 { font-size: 1rem; color: #333; margin-bottom: 5px; }
+        .info-text p { color: #666; font-size: 0.95rem; line-height: 1.5; }
+
+        .social-links { display: flex; gap: 15px; margin-top: 20px; }
+        .social-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #f5f5f5;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .social-btn:hover { background: #ff6600; color: white; transform: translateY(-3px); }
+
+        .form-card {
+            background: white;
+            padding: 50px;
+            border-radius: 30px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.05);
+        }
+        .form-card h2 { margin-bottom: 30px; font-size: 1.8rem; color: #333; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; font-size: 0.9rem; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 15px;
+            background: #f9f9f9;
+            transition: 0.3s;
+            outline: none;
+        }
+        .form-group input:focus, .form-group textarea:focus { border-color: #ff6600; background: white; }
+        
+        .submit-btn {
+            background: #ff6600;
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 1rem;
+        }
+        .submit-btn:hover { background: #e65c00; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255, 102, 0, 0.2); }
+
+        @media (max-width: 900px) {
+            .contact-wrapper { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body style="background: #f4f7f6;">
+
+<a href="{% if request.user.profile.role == 'provider' %}{% url 'provider_home' %}{% elif request.user.is_authenticated %}{% url 'user_home' %}{% else %}{% url 'home' %}{% endif %}" class="back-btn">
+    <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+
+<header>
+    <nav>
+        <a href="{% url 'home' %}" class="logo">
+            <i class="fa-solid fa-feather-pointed"></i> EventNest
+        </a>
+        <ul class="nav-links">
+            <li><a href="{% if request.user.is_authenticated %}{% if request.user.profile.role == 'provider' %}{% url 'provider_home' %}{% else %}{% url 'user_home' %}{% endif %}{% else %}{% url 'home' %}{% endif %}">Home</a></li>
+            <li><a href="{% url 'services' %}">Services</a></li>
+            <li><a href="{% url 'packages' %}">Packages</a></li>
+            <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="{% url 'contact' %}" class="active">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+            {% if request.user.is_authenticated %}
+                <div class="profile-dropdown">
+                    <button class="profile-icon-btn" onclick="toggleProfileMenu()">
+                        <i class="fa-solid fa-user"></i>
+                    </button>
+                    <div class="profile-menu-box" id="profileMenu">
+                        <div class="profile-menu-header">
+                            <div class="profile-avatar">{{ request.user.username|slice:":1"|upper }}</div>
+                            <div>
+                                <h4>{{ request.user.username }}</h4>
+                                <p>{{ request.user.profile.role|title }}</p>
+                            </div>
+                        </div>
+                        <a href="{% if request.user.profile.role == 'provider' %}{% url 'provider_dashboard' %}{% else %}{% url 'user_dashboard' %}{% endif %}"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                        <a href="{% url 'my_profile' %}"><i class="fa-solid fa-user"></i> My Profile</a>
+                        <a href="{% url 'settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
+                        <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+                        <a href="{% url 'logout' %}" class="logout-menu"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'login' %}" class="admin-link" style="background: #ff6600; color: white !important;">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+</header>
+
+<div class="contact-hero">
+    <h1>Get in Touch</h1>
+    <p>Have questions or need help planning your event? We're here for you.</p>
+</div>
+
+<div class="contact-wrapper">
+    <div class="info-card">
+        <h2>Contact Info</h2>
+        
+        <div class="info-item">
+            <div class="info-icon"><i class="fa-solid fa-location-dot"></i></div>
+            <div class="info-text">
+                <h3>Our Office</h3>
+                <p>Jorhat, Assam, India<br>Main Market Road, 785001</p>
+            </div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-icon"><i class="fa-solid fa-phone"></i></div>
+            <div class="info-text">
+                <h3>Phone Number</h3>
+                <p>+91 9864075189<br>Mon-Sat, 9am - 8pm</p>
+            </div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-icon"><i class="fa-solid fa-envelope"></i></div>
+            <div class="info-text">
+                <h3>Email Support</h3>
+                <p>support@eventnest.com<br>info@eventnest.com</p>
+            </div>
+        </div>
+
+        <h3 style="font-size: 1rem; margin-bottom: 15px; color: #333;">Follow Us</h3>
+        <div class="social-links">
+            <a href="#" class="social-btn"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" class="social-btn"><i class="fa-brands fa-twitter"></i></a>
+            <a href="#" class="social-btn"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" class="social-btn"><i class="fa-brands fa-linkedin-in"></i></a>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <h2>Send a Message</h2>
+        <form action="#" method="POST">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" placeholder="john@example.com" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Subject</label>
+                <select required>
+                    <option value="">Select a topic</option>
+                    <option value="general">General Inquiry</option>
+                    <option value="booking">Booking Issue</option>
+                    <option value="provider">Provider Inquiry</option>
+                    <option value="technical">Technical Support</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Your Message</label>
+                <textarea rows="6" placeholder="How can we help you today?" required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">Send Message <i class="fa-solid fa-paper-plane" style="margin-left: 10px;"></i></button>
+        </form>
+    </div>
+</div>
+
+<footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
+    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
+    <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
+    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
+        © 2026 EventNest | All Rights Reserved
+    </div>
+</footer>
+
+<script>
+    function toggleProfileMenu() {
+        document.getElementById("profileMenu").classList.toggle("show-profile-menu");
+    }
+    window.onclick = function(event) {
+        if (!event.target.closest(".profile-dropdown")) {
+            const menu = document.getElementById("profileMenu");
+            if (menu) menu.classList.remove("show-profile-menu");
+        }
+    }
+</script>
+
+</body>
+</html>

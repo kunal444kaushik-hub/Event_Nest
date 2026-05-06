@@ -1,0 +1,187 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Provider Home - EventNest</title>
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<header>
+  <nav>
+    <a href="{% url 'home' %}" class="logo">
+      <i class="fa-solid fa-feather-pointed"></i> EventNest <span style="font-size: 14px; opacity: 0.8; margin-left: 5px;">Provider</span>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="{% url 'provider_home' %}" class="active">Home</a></li>
+      <li><a href="{% url 'services' %}">Services</a></li>
+      <li><a href="{% url 'packages' %}">Packages</a></li>
+      <li><a href="{% url 'about' %}">About</a></li>
+      <li><a href="{% url 'contact' %}">Contact</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      {% if request.user.is_staff %}
+        <a href="{% url 'custom_admin_dashboard' %}" class="admin-link">
+          <i class="fa-solid fa-user-shield"></i> Admin
+        </a>
+      {% endif %}
+
+      <div class="profile-dropdown">
+        <button class="profile-icon-btn {% if notify_count > 0 %}notify-active{% endif %}" onclick="toggleProfileMenu()">
+          <i class="fa-solid fa-user"></i>
+          {% if notify_count > 0 %}
+            <span class="notify-dot"></span>
+          {% endif %}
+        </button>
+
+        <div class="profile-menu-box" id="profileMenu">
+          <div class="profile-menu-header">
+            <div class="profile-avatar">
+              {{ request.user.username|slice:":1"|upper }}
+            </div>
+            <div>
+              <h4>{{ request.user.username }}</h4>
+              <p>Provider Account</p>
+            </div>
+          </div>
+
+          <a href="{% url 'provider_dashboard' %}">
+            <i class="fa-solid fa-chart-line"></i> My Dashboard
+          </a>
+
+          <a href="{% url 'list_service' %}">
+            <i class="fa-solid fa-plus"></i> List Service
+          </a>
+
+          <a href="{% url 'list_package' %}">
+            <i class="fa-solid fa-box"></i> List Package
+          </a>
+
+          <a href="{% url 'my_profile' %}">
+            <i class="fa-solid fa-user"></i> My Profile
+          </a>
+
+          <a href="{% url 'notifications' %}">
+            <i class="fa-solid fa-bell"></i> Notifications
+            {% if notify_count > 0 %}
+              <span class="notif-badge">{{ notify_count }}</span>
+            {% endif %}
+          </a>
+
+          <a href="{% url 'settings' %}">
+            <i class="fa-solid fa-gear"></i> Settings
+          </a>
+
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+
+          <a href="{% url 'logout' %}" class="logout-menu">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+
+{% if not request.user.profile.is_approved %}
+  <div style="background: #fff8f1; border-bottom: 1px solid #ffd8be; padding: 12px 10%; display: flex; align-items: center; justify-content: center; gap: 15px; color: #8d6e63; font-weight: 600; font-size: 0.9rem;">
+    <i class="fa-solid fa-circle-info" style="color: #ff6600; font-size: 1.1rem;"></i>
+    <span>Your account is <b>Pending Verification</b>. You can register, but you cannot list services or packages until an admin approves your details.</span>
+    <a href="{% url 'settings' %}#verification" style="color: #ff6600; text-decoration: underline; margin-left: 10px;">Verify Now</a>
+  </div>
+{% else %}
+  <div style="background: #e8f5e9; border-bottom: 1px solid #c8e6c9; padding: 12px 10%; display: flex; align-items: center; justify-content: center; gap: 15px; color: #2e7d32; font-weight: 600; font-size: 0.9rem;">
+    <i class="fa-solid fa-circle-check" style="font-size: 1.1rem;"></i>
+    <span>Your account is <b>Verified</b>! You can now list services and accept bookings.</span>
+  </div>
+{% endif %}
+
+<section class="hero">
+  <h1>Welcome {{ request.user.first_name|default:request.user.username }}</h1>
+  <p>Manage services, packages, and grow your business.</p>
+
+  <div>
+    <a href="{% url 'list_service' %}" class="btn">List Services</a>
+    <a href="{% url 'list_package' %}" class="btn">List Packages</a>
+    <a href="{% url 'provider_dashboard' %}" class="btn">Dashboard</a>
+  </div>
+</section>
+
+
+
+<section class="home-section">
+    <div class="about-row">
+        <div class="about-col">
+            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Business Growth">
+        </div>
+        <div class="about-col">
+            <h3>Scale Your Business with EventNest</h3>
+            <p>Our platform is more than just a listing site; it's a tool for growth. We connect you with clients who are actively looking for high-quality event services, allowing you to showcase your portfolio and build your brand reputation.</p>
+            <p>Use your dashboard to track bookings, manage client requests, and analyze your performance. With professional tools at your fingertips, you can focus on delivering exceptional service while we handle the discovery.</p>
+            <a href="{% url 'provider_dashboard' %}" class="btn">Go to Business Dashboard</a>
+        </div>
+    </div>
+</section>
+
+<section class="home-section" style="background: #fdfaf8;">
+    <div class="section-title">
+        <h2>Your Professional Workflow</h2>
+        <p>Simple steps to managing your successful event business.</p>
+    </div>
+    <div class="how-grid">
+        <div class="how-card">
+            <i class="fa-solid fa-list-check"></i>
+            <h4>1. Update Listings</h4>
+            <p>Keep your service prices and images up to date to attract more high-quality booking requests.</p>
+        </div>
+        <div class="how-card">
+            <i class="fa-solid fa-calendar-check"></i>
+            <h4>2. Manage Bookings</h4>
+            <p>Respond quickly to new requests from your dashboard to maintain a high response rating.</p>
+        </div>
+        <div class="how-card">
+            <i class="fa-solid fa-award"></i>
+            <h4>3. Get Verified</h4>
+            <p>Complete your verification to earn the "Verified Professional" badge and boost customer trust.</p>
+        </div>
+    </div>
+</section>
+
+<div class="cta-banner">
+    <h2>Ready to Reach More Customers?</h2>
+    <p>Every day, hundreds of users search EventNest for photographers, decorators, and caterers. Don't miss out on your next big opportunity.</p>
+    <div style="display: flex; gap: 20px; justify-content: center;">
+        <a href="{% url 'list_service' %}" class="btn" style="background: #ff6600; border: none;">Add New Service</a>
+        <a href="{% url 'list_package' %}" class="btn" style="background: white; color: #1a1a1a; border: none;">Create Package</a>
+    </div>
+</div>
+
+<footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
+    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
+    <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
+    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
+        © 2026 EventNest | All Rights Reserved
+    </div>
+</footer>
+
+<script>
+function toggleProfileMenu() {
+  document.getElementById("profileMenu").classList.toggle("show-profile-menu");
+}
+
+window.onclick = function(event) {
+  if (!event.target.closest(".profile-dropdown")) {
+    const menu = document.getElementById("profileMenu");
+    if (menu) menu.classList.remove("show-profile-menu");
+  }
+}
+</script>
+
+</body>
+</html>

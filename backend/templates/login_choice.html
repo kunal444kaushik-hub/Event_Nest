@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Choice - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .choice-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: 0.3s;
+            text-align: left;
+        }
+        .choice-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+            border-color: #ff6600;
+        }
+        .choice-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 102, 0, 0.1);
+            color: #ff6600;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .choice-text h3 {
+            color: #fff;
+            margin: 0;
+            font-size: 1.1rem;
+        }
+        .choice-text p {
+            color: rgba(255, 255, 255, 0.6);
+            margin: 2px 0 0;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body class="login-body">
+
+<a href="{% url 'home' %}" class="back-btn">
+    <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+
+<div class="login-logo">
+    <i class="fa-solid fa-feather-pointed"></i> EventNest
+</div>
+
+<div class="login-box">
+    <h2>Welcome Back</h2>
+    <p class="subtitle" style="margin-bottom: 40px;">Select your account type to login</p>
+
+    <a href="{% url 'user_login' %}" class="choice-card">
+        <div class="choice-icon"><i class="fa-solid fa-user"></i></div>
+        <div class="choice-text">
+            <h3>User Account</h3>
+            <p>Book services and plan events</p>
+        </div>
+    </a>
+
+    <a href="{% url 'provider_login' %}" class="choice-card">
+        <div class="choice-icon"><i class="fa-solid fa-store"></i></div>
+        <div class="choice-text">
+            <h3>Provider Account</h3>
+            <p>Manage your business and bookings</p>
+        </div>
+    </a>
+
+    <p class="register-link">
+        New to EventNest? 
+        <a href="{% url 'register' %}">Sign up now</a>
+    </p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Bookings - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f8f9fa; font-family: 'Inter', sans-serif; min-height: 100vh; }
+        .bookings-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .bookings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .bookings-header h1 { font-size: 2rem; color: #1a1a1a; }
+
+        .booking-row { 
+            background: white; border-radius: 20px; padding: 25px; margin-bottom: 15px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02); border: 1px solid #eee;
+            display: grid; grid-template-columns: 70px 2fr 1.5fr 1fr 200px; align-items: center; gap: 20px;
+            transition: 0.3s;
+        }
+        .booking-row:hover { border-color: #ff6600; box-shadow: 0 10px 30px rgba(255,102,0,0.05); }
+
+        .client-avatar { width: 50px; height: 50px; background: #fdf9f6; color: #ff6600; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; }
+        
+        .client-info h3 { font-size: 1.1rem; color: #1a1a1a; margin-bottom: 4px; }
+        .client-info p { font-size: 0.85rem; color: #888; display: flex; align-items: center; gap: 5px; }
+
+        .service-name { font-weight: 700; color: #333; font-size: 1rem; }
+        .booking-meta { font-size: 0.85rem; color: #666; margin-top: 5px; }
+
+        .btn-action { 
+            padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; 
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;
+        }
+        .btn-accept { background: #1a1a1a; color: white; }
+        .btn-accept:hover { background: #ff6600; transform: translateY(-2px); }
+        .btn-reject { background: #fff5f5; color: #ff4444; border: 1px solid #ffebee; }
+        .btn-reject:hover { background: #ff4444; color: white; }
+        .btn-complete { background: #e8f5e9; color: #2e7d32; }
+        .btn-complete:hover { background: #2e7d32; color: white; }
+
+        .status-pill { padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; text-align: center; width: fit-content; }
+        .status-pending { background: #fff8e1; color: #f57f17; }
+        .status-accepted { background: #e8f5e9; color: #2e7d32; }
+        .status-rejected { background: #ffebee; color: #c62828; }
+        .status-completed { background: #e3f2fd; color: #1565c0; }
+
+        .message-toast { font-size: 0.8rem; color: #888; font-style: italic; background: #fafafa; padding: 10px; border-radius: 8px; border-left: 3px solid #eee; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="bookings-container">
+    <a href="{% url 'provider_dashboard' %}" class="back-btn" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #888; font-weight: 700; margin-bottom: 25px;">
+        <i class="fa-solid fa-arrow-left"></i> Dashboard
+    </a>
+
+    <div class="bookings-header">
+        <h1>Manage Booking Requests</h1>
+        <div style="font-size: 0.9rem; color: #888; font-weight: 600;">Total Orders: {{ bookings.count }}</div>
+    </div>
+
+    {% for booking in bookings %}
+    <div class="booking-row">
+        <div class="client-avatar">
+            {{ booking.user.username|slice:":1"|upper }}
+        </div>
+        
+        <div class="client-info">
+            <h3>{{ booking.user.username }}</h3>
+            <p><i class="fa-solid fa-phone" style="font-size: 0.7rem;"></i> {{ booking.user.profile.phone|default:"No contact info" }}</p>
+            {% if booking.message %}
+                <div class="message-toast">"{{ booking.message|truncatewords:10 }}"</div>
+            {% endif %}
+        </div>
+
+        <div class="service-details">
+            <div class="service-name">{{ booking.service.service_name }}</div>
+            <div class="booking-meta">
+                <i class="fa-regular fa-calendar-check"></i> {{ booking.event_date }}
+                <span style="margin-left: 10px; opacity: 0.6;">| {{ booking.number_of_guests|default:booking.number_of_days }} Qty</span>
+            </div>
+        </div>
+
+        <div>
+            <span class="status-pill status-{{ booking.status|lower }}">{{ booking.status }}</span>
+        </div>
+
+        <div style="display: flex; gap: 8px; justify-content: flex-end;">
+            {% if booking.status == "Pending" %}
+                <a href="{% url 'accept_booking' booking.id %}" class="btn-action btn-accept"><i class="fa-solid fa-check"></i> Accept</a>
+                <a href="{% url 'reject_booking' booking.id %}" class="btn-action btn-reject"><i class="fa-solid fa-xmark"></i></a>
+            {% elif booking.status == "Accepted" %}
+                <a href="{% url 'complete_booking' booking.id %}" class="btn-action btn-complete"><i class="fa-solid fa-flag-checkered"></i> Finish</a>
+            {% else %}
+                <span style="color: #bbb; font-size: 0.8rem; font-weight: 600;">No actions available</span>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div style="text-align: center; padding: 100px 0; background: white; border-radius: 30px; border: 2px dashed #eee;">
+        <i class="fa-solid fa-calendar-xmark" style="font-size: 4rem; color: #eee; margin-bottom: 20px;"></i>
+        <h3 style="color: #888;">No booking requests yet</h3>
+        <p style="color: #bbb; margin-top: 10px;">Keep your services updated to attract more customers!</p>
+    </div>
+    {% endfor %}
+</div>
+
+</body>
+</html>

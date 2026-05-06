@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Manage Users - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-premium-body">
+
+<div class="admin-premium-layout">
+  <!-- SIDEBAR -->
+  <aside class="admin-premium-sidebar">
+    <div class="admin-logo">
+      <i class="fa-solid fa-feather-pointed"></i>
+      <h2>EventNest</h2>
+      <p>Admin Panel</p>
+    </div>
+
+    <a href="{% url 'admin_home' %}">
+      <i class="fa-solid fa-house"></i> Admin Home
+    </a>
+
+    <a href="{% url 'custom_admin_dashboard' %}">
+      <i class="fa-solid fa-chart-line"></i> Analytics
+    </a>
+
+    <a href="{% url 'admin_users' %}" class="admin-nav-active">
+      <i class="fa-solid fa-users"></i> Users
+    </a>
+
+    <a href="{% url 'admin_providers' %}">
+      <i class="fa-solid fa-store"></i> Providers
+    </a>
+
+    <a href="{% url 'admin_services' %}">
+      <i class="fa-solid fa-briefcase"></i> Services
+    </a>
+
+    <a href="{% url 'admin_packages' %}">
+      <i class="fa-solid fa-box-open"></i> Packages
+    </a>
+
+    <a href="{% url 'admin_bookings' %}">
+      <i class="fa-solid fa-calendar-check"></i> Bookings
+    </a>
+
+    <a href="{% url 'admin_reviews' %}">
+      <i class="fa-solid fa-star"></i> Reviews
+    </a>
+
+    <a href="{% url 'logout' %}" class="admin-site-link">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout & Back to Site
+    </a>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="admin-premium-main">
+    <div class="admin-topbar">
+      <h1>Manage Users</h1>
+      <div class="admin-profile-pill">
+        <i class="fa-solid fa-user-shield"></i> {{ request.user.username }}
+      </div>
+    </div>
+
+    <div class="admin-premium-panel">
+      <div class="admin-table-wrap">
+        <table class="admin-premium-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Location</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for profile in users %}
+            <tr>
+              <td>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div style="width:35px; height:35px; border-radius:50%; background:#f0f0f0; display:flex; align-items:center; justify-content:center; font-weight:700;">{{ profile.user.username|slice:":1"|upper }}</div>
+                  <span>{{ profile.user.username }}</span>
+                </div>
+              </td>
+              <td>{{ profile.user.email }}</td>
+              <td>{{ profile.location|default:"N/A" }}</td>
+              <td>
+                {% if profile.is_blocked %}
+                  <span class="admin-small-badge pending">Blocked</span>
+                {% else %}
+                  <span class="admin-small-badge approved">Active</span>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{% url 'admin_user_details' profile.id %}" class="admin-btn-table" style="background:#007bff;">View Services</a>
+                {% if profile.is_blocked %}
+                  <a href="{% url 'unblock_user' profile.id %}" class="admin-btn-table">Unblock</a>
+                {% else %}
+                  <a href="{% url 'block_user' profile.id %}" class="admin-btn-table danger">Block</a>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

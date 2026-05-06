@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Finish Registration - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="login-body">
+
+<div class="login-logo">
+    <i class="fa-solid fa-feather-pointed"></i> EventNest
+</div>
+
+<div class="login-box">
+    <div class="reg-steps">
+        <div class="step-dot active"></div>
+        <div class="step-dot active"></div>
+        <div class="step-dot active"></div>
+    </div>
+
+    <h2>About You</h2>
+    <p class="subtitle">Just a few more details to get you started</p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div style="display: flex; gap: 10px;">
+            <input type="text" name="first_name" placeholder="First Name" required>
+            <input type="text" name="last_name" placeholder="Last Name" required>
+        </div>
+        
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="text" name="phone" placeholder="Phone Number" required>
+        <input type="password" name="password" placeholder="Create Password" required>
+        <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+
+        {% if error %}
+            <div class="error-msg">{{ error }}</div>
+        {% endif %}
+
+        <button type="submit">Complete Registration</button>
+    </form>
+</div>
+
+</body>
+</html>

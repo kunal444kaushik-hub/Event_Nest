@@ -1,0 +1,120 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body style="background: #f4f7f6;">
+
+<a href="{% if request.user.profile.role == 'provider' %}{% url 'provider_home' %}{% else %}{% url 'user_home' %}{% endif %}" class="back-btn">
+    <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+
+<header>
+    <nav>
+        <a href="{% url 'home' %}" class="logo">
+            <i class="fa-solid fa-feather-pointed"></i> EventNest
+        </a>
+        <ul class="nav-links">
+            <li><a href="{% if request.user.profile.role == 'provider' %}{% url 'provider_home' %}{% else %}{% url 'user_home' %}{% endif %}">Home</a></li>
+            <li><a href="{% url 'services' %}">Services</a></li>
+            <li><a href="{% url 'packages' %}">Packages</a></li>
+            <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+            <a href="{% url 'my_profile' %}" class="admin-link" style="background: #1a1a1a; color: white !important; border-radius: 12px; padding: 10px 24px;">
+                <i class="fa-solid fa-user" style="margin-right: 8px;"></i> My Profile
+            </a>
+        </div>
+    </nav>
+</header>
+
+<div class="notif-container">
+    <div class="notif-header-box">
+        <div>
+            <h1><i class="fa-solid fa-bell"></i> Notifications</h1>
+            <p style="color: #888; margin-top: 5px;">Stay updated with your latest event activities.</p>
+        </div>
+        {% if notifications %}
+        <div style="display: flex; gap: 10px;">
+            <a href="{% url 'mark_all_read' %}" class="mark-read-all">
+                <i class="fa-solid fa-check-double"></i> Mark all read
+            </a>
+            <a href="{% url 'clear_all_notifications' %}" class="mark-read-all" style="background: #fff5f5; color: #ff4444;" onclick="return confirm('Clear all notifications?')">
+                <i class="fa-solid fa-trash-can"></i> Clear all
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if notifications %}
+        <div class="notif-list">
+            {% for n in notifications %}
+                <div class="notif-card-refined {% if not n.is_read %}unread{% endif %}">
+                    <div class="notif-icon-circle">
+                        {% if "accepted" in n.message|lower or "approved" in n.message|lower %}
+                            <i class="fa-solid fa-circle-check" style="color: #2e7d32;"></i>
+                        {% elif "rejected" in n.message|lower or "cancelled" in n.message|lower %}
+                            <i class="fa-solid fa-circle-xmark" style="color: #c62828;"></i>
+                        {% elif "booking" in n.message|lower or "request" in n.message|lower %}
+                            <i class="fa-solid fa-calendar-plus" style="color: #ff6600;"></i>
+                        {% elif "review" in n.message|lower %}
+                            <i class="fa-solid fa-star" style="color: #fbc02d;"></i>
+                        {% else %}
+                            <i class="fa-solid fa-bell"></i>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="notif-body">
+                        <p>{{ n.message }}</p>
+                        <div class="notif-time">
+                            <i class="fa-regular fa-clock"></i> {{ n.created_at|naturaltime }}
+                        </div>
+                        
+                        <div class="notif-actions-row">
+                            {% if "booking" in n.message|lower or "request" in n.message|lower %}
+                                <a href="{% if request.user.profile.role == 'provider' %}{% url 'provider_bookings' %}{% else %}{% url 'user_bookings' %}{% endif %}" class="notif-btn-small notif-btn-primary">
+                                    View Bookings
+                                </a>
+                            {% endif %}
+                            
+                            {% if not n.is_read %}
+                                <a href="{% url 'mark_as_read' n.id %}" class="notif-btn-small notif-btn-outline">
+                                    Mark as read
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if not n.is_read %}
+                        <div style="width: 10px; height: 10px; background: #ff6600; border-radius: 50%; position: absolute; top: 25px; right: 25px;"></div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="notif-empty-state">
+            <i class="fa-solid fa-bell-slash"></i>
+            <h2>All caught up!</h2>
+            <p>You don't have any new notifications at the moment. We'll let you know when something important happens.</p>
+            <a href="{% if request.user.profile.role == 'provider' %}{% url 'provider_home' %}{% else %}{% url 'user_home' %}{% endif %}" class="notif-btn-small notif-btn-primary" style="display: inline-block; margin-top: 20px;">Return Home</a>
+        </div>
+    {% endif %}
+</div>
+
+<footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
+    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
+    <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
+    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
+        © 2026 EventNest | All Rights Reserved
+    </div>
+</footer>
+
+</body>
+</html>

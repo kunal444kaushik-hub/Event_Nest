@@ -1,0 +1,287 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .profile-hero {
+            height: 300px;
+            background: linear-gradient(135deg, #ff6600, #ff9933);
+            position: relative;
+        }
+        .profile-hero img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .profile-container {
+            max-width: 1100px;
+            margin: -100px auto 100px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .profile-main-card {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+        }
+
+        .profile-avatar-wrapper {
+            position: relative;
+            margin-top: -80px;
+        }
+        .profile-avatar {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 8px solid white;
+            object-fit: cover;
+            background: #eee;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .default-avatar {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 8px solid white;
+            background: #fdf9f6;
+            color: #ff6600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: 800;
+        }
+
+        .profile-content { flex-grow: 1; }
+        .profile-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .profile-header h1 { font-size: 2.2rem; color: #1a1a1a; }
+        .role-badge {
+            background: #fdf2f0;
+            color: #ff6600;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .profile-bio { color: #666; font-size: 1.05rem; line-height: 1.6; margin-bottom: 30px; }
+
+        .stats-strip {
+            display: flex;
+            gap: 40px;
+            padding: 20px 0;
+            border-top: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 30px;
+        }
+        .stat-item h3 { font-size: 1.5rem; color: #1a1a1a; }
+        .stat-item p { font-size: 0.85rem; color: #888; text-transform: uppercase; font-weight: 600; }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .detail-box {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .detail-box i { width: 40px; height: 40px; background: white; color: #ff6600; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .detail-box div p { font-size: 0.8rem; color: #888; margin-bottom: 3px; }
+        .detail-box div h4 { font-size: 1rem; color: #333; }
+
+        .edit-fab {
+            background: #1a1a1a;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+        }
+        .edit-fab:hover { background: #ff6600; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255, 102, 0, 0.2); }
+
+        .verification-card {
+            background: #e8f5e9;
+            padding: 25px;
+            border-radius: 25px;
+            margin-top: 40px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: #2e7d32;
+        }
+        .verification-card i { font-size: 2.5rem; }
+    </style>
+</head>
+<body style="background: #f4f7f6;">
+
+<a href="{% if profile.role == 'provider' %}{% url 'provider_home' %}{% else %}{% url 'user_home' %}{% endif %}" class="back-btn">
+    <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+
+<header>
+    <nav>
+        <a href="{% url 'home' %}" class="logo">
+            <i class="fa-solid fa-feather-pointed"></i> EventNest
+        </a>
+        <ul class="nav-links">
+            <li><a href="{% if profile.role == 'provider' %}{% url 'provider_home' %}{% else %}{% url 'user_home' %}{% endif %}">Home</a></li>
+            <li><a href="{% url 'services' %}">Services</a></li>
+            <li><a href="{% url 'packages' %}">Packages</a></li>
+            <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+            <a href="{% url 'settings' %}" class="edit-fab">
+                <i class="fa-solid fa-gear"></i> Settings
+            </a>
+        </div>
+    </nav>
+</header>
+
+<div class="profile-hero">
+    {% if profile.cover_image %}
+        <img src="{{ profile.cover_image.url }}" alt="Cover Image">
+    {% endif %}
+</div>
+
+<div class="profile-container">
+    <div class="profile-main-card">
+        <div class="profile-avatar-wrapper">
+            {% if profile.profile_image %}
+                <img src="{{ profile.profile_image.url }}" class="profile-avatar">
+            {% else %}
+                <div class="default-avatar">{{ request.user.username|slice:":1"|upper }}</div>
+            {% endif %}
+        </div>
+
+        <div class="profile-content">
+            <div class="profile-header">
+                <div>
+                    <h1>{{ profile.business_name|default:request.user.username }}</h1>
+                    <span class="role-badge">{{ profile.role }}</span>
+                </div>
+                <a href="{% url 'settings' %}" class="edit-fab">
+                    <i class="fa-solid fa-pen"></i> Edit Profile
+                </a>
+            </div>
+
+            <p class="profile-bio">{{ profile.bio|default:"No bio added yet. Tell people about yourself or your business." }}</p>
+
+            <div class="stats-strip">
+                {% if profile.role == "provider" %}
+                    <div class="stat-item">
+                        <h3>{{ stats.total_services }}</h3>
+                        <p>Services</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>{{ stats.total_bookings }}</h3>
+                        <p>Bookings</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>⭐ {{ stats.avg_rating|floatformat:1 }}</h3>
+                        <p>Rating</p>
+                    </div>
+                {% else %}
+                    <div class="stat-item">
+                        <h3>{{ stats.total_bookings }}</h3>
+                        <p>Bookings</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>{{ stats.wishlist_count }}</h3>
+                        <p>Saved</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>{{ stats.completed_events }}</h3>
+                        <p>Completed</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-box">
+                    <i class="fa-solid fa-envelope"></i>
+                    <div>
+                        <p>Email Address</p>
+                        <h4>{{ request.user.email }}</h4>
+                    </div>
+                </div>
+                <div class="detail-box">
+                    <i class="fa-solid fa-phone"></i>
+                    <div>
+                        <p>Phone Number</p>
+                        <h4>{{ profile.phone|default:"Not added" }}</h4>
+                    </div>
+                </div>
+                <div class="detail-box">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <div>
+                        <p>Location</p>
+                        <h4>{{ profile.location|default:"Not added" }}</h4>
+                    </div>
+                </div>
+                {% if profile.role == "provider" %}
+                    <div class="detail-box">
+                        <i class="fa-solid fa-briefcase"></i>
+                        <div>
+                            <p>Experience</p>
+                            <h4>{{ profile.experience|default:"Not added" }}</h4>
+                        </div>
+                    </div>
+                    <div class="detail-box">
+                        <i class="fa-solid fa-id-card"></i>
+                        <div>
+                            <p>Owner Name</p>
+                            <h4>{{ profile.owner_name|default:request.user.username }}</h4>
+                        </div>
+                    </div>
+                    <div class="detail-box">
+                        <i class="fa-solid fa-shield-check"></i>
+                        <div>
+                            <p>Verification Status</p>
+                            <h4>{% if profile.is_approved %}Verified Business{% else %}Pending Verification{% endif %}</h4>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if profile.role == "provider" and profile.is_approved %}
+                <div class="verification-card">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <div>
+                        <h3 style="margin-bottom: 5px;">Verified Professional</h3>
+                        <p style="opacity: 0.8;">Your business has been verified by the EventNest administration team. You have full access to listing services and packages.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
+    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
+    <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
+    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
+        © 2026 EventNest | All Rights Reserved
+    </div>
+</footer>
+
+</body>
+</html>

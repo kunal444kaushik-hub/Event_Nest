@@ -1,0 +1,155 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body style="background: #f4f7f6;">
+
+<a href="{% if request.user.profile.role == 'provider' %}{% url 'provider_home' %}{% else %}{% url 'user_home' %}{% endif %}" class="back-btn">
+    <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+
+<header>
+    <nav>
+        <a href="{% url 'home' %}" class="logo">
+            <i class="fa-solid fa-feather-pointed"></i> EventNest
+        </a>
+        <ul class="nav-links">
+            <li><a href="{% if request.user.profile.role == 'provider' %}{% url 'provider_home' %}{% else %}{% url 'user_home' %}{% endif %}">Home</a></li>
+            <li><a href="{% url 'services' %}">Services</a></li>
+            <li><a href="{% url 'packages' %}">Packages</a></li>
+            <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+            <a href="{% url 'my_profile' %}" class="admin-link" style="background: #1a1a1a; color: white !important; border-radius: 12px; padding: 10px 24px;">
+                <i class="fa-solid fa-user" style="margin-right: 8px;"></i> My Profile
+            </a>
+        </div>
+    </nav>
+</header>
+
+<div class="wishlist-hero">
+    <h1>My Wishlist</h1>
+    <p>All your favorite services and packages in one place.</p>
+</div>
+
+<div class="wishlist-container">
+    <div class="wishlist-tabs">
+        <button class="wishlist-tab-btn active" onclick="switchTab('services')">
+            <i class="fa-solid fa-bell-concierge"></i> Services ({{ saved_services.count }})
+        </button>
+        <button class="wishlist-tab-btn" onclick="switchTab('packages')">
+            <i class="fa-solid fa-box-archive"></i> Packages ({{ saved_packages.count }})
+        </button>
+    </div>
+
+    <!-- SERVICES TAB -->
+    <div id="services-tab" class="tab-content active">
+        <div class="wishlist-grid">
+            {% for item in saved_services %}
+                <div class="wishlist-card">
+                    <a href="{% url 'remove_wishlist' item.id %}" class="wishlist-remove" title="Remove from wishlist">
+                        <i class="fa-solid fa-xmark"></i>
+                    </a>
+                    <div class="wishlist-img-box">
+                        {% if item.service.image %}
+                            <img src="{{ item.service.image.url }}" alt="{{ item.service.service_name }}">
+                        {% else %}
+                            <div style="width:100%; height:100%; background:#eee; display:flex; align-items:center; justify-content:center; color:#ccc;">
+                                <i class="fa-solid fa-image fa-3x"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="wishlist-info">
+                        <h3>{{ item.service.service_name }}</h3>
+                        <p><i class="fa-solid fa-location-dot"></i> {{ item.service.location|default:"Online" }}</p>
+                        <p><i class="fa-solid fa-user-tie"></i> by {{ item.service.provider.username }}</p>
+                        <div class="wishlist-meta">
+                            <span class="wishlist-price">₹{{ item.service.price }}</span>
+                            <a href="{% url 'book_service' item.service.id %}" class="small-btn">Book Now</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="wishlist-empty">
+                    <i class="fa-solid fa-heart-crack"></i>
+                    <h2>No saved services</h2>
+                    <p>Start exploring our world-class services and save the ones you love!</p>
+                    <a href="{% url 'services' %}" class="small-btn" style="display:inline-block; margin-top:20px; padding: 12px 30px;">Explore Services</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- PACKAGES TAB -->
+    <div id="packages-tab" class="tab-content" style="display:none;">
+        <div class="wishlist-grid">
+            {% for item in saved_packages %}
+                <div class="wishlist-card">
+                    <a href="{% url 'remove_wishlist' item.id %}" class="wishlist-remove" title="Remove from wishlist">
+                        <i class="fa-solid fa-xmark"></i>
+                    </a>
+                    <div class="wishlist-img-box">
+                        {% if item.package.image %}
+                            <img src="{{ item.package.image.url }}" alt="{{ item.package.package_name }}">
+                        {% else %}
+                            <div style="width:100%; height:100%; background:#eee; display:flex; align-items:center; justify-content:center; color:#ccc;">
+                                <i class="fa-solid fa-box-open fa-3x"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="wishlist-info">
+                        <h3>{{ item.package.package_name }}</h3>
+                        <p><i class="fa-solid fa-layer-group"></i> {{ item.package.package_type }}</p>
+                        <p><i class="fa-solid fa-user-tie"></i> by {{ item.package.provider.username }}</p>
+                        <div class="wishlist-meta">
+                            <span class="wishlist-price">₹{{ item.package.total_price }}</span>
+                            <a href="{% url 'packages' %}" class="small-btn">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="wishlist-empty">
+                    <i class="fa-solid fa-heart-crack"></i>
+                    <h2>No saved packages</h2>
+                    <p>Discover our curated event packages designed for every occasion.</p>
+                    <a href="{% url 'packages' %}" class="small-btn" style="display:inline-block; margin-top:20px; padding: 12px 30px;">Explore Packages</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
+    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
+    <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
+    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
+        © 2026 EventNest | All Rights Reserved
+    </div>
+</footer>
+
+<script>
+    function switchTab(tab) {
+        // Update buttons
+        document.querySelectorAll('.wishlist-tab-btn').forEach(btn => btn.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+
+        // Update content
+        if (tab === 'services') {
+            document.getElementById('services-tab').style.display = 'block';
+            document.getElementById('packages-tab').style.display = 'none';
+        } else {
+            document.getElementById('services-tab').style.display = 'none';
+            document.getElementById('packages-tab').style.display = 'block';
+        }
+    }
+</script>
+
+</body>
+</html>

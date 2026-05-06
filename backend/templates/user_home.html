@@ -1,0 +1,169 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>User Home - EventNest</title>
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<header>
+  <nav>
+    <a href="{% url 'home' %}" class="logo">
+      <i class="fa-solid fa-feather-pointed"></i> EventNest
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="{% url 'user_home' %}" class="active">Home</a></li>
+      <li><a href="{% url 'services' %}">Services</a></li>
+      <li><a href="{% url 'packages' %}">Packages</a></li>
+      <li><a href="{% url 'about' %}">About</a></li>
+      <li><a href="{% url 'contact' %}">Contact</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      {% if request.user.is_staff %}
+        <a href="{% url 'custom_admin_dashboard' %}" class="admin-link">
+          <i class="fa-solid fa-user-shield"></i> Admin
+        </a>
+      {% endif %}
+
+      <div class="profile-dropdown">
+        <button class="profile-icon-btn {% if notify_count > 0 %}notify-active{% endif %}" onclick="toggleProfileMenu()">
+          <i class="fa-solid fa-user"></i>
+          {% if notify_count > 0 %}
+            <span class="notify-dot"></span>
+          {% endif %}
+        </button>
+
+        <div class="profile-menu-box" id="profileMenu">
+          <div class="profile-menu-header">
+            <div class="profile-avatar">
+              {{ request.user.username|slice:":1"|upper }}
+            </div>
+            <div>
+              <h4>{{ request.user.username }}</h4>
+              <p>User Account</p>
+            </div>
+          </div>
+
+          <a href="{% url 'user_dashboard' %}">
+            <i class="fa-solid fa-chart-line"></i> My Dashboard
+          </a>
+
+          <a href="{% url 'my_profile' %}">
+            <i class="fa-solid fa-user"></i> My Profile
+          </a>
+
+          <a href="{% url 'wishlist' %}">
+            <i class="fa-solid fa-heart"></i> Wishlist
+          </a>
+
+          <a href="{% url 'notifications' %}">
+            <i class="fa-solid fa-bell"></i> Notifications
+            {% if notify_count > 0 %}
+              <span class="notif-badge">{{ notify_count }}</span>
+            {% endif %}
+          </a>
+
+          <a href="{% url 'settings' %}">
+            <i class="fa-solid fa-gear"></i> Settings
+          </a>
+
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+
+          <a href="{% url 'logout' %}" class="logout-menu">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <h1>Welcome {{ request.user.first_name|default:request.user.username }}</h1>
+  <p>Book services, explore packages, and plan your event with EventNest.</p>
+
+  <div>
+    <a href="{% url 'services' %}" class="btn">Book Your Event</a>
+    <a href="{% url 'packages' %}" class="btn">View Packages</a>
+  </div>
+</section>
+
+
+
+<section class="home-section">
+    <div class="about-row">
+        <div class="about-col">
+            <img src="https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Memorable Events">
+        </div>
+        <div class="about-col">
+            <h3>Plan Your Dream Event</h3>
+            <p>Ready to create something special? EventNest gives you all the tools to discover and book premium event services. From photographers who capture every smile to decorators who set the perfect mood, we've got you covered.</p>
+            <p>Our platform is designed for simplicity. Save your favorites to your wishlist, compare packages, and chat directly with providers to ensure every detail is just right.</p>
+            <a href="{% url 'services' %}" class="btn">Explore All Services</a>
+        </div>
+    </div>
+</section>
+
+<section class="home-section" style="background: #fdfaf8;">
+    <div class="section-title">
+        <h2>Your Journey with Us</h2>
+        <p>Follow these steps to ensure a flawless celebration.</p>
+    </div>
+    <div class="how-grid">
+        <div class="how-card">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <h4>1. Explore & Select</h4>
+            <p>Filter by location and category to find the perfect match for your specific event needs.</p>
+        </div>
+        <div class="how-card">
+            <i class="fa-solid fa-comments"></i>
+            <h4>2. Discuss & Book</h4>
+            <p>Reach out to providers, share your vision, and secure your date with a simple booking request.</p>
+        </div>
+        <div class="how-card">
+            <i class="fa-solid fa-star-half-stroke"></i>
+            <h4>3. Rate & Review</h4>
+            <p>After your event, share your experience to help our community grow and thrive.</p>
+        </div>
+    </div>
+</section>
+
+<div class="cta-banner">
+    <h2>Make Your Next Celebration Iconic</h2>
+    <p>Browse our exclusive pre-designed packages or build your own custom event bundle from scratch.</p>
+    <div style="display: flex; gap: 20px; justify-content: center;">
+        <a href="{% url 'packages' %}" class="btn" style="background: #ff6600; border: none;">View Packages</a>
+        <a href="{% url 'make_custom_package' %}" class="btn" style="background: white; color: #1a1a1a; border: none;">Build Custom Package</a>
+    </div>
+</div>
+
+<footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
+    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
+    <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
+    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
+        © 2026 EventNest | All Rights Reserved
+    </div>
+</footer>
+
+<script>
+function toggleProfileMenu() {
+  document.getElementById("profileMenu").classList.toggle("show-profile-menu");
+}
+
+window.onclick = function(event) {
+  if (!event.target.closest(".profile-dropdown")) {
+    const menu = document.getElementById("profileMenu");
+    if (menu) menu.classList.remove("show-profile-menu");
+  }
+}
+</script>
+
+</body>
+</html>

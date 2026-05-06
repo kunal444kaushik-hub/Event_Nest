@@ -1,0 +1,206 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ type_name }} Services - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .list-header {
+            padding: 100px 10% 50px;
+            background: #fff;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        .list-header h1 { font-size: 2.8rem; color: #1a1a1a; margin-bottom: 10px; }
+        .list-header p { color: #888; font-size: 1.1rem; }
+
+        .list-container { padding: 60px 10%; background: #f8f9fa; }
+        
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 35px;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: 0.3s;
+            position: relative;
+        }
+        .service-card:hover { transform: translateY(-10px); box-shadow: 0 20px 45px rgba(0,0,0,0.1); }
+
+        .service-img-wrapper { height: 220px; position: relative; }
+        .service-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        .price-tag {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: #ff6600;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(255, 102, 0, 0.3);
+        }
+
+        .service-info { padding: 25px; }
+        .service-info h3 { font-size: 1.3rem; margin-bottom: 8px; color: #1a1a1a; }
+        .provider-meta { font-size: 0.9rem; color: #888; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .provider-meta a { color: #ff6600; text-decoration: none; font-weight: 600; }
+
+        .service-description { color: #666; font-size: 0.95rem; line-height: 1.6; height: 3.2em; overflow: hidden; margin-bottom: 20px; }
+        
+        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f5f5f5; padding-top: 20px; }
+        
+        .rating-stars { color: #f1c40f; font-size: 0.9rem; }
+        .rating-stars span { color: #888; margin-left: 5px; font-weight: 600; }
+
+        .wishlist-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #fdf2f0;
+            color: #e74c3c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .wishlist-btn:hover { background: #e74c3c; color: white; }
+
+        .book-btn {
+            background: #ff6600;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .book-btn:hover { background: #e65c00; box-shadow: 0 5px 15px rgba(255, 102, 0, 0.2); }
+    </style>
+</head>
+<body>
+
+<header>
+    <nav>
+        <a href="{% url 'home' %}" class="logo">
+            <i class="fa-solid fa-feather-pointed"></i> EventNest
+        </a>
+        <ul class="nav-links">
+            <li><a href="{% if request.user.is_authenticated %}{% if request.user.profile.role == 'provider' %}{% url 'provider_home' %}{% else %}{% url 'user_home' %}{% endif %}{% else %}{% url 'home' %}{% endif %}">Home</a></li>
+            <li><a href="{% url 'services' %}" class="active">Services</a></li>
+            <li><a href="{% url 'packages' %}">Packages</a></li>
+            <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+            {% if request.user.is_authenticated %}
+                <div class="profile-dropdown">
+                    <button class="profile-icon-btn" onclick="toggleProfileMenu()">
+                        <i class="fa-solid fa-user"></i>
+                    </button>
+                    <div class="profile-menu-box" id="profileMenu">
+                        <div class="profile-menu-header">
+                            <div class="profile-avatar">{{ request.user.username|slice:":1"|upper }}</div>
+                            <div>
+                                <h4>{{ request.user.username }}</h4>
+                                <p>{{ request.user.profile.role|title }}</p>
+                            </div>
+                        </div>
+                        <a href="{% if request.user.profile.role == 'provider' %}{% url 'provider_dashboard' %}{% else %}{% url 'user_dashboard' %}{% endif %}"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                        <a href="{% url 'my_profile' %}"><i class="fa-solid fa-user"></i> My Profile</a>
+                        <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+                        <a href="{% url 'logout' %}" class="logout-menu"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'login' %}" class="admin-link" style="background: var(--primary); color: white !important;">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+</header>
+
+<a href="{% url 'services' %}" class="back-btn" style="position: fixed; top: 100px; left: 30px; z-index: 100; background: white; border: 1px solid #eee; padding: 10px 20px; border-radius: 12px; text-decoration: none; color: #1a1a1a; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px; transition: 0.3s;">
+    <i class="fa-solid fa-arrow-left"></i> Categories
+</a>
+
+<div class="list-header">
+    <h1>{{ type_name }} Professionals</h1>
+    <p>Hand-picked experts to make your event truly special.</p>
+</div>
+
+<div class="list-container">
+    <div class="service-grid">
+        {% for service in services %}
+        <div class="service-card">
+            <div class="service-img-wrapper">
+                {% if service.image %}
+                    <img src="{{ service.image.url }}" alt="{{ service.service_name }}">
+                {% else %}
+                    <div style="width: 100%; height: 100%; background: #fdf9f6; display: flex; align-items: center; justify-content: center; color: #ff6600; font-size: 3rem;">
+                        <i class="fa-solid fa-briefcase"></i>
+                    </div>
+                {% endif %}
+                <div class="price-tag">₹{{ service.price }}</div>
+            </div>
+
+            <div class="service-info">
+                <div class="rating-stars">
+                    {% if service.avg_rating %}
+                        <i class="fa-solid fa-star"></i> {{ service.avg_rating|floatformat:1 }}
+                        <span>({{ service.review_count }} reviews)</span>
+                    {% else %}
+                        <span style="font-size: 0.8rem; opacity: 0.6;">No reviews yet</span>
+                    {% endif %}
+                </div>
+                <h3>{{ service.service_name }}</h3>
+                <div class="provider-meta">
+                    <i class="fa-solid fa-circle-user"></i> 
+                    by <a href="{% url 'provider_profile' service.provider.id %}">{{ service.provider.username }}</a>
+                </div>
+                <p class="service-description">{{ service.description }}</p>
+                
+                <div class="card-footer">
+                    <a href="{% url 'book_service' service.id %}" class="book-btn">Book Now</a>
+                    <a href="{% url 'add_service_wishlist' service.id %}" class="wishlist-btn">
+                        <i class="{% if service.id in wishlist_ids %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div style="grid-column: 1/-1; text-align: center; padding: 100px 0;">
+            <i class="fa-solid fa-search" style="font-size: 3rem; color: #eee; margin-bottom: 20px;"></i>
+            <p style="color: #888;">No services found for this category.</p>
+            <a href="{% url 'services' %}" style="color: #ff6600; font-weight: 700; margin-top: 15px; display: block;">Back to Categories</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
+    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
+    <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
+    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
+        © 2026 EventNest | All Rights Reserved
+    </div>
+</footer>
+
+<script>
+    function toggleProfileMenu() {
+        document.getElementById("profileMenu").classList.toggle("show-profile-menu");
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Search Services - EventNest</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+<a href="{% url 'services' %}" class="back-btn">
+  <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+
+<header>
+  <nav>
+    <div class="logo"><i class="fa-solid fa-feather-pointed"></i> EventNest</div>
+
+    <ul>
+      <li><a href="{% if request.user.is_staff or request.user.is_superuser %}{% url 'admin_home' %}{% elif request.user.is_authenticated %}{% url 'user_home' %}{% else %}{% url 'home' %}{% endif %}">
+        Home</a>
+      </li>
+      <li><a href="{% url 'services' %}">Services</a></li>
+      <li><a href="{% url 'packages' %}">Packages</a></li>
+      <li><a href="{% url 'about' %}">About</a></li>
+      <li><a href="{% url 'contact' %}">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+<section class="search-service-section">
+
+  <h1>Search & Filter Services</h1>
+
+  <form method="GET" class="filter-box">
+
+    <input type="text" name="q" placeholder="Search service, provider, location..."
+           value="{{ query }}">
+
+    <select name="service_type">
+      <option value="">All Service Types</option>
+
+      {% for type in service_types %}
+        <option value="{{ type }}" {% if selected_type == type %}selected{% endif %}>
+          {{ type }}
+        </option>
+      {% endfor %}
+    </select>
+
+    <input type="text" name="location" placeholder="Location"
+           value="{{ location }}">
+
+    <input type="number" name="min_price" placeholder="Min Price"
+           value="{{ min_price }}">
+
+    <input type="number" name="max_price" placeholder="Max Price"
+           value="{{ max_price }}">
+
+    <select name="min_rating">
+      <option value="">Any Rating</option>
+      <option value="5" {% if min_rating == "5" %}selected{% endif %}>5 Stars</option>
+      <option value="4" {% if min_rating == "4" %}selected{% endif %}>4 Stars & above</option>
+      <option value="3" {% if min_rating == "3" %}selected{% endif %}>3 Stars & above</option>
+      <option value="2" {% if min_rating == "2" %}selected{% endif %}>2 Stars & above</option>
+      <option value="1" {% if min_rating == "1" %}selected{% endif %}>1 Star & above</option>
+    </select>
+
+    <button type="submit">
+      <i class="fa-solid fa-magnifying-glass"></i> Search
+    </button>
+
+    <a href="{% url 'search_services' %}" class="reset-filter-btn">Reset</a>
+
+  </form>
+
+  <h2 class="result-title">Results</h2>
+
+  <div class="services-grid">
+
+    {% for service in services %}
+      <div class="service-card">
+
+        {% if service.image %}
+          <img src="{{ service.image.url }}" class="service-img">
+        {% else %}
+          <i class="fa-solid fa-calendar-check"></i>
+        {% endif %}
+
+        <h3>{{ service.service_name }}</h3>
+
+        <p><b>Type:</b> {{ service.service_type }}</p>
+        <p>{{ service.description }}</p>
+
+        <p>
+          <b>Provider:</b>
+          <a href="{% url 'provider_profile' service.provider.id %}" class="provider-link">
+            {{ service.provider.username }}
+          </a>
+        </p>
+
+        <p class="rating-line">
+          {% if service.avg_rating %}
+            {% for i in "12345" %}
+              {% if forloop.counter <= service.avg_rating %}
+                <i class="fa-solid fa-star star"></i>
+              {% else %}
+                <i class="fa-regular fa-star star"></i>
+              {% endif %}
+            {% endfor %}
+
+            <span class="rating-number">
+              {{ service.avg_rating|floatformat:1 }} ({{ service.review_count }} reviews)
+            </span>
+          {% else %}
+            <span class="no-rating">No ratings yet</span>
+          {% endif %}
+        </p>
+
+        <p><b>Location:</b> {{ service.location }}</p>
+        <p><b>Price:</b> ₹{{ service.price }}</p>
+
+        <a href="{% url 'book_service' service.id %}" class="small-btn">Book Now</a>
+
+      </div>
+    {% empty %}
+      <div class="empty-card">
+        <h2>No services found</h2>
+        <p>Try changing your search or filters.</p>
+      </div>
+    {% endfor %}
+
+  </div>
+
+</section>
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

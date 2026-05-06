@@ -1,0 +1,145 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body style="background: #f8f9fa;">
+
+<div class="dashboard-container">
+    <!-- SIDEBAR -->
+    <aside class="dashboard-sidebar">
+        <a href="{% url 'user_home' %}" class="sidebar-logo">
+            <i class="fa-solid fa-feather-pointed"></i> EventNest
+        </a>
+        
+        <ul class="sidebar-menu">
+            <li><a href="{% url 'user_home' %}"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li><a href="{% url 'user_dashboard' %}" class="active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
+            <li><a href="{% url 'user_bookings' %}"><i class="fa-solid fa-calendar-check"></i> My Bookings</a></li>
+            <li><a href="{% url 'wishlist' %}"><i class="fa-solid fa-heart"></i> Wishlist</a></li>
+            <li><a href="{% url 'notifications' %}"><i class="fa-solid fa-bell"></i> Notifications</a></li>
+            <li><a href="{% url 'settings' %}"><i class="fa-solid fa-gear"></i> Settings</a></li>
+        </ul>
+
+        <div class="sidebar-footer" style="margin-top: auto;">
+            <a href="{% url 'logout' %}" style="color: #ff4444; text-decoration: none; display: flex; align-items: center; gap: 15px; padding: 14px 20px;">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="dashboard-content">
+        <div class="dash-hero" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+            <div>
+                <h1 style="font-size: 2rem; color: #1a1a1a;">Hello, {{ request.user.first_name|default:request.user.username }}! 👋</h1>
+                <p style="color: #666; margin-top: 5px;">Here's what's happening with your events today.</p>
+            </div>
+            <div style="text-align: right;">
+                <a href="{% url 'services' %}" class="btn" style="padding: 12px 24px;">Book New Service</a>
+            </div>
+        </div>
+
+        <!-- STATS GRID -->
+        <div class="dash-stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; margin-bottom: 40px;">
+            <a href="{% url 'user_bookings' %}" class="dash-stat-card">
+                <i class="fa-solid fa-calendar-days"></i>
+                <h2>{{ booking_count }}</h2>
+                <p>Total Bookings</p>
+            </a>
+            <a href="{% url 'wishlist' %}" class="dash-stat-card">
+                <i class="fa-solid fa-heart"></i>
+                <h2>{{ wishlist_count }}</h2>
+                <p>Wishlist Items</p>
+            </a>
+            <a href="{% url 'services' %}" class="dash-stat-card">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <h2>{{ total_services }}</h2>
+                <p>Browse Services</p>
+            </a>
+            <a href="{% url 'packages' %}" class="dash-stat-card">
+                <i class="fa-solid fa-box"></i>
+                <h2>{{ total_packages }}</h2>
+                <p>Browse Packages</p>
+            </a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-bottom: 40px;">
+            <!-- UPCOMING BOOKINGS -->
+            <div class="dash-panel">
+                <h2 style="margin-bottom: 25px; font-size: 1.3rem;">Upcoming Events</h2>
+                <div class="dash-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Provider</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in upcoming_bookings %}
+                            <tr>
+                                <td style="font-weight: 600;">{{ booking.service.service_name }}</td>
+                                <td>{{ booking.provider.username }}</td>
+                                <td>{{ booking.event_date }}</td>
+                                <td><span class="status-badge status-{{ booking.status|lower }}">{{ booking.status }}</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #888; padding: 40px;">No upcoming bookings yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- QUICK ACTIONS -->
+            <div class="dash-panel" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+                <h2 style="margin-bottom: 25px; font-size: 1.3rem;">Need Help?</h2>
+                <p style="color: #666; margin-bottom: 20px; font-size: 0.95rem;">Our support team is available 24/7 to help you with your event planning.</p>
+                <a href="{% url 'contact' %}" class="dash-action-btn" style="background: #fdf9f6; color: #ff6600; padding: 15px; border-radius: 12px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-weight: 600;">
+                    <i class="fa-solid fa-headset"></i> Contact Support
+                </a>
+            </div>
+        </div>
+
+        <!-- RECOMMENDATIONS -->
+        <h2 style="margin-bottom: 25px; font-size: 1.5rem;">Recommended for You</h2>
+        <div class="dash-card-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px;">
+            {% for service in recommended_services %}
+            <a href="{% url 'book_service' service.id %}" class="dash-service-card" style="text-decoration: none; color: inherit; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); transition: 0.3s; display: block;">
+                {% if service.image %}
+                    <img src="{{ service.image.url }}" style="width: 100%; height: 180px; object-fit: cover;">
+                {% else %}
+                    <div style="width: 100%; height: 180px; background: #fdf9f6; display: flex; align-items: center; justify-content: center; color: #ff6600; font-size: 2rem;">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                {% endif %}
+                <div style="padding: 20px;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 5px;">{{ service.service_name }}</h3>
+                    <p style="color: #888; font-size: 0.9rem; margin-bottom: 10px;">{{ service.service_type }}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 700; color: #ff6600; font-size: 1.1rem;">₹{{ service.price }}</span>
+                        {% if service.avg_rating %}
+                            <span style="font-size: 0.85rem; color: #f1c40f;"><i class="fa-solid fa-star"></i> {{ service.avg_rating|floatformat:1 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+                <div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px; background: white; border-radius: 20px;">No recommendations at the moment.</div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

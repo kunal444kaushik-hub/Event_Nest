@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Manage Providers - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-premium-body">
+
+<div class="admin-premium-layout">
+  <!-- SIDEBAR -->
+  <aside class="admin-premium-sidebar">
+    <div class="admin-logo">
+      <i class="fa-solid fa-feather-pointed"></i>
+      <h2>EventNest</h2>
+      <p>Admin Panel</p>
+    </div>
+
+    <a href="{% url 'admin_home' %}">
+      <i class="fa-solid fa-house"></i> Admin Home
+    </a>
+
+    <a href="{% url 'custom_admin_dashboard' %}">
+      <i class="fa-solid fa-chart-line"></i> Analytics
+    </a>
+
+    <a href="{% url 'admin_users' %}">
+      <i class="fa-solid fa-users"></i> Users
+    </a>
+
+    <a href="{% url 'admin_providers' %}" class="admin-nav-active">
+      <i class="fa-solid fa-store"></i> Providers
+    </a>
+
+    <a href="{% url 'admin_services' %}">
+      <i class="fa-solid fa-briefcase"></i> Services
+    </a>
+
+    <a href="{% url 'admin_packages' %}">
+      <i class="fa-solid fa-box-open"></i> Packages
+    </a>
+
+    <a href="{% url 'admin_bookings' %}">
+      <i class="fa-solid fa-calendar-check"></i> Bookings
+    </a>
+
+    <a href="{% url 'admin_reviews' %}">
+      <i class="fa-solid fa-star"></i> Reviews
+    </a>
+
+    <a href="{% url 'logout' %}" class="admin-site-link">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout & Back to Site
+    </a>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="admin-premium-main">
+    <div class="admin-topbar">
+      <h1>Manage Service Providers</h1>
+      <div class="admin-profile-pill">
+        <i class="fa-solid fa-user-shield"></i> {{ request.user.username }}
+      </div>
+    </div>
+
+    <div class="admin-premium-panel">
+      <div class="admin-table-wrap">
+        <table class="admin-premium-table">
+          <thead>
+            <tr>
+              <th>Business & Owner</th>
+              <th>Category</th>
+              <th>Verification Docs</th>
+              <th>Approval</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for profile in providers %}
+            <tr>
+              <td>
+                <div style="font-weight:700; color:#1a1a1a;">{{ profile.business_name|default:profile.user.username }}</div>
+                <div style="font-size:0.75rem; color:#888;">Owner: {{ profile.owner_name|default:profile.user.username }}</div>
+                <div style="font-size:0.7rem; color:#ff6600;">{{ profile.user.email }}</div>
+              </td>
+              <td>
+                <span style="font-size:0.8rem; background:#f0f2f5; padding:4px 10px; border-radius:8px; font-weight:600;">
+                  {{ profile.service_type|default:profile.provider_services }}
+                </span>
+              </td>
+              <td>
+                <div style="font-size:0.75rem; display:flex; flex-direction:column; gap:4px;">
+                  {% if profile.gst_number %}<div><b>GST:</b> {{ profile.gst_number }}</div>{% endif %}
+                  {% if profile.fssai_number %}<div><b>FSSAI:</b> {{ profile.fssai_number }}</div>{% endif %}
+                  <div style="display:flex; gap:8px; margin-top:5px;">
+                    {% if profile.id_proof %}
+                      <a href="{{ profile.id_proof.url }}" target="_blank" title="ID Proof" style="color:#ff6600;"><i class="fa-solid fa-id-card"></i> ID</a>
+                    {% endif %}
+                    {% if profile.business_certificate %}
+                      <a href="{{ profile.business_certificate.url }}" target="_blank" title="Business Certificate" style="color:#ff6600;"><i class="fa-solid fa-file-contract"></i> Cert</a>
+                    {% endif %}
+                    {% if not profile.id_proof and not profile.business_certificate %}
+                      <span style="color:#ccc; font-style:italic;">No docs</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </td>
+              <td>
+                {% if profile.is_approved %}
+                  <span class="admin-small-badge approved"><i class="fa-solid fa-check-double"></i> Verified</span>
+                {% else %}
+                  <div style="display:flex; gap:5px;">
+                    <a href="{% url 'approve_provider' profile.id %}" class="admin-btn-table" style="background:#10b981;">Approve</a>
+                    <a href="{% url 'reject_provider' profile.id %}" class="admin-btn-table danger">Reject</a>
+                  </div>
+                {% endif %}
+              </td>
+              <td>
+                {% if profile.is_blocked %}
+                  <span class="admin-small-badge pending">Blocked</span>
+                {% else %}
+                  <span class="admin-small-badge approved">Active</span>
+                {% endif %}
+              </td>
+              <td>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                  <a href="{% url 'admin_provider_details' profile.id %}" class="admin-btn-table" style="background:#007bff;">Manage Services</a>
+                  {% if not profile.is_approved %}
+                    <a href="{% url 'approve_provider' profile.id %}" class="admin-btn-table">Approve</a>
+                  {% endif %}
+                  {% if profile.is_blocked %}
+                    <a href="{% url 'unblock_user' profile.id %}" class="admin-btn-table">Unblock</a>
+                  {% else %}
+                    <a href="{% url 'block_user' profile.id %}" class="admin-btn-table danger">Block</a>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

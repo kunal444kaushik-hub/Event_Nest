@@ -1,0 +1,464 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body style="background: #f4f7f6;">
+
+<a href="{% if profile.role == 'provider' %}{% url 'provider_home' %}{% else %}{% url 'user_home' %}{% endif %}" class="back-btn">
+    <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+
+<header>
+    <nav>
+        <a href="{% url 'home' %}" class="logo">
+            <i class="fa-solid fa-feather-pointed"></i> EventNest
+        </a>
+        <ul class="nav-links">
+            <li><a href="{% if profile.role == 'provider' %}{% url 'provider_home' %}{% else %}{% url 'user_home' %}{% endif %}">Home</a></li>
+            <li><a href="{% url 'services' %}">Services</a></li>
+            <li><a href="{% url 'packages' %}">Packages</a></li>
+            <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+            <a href="{% url 'my_profile' %}" class="admin-link" style="background: #1a1a1a; color: white !important; border-radius: 12px; padding: 10px 24px;">
+                <i class="fa-solid fa-user" style="margin-right: 8px;"></i> My Profile
+            </a>
+        </div>
+    </nav>
+</header>
+
+<div class="settings-container">
+    <!-- SIDEBAR NAV -->
+    <aside class="settings-sidebar">
+        <h3>Account</h3>
+        <ul class="settings-nav">
+            <li><button class="settings-nav-btn active" onclick="showSection(event, 'profile')"><i class="fa-solid fa-user-gear"></i> Edit Profile</button></li>
+            <li><button class="settings-nav-btn" onclick="showSection(event, 'security')"><i class="fa-solid fa-shield-halved"></i> Security</button></li>
+            <li><button class="settings-nav-btn" onclick="showSection(event, 'privacy')"><i class="fa-solid fa-eye-slash"></i> Privacy</button></li>
+        </ul>
+
+        {% if profile.role == "provider" %}
+        <h3>Business</h3>
+        <ul class="settings-nav">
+            <li><button class="settings-nav-btn" onclick="showSection(event, 'business')"><i class="fa-solid fa-shop"></i> Business Profile</button></li>
+            <li><button class="settings-nav-btn" onclick="showSection(event, 'booking')"><i class="fa-solid fa-calendar-check"></i> Booking Rules</button></li>
+            <li><button class="settings-nav-btn" onclick="showSection(event, 'verification')"><i class="fa-solid fa-file-circle-check"></i> Verification</button></li>
+        </ul>
+        {% endif %}
+
+        <h3>Preferences</h3>
+        <ul class="settings-nav">
+            {% if profile.role == "user" %}
+            <li><button class="settings-nav-btn" onclick="showSection(event, 'preferences')"><i class="fa-solid fa-heart-pulse"></i> Event Needs</button></li>
+            {% endif %}
+            <li><button class="settings-nav-btn" onclick="showSection(event, 'notifications')"><i class="fa-solid fa-bell-concierge"></i> Notifications</button></li>
+            <li><button class="settings-nav-btn" onclick="showSection(event, 'activity')"><i class="fa-solid fa-clock-rotate-left"></i> Activity Log</button></li>
+            <li><button class="settings-nav-btn" onclick="showSection(event, 'danger')" style="color: #ff4444;"><i class="fa-solid fa-trash-can"></i> Danger Zone</button></li>
+        </ul>
+    </aside>
+
+    <!-- CONTENT AREA -->
+    <main class="settings-content-area">
+        
+        <!-- PROFILE COMPLETION HEADER -->
+        <div class="settings-header-card">
+            <div class="settings-profile-preview">
+                {% if profile.profile_image %}
+                    <img src="{{ profile.profile_image.url }}" class="settings-profile-img" style="border: none;">
+                {% else %}
+                    {{ request.user.username|slice:":1"|upper }}
+                {% endif %}
+            </div>
+            <div class="settings-completion-bar">
+                <div class="completion-label">
+                    <span>Profile Completion</span>
+                    <span>{% if profile.bio and profile.phone %}85%{% else %}45%{% endif %}</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: {% if profile.bio and profile.phone %}85%{% else %}45%{% endif %};"></div>
+                </div>
+                <p style="font-size: 0.75rem; color: #888; margin-top: 8px;">Complete your profile to build more trust with {% if profile.role == 'user' %}providers{% else %}customers{% endif %}.</p>
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div style="padding: 15px 20px; border-radius: 12px; margin-bottom: 30px; background: {% if message.tags == 'success' %}#e8f5e9; color: #2e7d32;{% else %}#fff5f5; color: #c62828;{% endif %} font-weight: 600; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check{% else %}fa-circle-exclamation{% endif %}"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- PROFILE SECTION -->
+        <section id="profile-section" class="settings-section-content active">
+            <div class="section-header-box">
+                <h2>Edit Personal Profile</h2>
+                <p>Update your basic information and contact details.</p>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="profile">
+                <div class="settings-grid-2">
+                    <div class="settings-form-group">
+                        <label>Full Name</label>
+                        <input type="text" name="first_name" value="{{ request.user.first_name }}" placeholder="Your Name">
+                    </div>
+                    <div class="settings-form-group">
+                        <label>Email Address</label>
+                        <input type="email" name="email" value="{{ request.user.email }}" placeholder="email@example.com">
+                    </div>
+                </div>
+                <div class="settings-grid-2">
+                    <div class="settings-form-group">
+                        <label>Phone Number</label>
+                        <input type="text" name="phone" value="{{ profile.phone|default:'' }}" placeholder="+91 0000000000">
+                    </div>
+                    <div class="settings-form-group">
+                        <label>Location</label>
+                        <input type="text" name="location" value="{{ profile.location|default:'' }}" placeholder="City, State">
+                    </div>
+                </div>
+                <button type="submit" class="settings-save-btn">Update Profile</button>
+            </form>
+        </section>
+
+        <!-- SECURITY SECTION -->
+        <section id="security-section" class="settings-section-content">
+            <div class="section-header-box">
+                <h2>Security & Password</h2>
+                <p>Keep your account secure by using a strong password.</p>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="security">
+                <div class="settings-form-group">
+                    <label>Current Password</label>
+                    <input type="password" name="old_password" required placeholder="••••••••">
+                </div>
+                <hr style="margin-bottom: 25px; border: 0; border-top: 1px solid #eee;">
+                <div class="settings-grid-2">
+                    <div class="settings-form-group">
+                        <label>New Password</label>
+                        <input type="password" name="new_password" required placeholder="Minimum 8 characters">
+                    </div>
+                    <div class="settings-form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" name="confirm_password" required placeholder="Repeat new password">
+                    </div>
+                </div>
+                <button type="submit" class="settings-save-btn">Update Password</button>
+            </form>
+        </section>
+
+        <!-- PRIVACY SECTION -->
+        <section id="privacy-section" class="settings-section-content">
+            <div class="section-header-box">
+                <h2>Privacy Settings</h2>
+                <p>Control who can see your profile and activity.</p>
+            </div>
+            <div class="toggle-item">
+                <div>
+                    <h4>Public Profile</h4>
+                    <p style="color: #888; font-size: 0.85rem;">Allow your profile to be searchable on EventNest.</p>
+                </div>
+                <input type="checkbox" checked style="width: 25px; height: 25px; cursor: pointer;">
+            </div>
+            <div class="toggle-item">
+                <div>
+                    <h4>Show Reviews</h4>
+                    <p style="color: #888; font-size: 0.85rem;">Display reviews you've written on provider profiles.</p>
+                </div>
+                <input type="checkbox" checked style="width: 25px; height: 25px; cursor: pointer;">
+            </div>
+            <button class="settings-save-btn">Save Privacy Settings</button>
+        </section>
+
+        <!-- BUSINESS SECTION (PROVIDER ONLY) -->
+        {% if profile.role == "provider" %}
+        <section id="business-section" class="settings-section-content">
+            <div class="section-header-box">
+                <h2>Business Profile</h2>
+                <p>Manage how your business appears to potential customers.</p>
+            </div>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="profile">
+                <div class="settings-grid-2">
+                    <div class="settings-form-group">
+                        <label>Business Name</label>
+                        <input type="text" name="business_name" value="{{ profile.business_name|default:'' }}">
+                    </div>
+                    <div class="settings-form-group">
+                        <label>Owner Name</label>
+                        <input type="text" name="owner_name" value="{{ profile.owner_name|default:'' }}">
+                    </div>
+                </div>
+                <div class="settings-grid-2">
+                    <div class="settings-form-group">
+                        <label>Service Type</label>
+                        <select name="service_type">
+                            <option value="DJ & Music" {% if profile.service_type == "DJ & Music" %}selected{% endif %}>DJ & Music</option>
+                            <option value="Catering" {% if profile.service_type == "Catering" %}selected{% endif %}>Catering</option>
+                            <option value="Decoration" {% if profile.service_type == "Decoration" %}selected{% endif %}>Decoration</option>
+                            <option value="Photography" {% if profile.service_type == "Photography" %}selected{% endif %}>Photography</option>
+                            <option value="Lighting Setup" {% if profile.service_type == "Lighting Setup" %}selected{% endif %}>Lighting Setup</option>
+                            <option value="Event Planning" {% if profile.service_type == "Event Planning" %}selected{% endif %}>Event Planning</option>
+                        </select>
+                    </div>
+                    <div class="settings-form-group">
+                        <label>Experience Level</label>
+                        <input type="text" name="experience" value="{{ profile.experience|default:'' }}" placeholder="e.g. 5 Years">
+                    </div>
+                </div>
+                <div class="settings-form-group">
+                    <label>Business Description / Bio</label>
+                    <textarea name="bio" rows="5" placeholder="Tell customers what makes your service special...">{{ profile.bio|default:'' }}</textarea>
+                </div>
+                <div class="settings-grid-2">
+                    <div class="settings-form-group">
+                        <label>Logo / Profile Photo</label>
+                        <input type="file" name="profile_image">
+                    </div>
+                    <div class="settings-form-group">
+                        <label>Cover Photo</label>
+                        <input type="file" name="cover_image">
+                    </div>
+                </div>
+                <button type="submit" class="settings-save-btn">Save Business Profile</button>
+            </form>
+        </section>
+
+        <!-- BOOKING SETTINGS (PROVIDER ONLY) -->
+        <section id="booking-section" class="settings-section-content">
+            <div class="section-header-box">
+                <h2>Booking Rules</h2>
+                <p>Define how you want to handle incoming event requests.</p>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="provider_booking">
+                <div class="toggle-item">
+                    <div>
+                        <h4 style="margin-bottom: 5px;">Online Availability</h4>
+                        <p style="color: #888; font-size: 0.85rem;">Turn this off to temporarily hide your services from search.</p>
+                    </div>
+                    <input type="checkbox" name="is_available" {% if profile.is_available %}checked{% endif %} style="width: 25px; height: 25px; cursor: pointer;">
+                </div>
+                <div class="toggle-item">
+                    <div>
+                        <h4 style="margin-bottom: 5px;">Instant Booking</h4>
+                        <p style="color: #888; font-size: 0.85rem;">Requests will be automatically accepted without manual review.</p>
+                    </div>
+                    <input type="checkbox" name="auto_accept_bookings" {% if profile.auto_accept_bookings %}checked{% endif %} style="width: 25px; height: 25px; cursor: pointer;">
+                </div>
+                <button type="submit" class="settings-save-btn">Update Rules</button>
+            </form>
+        </section>
+
+        <!-- VERIFICATION SECTION (PROVIDER ONLY) -->
+        <section id="verification-section" class="settings-section-content">
+            <div class="section-header-box">
+                <h2>Business Verification</h2>
+                <p>Upload your documents to get verified by the admin.</p>
+            </div>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="verification">
+                <div class="settings-grid-2">
+                    <div class="settings-form-group">
+                        <label>GST Number</label>
+                        <input type="text" name="gst_number" value="{{ profile.gst_number|default:'' }}">
+                    </div>
+                    <div class="settings-form-group">
+                        <label>FSSAI Number (if applicable)</label>
+                        <input type="text" name="fssai_number" value="{{ profile.fssai_number|default:'' }}">
+                    </div>
+                </div>
+                <div class="settings-grid-2">
+                    <div class="settings-form-group">
+                        <label>Identity Proof</label>
+                        <input type="file" name="id_proof">
+                        {% if profile.id_proof %}<p style="font-size: 0.8rem; color: #2e7d32; margin-top: 5px;"><i class="fa-solid fa-check"></i> Document Uploaded</p>{% endif %}
+                    </div>
+                    <div class="settings-form-group">
+                        <label>Business Certificate</label>
+                        <input type="file" name="business_certificate">
+                        {% if profile.business_certificate %}<p style="font-size: 0.8rem; color: #2e7d32; margin-top: 5px;"><i class="fa-solid fa-check"></i> Document Uploaded</p>{% endif %}
+                    </div>
+                </div>
+                <div style="padding: 20px; border-radius: 15px; margin-bottom: 30px; background: {% if profile.is_approved %}#e8f5e9; color: #2e7d32;{% else %}#fff8e1; color: #f57c00;{% endif %}">
+                    {% if profile.is_approved %}
+                        <i class="fa-solid fa-circle-check"></i> Your business is verified.
+                    {% else %}
+                        <i class="fa-solid fa-clock"></i> Verification is pending admin review.
+                    {% endif %}
+                </div>
+                <button type="submit" class="settings-save-btn">Submit Verification</button>
+            </form>
+        </section>
+        {% endif %}
+
+        <!-- PREFERENCES (USER ONLY) -->
+        {% if profile.role == "user" %}
+        <section id="preferences-section" class="settings-section-content">
+            <div class="section-header-box">
+                <h2>Event Preferences</h2>
+                <p>Set defaults to help us recommend the best services for you.</p>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="preferences">
+                <div class="settings-grid-2">
+                    <div class="settings-form-group">
+                        <label>Preferred City/Location</label>
+                        <input type="text" name="preferred_location" value="{{ profile.preferred_location|default:'' }}" placeholder="e.g. Jorhat, Assam">
+                    </div>
+                    <div class="settings-form-group">
+                        <label>Most Used Category</label>
+                        <select name="preferred_category">
+                            <option value="DJ & Music" {% if profile.preferred_category == "DJ & Music" %}selected{% endif %}>DJ & Music</option>
+                            <option value="Catering" {% if profile.preferred_category == "Catering" %}selected{% endif %}>Catering</option>
+                            <option value="Decoration" {% if profile.preferred_category == "Decoration" %}selected{% endif %}>Decoration</option>
+                            <option value="Photography" {% if profile.preferred_category == "Photography" %}selected{% endif %}>Photography</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="settings-save-btn">Save Preferences</button>
+            </form>
+        </section>
+        {% endif %}
+
+        <!-- NOTIFICATIONS SECTION -->
+        <section id="notifications-section" class="settings-section-content">
+            <div class="section-header-box">
+                <h2>Notification Channels</h2>
+                <p>Decide how you'd like to be notified about platform activity.</p>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="notifications">
+                <div class="toggle-item">
+                    <div>
+                        <h4>Booking Requests</h4>
+                        <p style="color: #888; font-size: 0.85rem;">Email alerts for new or updated event bookings.</p>
+                    </div>
+                    <input type="checkbox" name="notify_booking_updates" {% if profile.notify_booking_updates %}checked{% endif %} style="width: 25px; height: 25px; cursor: pointer;">
+                </div>
+                <div class="toggle-item">
+                    <div>
+                        <h4>Marketing & News</h4>
+                        <p style="color: #888; font-size: 0.85rem;">Stay updated with our latest features and seasonal offers.</p>
+                    </div>
+                    <input type="checkbox" name="notify_offers" {% if profile.notify_offers %}checked{% endif %} style="width: 25px; height: 25px; cursor: pointer;">
+                </div>
+                <button type="submit" class="settings-save-btn">Update Channels</button>
+            </form>
+        </section>
+
+        <!-- ACTIVITY LOG SECTION -->
+        <section id="activity-section" class="settings-section-content">
+            <div class="section-header-box">
+                <h2>Recent Activity</h2>
+                <p>A log of your recent account actions and logins.</p>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon"><i class="fa-solid fa-right-to-bracket"></i></div>
+                <div class="activity-info">
+                    <h5>Account Login</h5>
+                    <p>Signed in from Chrome on Windows • Just now</p>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon"><i class="fa-solid fa-user-pen"></i></div>
+                <div class="activity-info">
+                    <h5>Profile Update</h5>
+                    <p>Updated contact information • 2 hours ago</p>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon"><i class="fa-solid fa-shield-check"></i></div>
+                <div class="activity-info">
+                    <h5>Security Check</h5>
+                    <p>Password verified for settings access • Yesterday</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- DANGER ZONE SECTION -->
+        <section id="danger-section" class="settings-section-content">
+            <div class="section-header-box">
+                <h2 style="color: #ff4444;">Danger Zone</h2>
+                <p>Actions here are permanent and cannot be undone.</p>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="deactivate">
+                <div style="background: #fff5f5; border: 1px solid #ffebeb; padding: 30px; border-radius: 20px;">
+                    <h4 style="margin-bottom: 10px; color: #ff4444;">Delete / Deactivate Account</h4>
+                    <p style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">This will immediately deactivate your profile, hide your listings, and cancel any pending requests. This action is irreversible.</p>
+                    <button type="submit" class="settings-save-btn" style="background: #ff4444; border-radius: 12px;">Delete My Account Permanently</button>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
+    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
+    <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
+    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
+        © 2026 EventNest | All Rights Reserved
+    </div>
+</footer>
+
+<script>
+    window.onload = function() {
+        const hash = window.location.hash.replace('#', '');
+        if (hash) {
+            showSection(null, hash);
+            // Highlight the correct button
+            document.querySelectorAll('.settings-nav-btn').forEach(btn => {
+                if(btn.getAttribute('onclick').includes(`'${hash}'`)) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+    }
+
+    function showSection(event, sectionId) {
+        // Hide all sections
+        const sections = document.querySelectorAll('.settings-section-content');
+        sections.forEach(s => s.classList.remove('active'));
+
+        // Deactivate all buttons
+        const buttons = document.querySelectorAll('.settings-nav-btn');
+        buttons.forEach(b => b.classList.remove('active'));
+
+        // Show selected section
+        const targetSection = document.getElementById(sectionId + '-section');
+        if (targetSection) {
+            targetSection.classList.add('active');
+        }
+
+        // Activate clicked button
+        if (event && event.currentTarget) {
+            event.currentTarget.classList.add('active');
+        }
+        
+        // Scroll to top of content area
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Provider Register - Business Info</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="login-body">
+
+<div class="login-logo">
+    <i class="fa-solid fa-feather-pointed"></i> EventNest
+</div>
+
+<div class="login-box">
+    <div class="reg-steps">
+        <div class="step-dot active"></div>
+        <div class="step-dot active"></div>
+        <div class="step-dot active"></div>
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+    </div>
+
+    <h2>Business Info</h2>
+    <p class="subtitle">Tell us about your business</p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <input type="text" name="business_name" placeholder="Business Name" required>
+        <input type="text" name="owner_name" placeholder="Owner Name" required>
+        <input type="text" name="phone" placeholder="Business Phone Number" required>
+        <input type="text" name="location" placeholder="Business Location (City)" required>
+
+        {% if error %}
+            <div class="error-msg">{{ error }}</div>
+        {% endif %}
+
+        <button type="submit">Next: Services & Verification <i class="fa-solid fa-arrow-right"></i></button>
+    </form>
+</div>
+
+</body>
+</html>
