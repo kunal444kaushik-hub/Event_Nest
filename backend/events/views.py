@@ -159,8 +159,12 @@ def packages(request):
     event_types = [
         "Birthday Package",
         "Marriage Package",
+        "Engagement Package",
+        "Sangeet Package",
         "Office Party Package",
         "Bachelor Party Package",
+        "Exhibition Package",
+        "Workshop Package",
         "Custom Combo Package"
     ]
 
@@ -176,7 +180,11 @@ def packages(request):
     occasions = [
         {"name": "Birthday", "icon": "fa-cake-candles"},
         {"name": "Wedding", "icon": "fa-ring"},
+        {"name": "Engagement", "icon": "fa-gem"},
+        {"name": "Sangeet", "icon": "fa-music"},
         {"name": "Corporate", "icon": "fa-briefcase"},
+        {"name": "Exhibition", "icon": "fa-palette"},
+        {"name": "Workshop", "icon": "fa-chalkboard-user"},
         {"name": "Festival", "icon": "fa-holly-berry"},
         {"name": "College", "icon": "fa-graduation-cap"},
         {"name": "Luxury", "icon": "fa-crown"},
@@ -1197,6 +1205,15 @@ def make_custom_package(request):
         "Office Party": ["Catering", "Lighting Setup", "Event Planning", "Photography"],
         "Bachelor Party": ["DJ & Music", "Catering", "Decoration", "Lighting Setup"],
         "College Event": ["DJ & Music", "Lighting Setup", "Photography", "Event Planning"],
+        "Engagement": ["Decoration", "Photography", "Catering", "Event Planning"],
+        "Sangeet": ["DJ & Music", "Decoration", "Photography", "Catering"],
+        "Cocktail Party": ["Catering", "DJ & Music", "Lighting Setup", "Decoration"],
+        "Exhibition": ["Furniture / Tent", "Lighting Setup", "Venue Provider", "Event Planning"],
+        "Concert": ["DJ & Music", "Lighting Setup", "Venue Provider", "Host / Anchor", "Photography"],
+        "Workshop / Seminar": ["Venue Provider", "Catering", "Furniture / Tent", "Lighting Setup"],
+        "House Warming": ["Catering", "Decoration", "Photography"],
+        "Naming Ceremony": ["Decoration", "Catering", "Photography", "Host / Anchor"],
+        "Religious Event": ["Decoration", "Catering", "Furniture / Tent", "Host / Anchor"],
     }
 
     selected_event = request.GET.get("event_type", "Birthday Event") # Default to Birthday

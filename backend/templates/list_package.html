@@ -69,7 +69,7 @@
     </style>
 </head>
 <body>
-<a href="{% url 'provider_dashboard' %}" class="back-btn" style="position: absolute; top: 25px; left: 25px; z-index: 100;">
+<a href="{% url 'home' %}" class="back-btn" style="position: absolute; top: 25px; left: 25px; z-index: 100;">
     <i class="fa-solid fa-arrow-left"></i> Exit
 </a>
 
@@ -120,6 +120,26 @@
                         <i class="fa-solid fa-glass-cheers"></i>
                         <span>Party</span>
                     </div>
+                    <div class="type-card" onclick="selectType('Engagement', 'fa-gem')">
+                        <i class="fa-solid fa-gem"></i>
+                        <span>Engagement</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Sangeet', 'fa-music')">
+                        <i class="fa-solid fa-music"></i>
+                        <span>Sangeet</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Office Party', 'fa-briefcase')">
+                        <i class="fa-solid fa-briefcase"></i>
+                        <span>Office Party</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Exhibition', 'fa-palette')">
+                        <i class="fa-solid fa-palette"></i>
+                        <span>Exhibition</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Workshop', 'fa-chalkboard-user')">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                        <span>Workshop</span>
+                    </div>
                     <div class="type-card" onclick="selectType('College Fest', 'fa-graduation-cap')">
                         <i class="fa-solid fa-graduation-cap"></i>
                         <span>College Fest</span>
@@ -131,6 +151,10 @@
                     <div class="type-card" onclick="selectType('Anniversary', 'fa-heart')">
                         <i class="fa-solid fa-heart"></i>
                         <span>Anniversary</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Custom Package', 'fa-wand-magic-sparkles')">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Custom Package</span>
                     </div>
                 </div>
 
@@ -236,6 +260,26 @@
                             <option value="Yes">Yes</option>
                             <option value="No">No</option>
                         </select>
+                    </div>
+                </div>
+
+                <!-- DYNAMIC FIELDS FOR CUSTOM PACKAGE -->
+                <div class="dynamic-section" id="section-Custom-Package" style="display:none">
+                    <div class="input-group">
+                        <label>Target Audience</label>
+                        <input type="text" name="detail_custom_audience" placeholder="e.g. Kids, Adults, VIPs">
+                    </div>
+                    <div class="input-group">
+                        <label>Flexibility Level</label>
+                        <select name="detail_custom_flexibility">
+                            <option value="Highly Flexible">Highly Flexible</option>
+                            <option value="Semi-Flexible">Semi-Flexible</option>
+                            <option value="Fixed Bundle">Fixed Bundle</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Special Instructions for Quote</label>
+                        <textarea name="detail_custom_instructions" placeholder="How should users request changes?"></textarea>
                     </div>
                 </div>
 
