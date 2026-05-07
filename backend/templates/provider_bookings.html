@@ -70,13 +70,29 @@
         <div class="client-info">
             <h3>{{ booking.user.username }}</h3>
             <p><i class="fa-solid fa-phone" style="font-size: 0.7rem;"></i> {{ booking.user.profile.phone|default:"No contact info" }}</p>
+            
+            <!-- Dynamic Booking Specifics -->
+            {% if booking.extra_booking_details %}
+                <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px;">
+                    {% for key, value in booking.extra_booking_details.items %}
+                        <span style="font-size: 0.7rem; background: #f0f0f0; padding: 4px 10px; border-radius: 6px; font-weight: 600; color: #555;">
+                            <b>{{ key|title }}:</b> {{ value }}
+                        </span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             {% if booking.message %}
                 <div class="message-toast">"{{ booking.message|truncatewords:10 }}"</div>
             {% endif %}
         </div>
 
         <div class="service-details">
-            <div class="service-name">{{ booking.service.service_name }}</div>
+            {% if booking.package %}
+                <div class="service-name">{{ booking.package.package_name }} <span style="font-size: 0.6rem; color: #6c5ce7; border: 1px solid #6c5ce7; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">PACKAGE</span></div>
+            {% else %}
+                <div class="service-name">{{ booking.service.service_name }}</div>
+            {% endif %}
             <div class="booking-meta">
                 <i class="fa-regular fa-calendar-check"></i> {{ booking.event_date }}
                 <span style="margin-left: 10px; opacity: 0.6;">| {{ booking.number_of_guests|default:booking.number_of_days }} Qty</span>

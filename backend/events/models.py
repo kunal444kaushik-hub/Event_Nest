@@ -51,11 +51,21 @@ class Service(models.Model):
     provider = models.ForeignKey(User, on_delete=models.CASCADE)
     service_type = models.CharField(max_length=100)
     service_name = models.CharField(max_length=150)
+    short_description = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField()
-    price = models.IntegerField()
+    price = models.IntegerField()  # Starting Price
     location = models.CharField(max_length=100)
+    contact_number = models.CharField(max_length=15, blank=True, null=True)
     image = models.ImageField(upload_to='services/', blank=True, null=True)
     extra_details = models.JSONField(default=dict, blank=True)
+    
+    # New Common Fields
+    experience_years = models.IntegerField(default=0)
+    min_booking_price = models.IntegerField(default=0)
+    max_capacity = models.IntegerField(blank=True, null=True)
+    advance_payment_required = models.BooleanField(default=False)
+    availability_status = models.CharField(max_length=50, default='Available')
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -64,17 +74,54 @@ class Service(models.Model):
 
 class Package(models.Model):
     provider = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    package_type = models.CharField(max_length=100)
+    package_type = models.CharField(max_length=100) # Wedding, Birthday, Corporate, etc.
     package_name = models.CharField(max_length=150)
-    included_services = models.TextField()
+    short_description = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField()
-    total_price = models.IntegerField()
+    
+    # Pricing
+    total_price = models.IntegerField() # Base/Starting Price
+    pricing_structure = models.CharField(max_length=50, default='Fixed Price') # Fixed, Per Guest, Per Day
+    
+    # Capacity & Duration
+    max_guests = models.IntegerField(blank=True, null=True)
+    package_duration = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Logistics
+    location_coverage = models.CharField(max_length=100, blank=True, null=True)
+    availability_status = models.CharField(max_length=50, default='Available')
+    
+    # Media
     image = models.ImageField(upload_to='packages/', blank=True, null=True)
+    
+    # Marketplace Features
+    is_trending = models.BooleanField(default=False)
+    is_featured = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
+    is_outdoor = models.BooleanField(default=False)
+    discount_percentage = models.IntegerField(default=0)
+    
+    # Categorization
+    occasion = models.CharField(max_length=100, blank=True, null=True) # Birthday, Wedding, etc.
+    theme = models.CharField(max_length=100, blank=True, null=True) # Royal, Minimal, etc.
+    
+    # Dynamic & Professional Data
+    included_services = models.TextField() # Comma separated list of services (Decoration, Catering, etc.)
+    extra_details = models.JSONField(default=dict, blank=True) # Type specific details (Theme, Add-ons)
+    variants = models.JSONField(default=dict, blank=True) # Basic/Standard/Premium variants
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.package_name
+
+class PackageImage(models.Model):
+    package = models.ForeignKey(Package, on_delete=models.CASCADE, related_name='gallery')
+    image = models.ImageField(upload_to='package_gallery/')
+
+class ServiceImage(models.Model):
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='gallery')
+    image = models.ImageField(upload_to='service_gallery/')
 
 
 
@@ -115,7 +162,8 @@ class Booking(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_bookings')
     provider = models.ForeignKey(User, on_delete=models.CASCADE, related_name='provider_bookings')
-    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, null=True, blank=True)
+    package = models.ForeignKey(Package, on_delete=models.CASCADE, null=True, blank=True)
 
     event_date = models.DateField()
     number_of_guests = models.IntegerField(blank=True, null=True)
@@ -123,10 +171,22 @@ class Booking(models.Model):
     message = models.TextField(blank=True)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    
+    # New Dynamic Booking Fields
+    extra_booking_details = models.JSONField(default=dict, blank=True)
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def booked_item_name(self):
+        if self.service:
+            return self.service.service_name
+        if self.package:
+            return self.package.package_name
+        return "Unknown"
+
     def __str__(self):
-        return f"{self.user.username} booked {self.service.service_name}"
+        return f"{self.user.username} booked {self.booked_item_name}"
     
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -162,5 +222,16 @@ class Notification(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+
     def __str__(self):
         return f"{self.user.username} - {self.message[:20]}"
+
+
+class ActivityLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    action = models.CharField(max_length=255)
+    details = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.action}"

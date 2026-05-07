@@ -4,69 +4,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ type_name }} - EventNest</title>
+    <title>{{ type_name }} Packages - EventNest</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .list-header {
             padding: 100px 10% 50px;
-            background: white;
+            background: #1a1a1a;
+            color: white;
             text-align: center;
-            border-bottom: 1px solid #eee;
         }
-        .list-header h1 { font-size: 2.5rem; color: #1a1a1a; margin-bottom: 10px; }
+        .list-header h1 { font-size: 3rem; margin-bottom: 10px; color: #ff6600; }
         
-        .package-container { padding: 60px 10%; background: #f8f9fa; min-height: 60vh; }
+        .main-layout { display: grid; grid-template-columns: 300px 1fr; gap: 40px; padding: 60px 10%; background: #fdfdfd; }
         
-        .package-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 30px;
-        }
+        /* Sidebar Filters */
+        .filter-sidebar { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); height: fit-content; position: sticky; top: 100px; }
+        .filter-group { margin-bottom: 30px; }
+        .filter-group h4 { font-size: 0.9rem; text-transform: uppercase; margin-bottom: 15px; color: #888; border-bottom: 2px solid #f5f5f5; padding-bottom: 8px; }
+        .filter-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #eee; margin-bottom: 10px; outline: none; }
+        .filter-radio { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; cursor: pointer; font-size: 0.9rem; }
+        .apply-btn { width: 100%; background: #ff6600; color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .apply-btn:hover { background: #e65c00; }
 
-        .package-card {
-            background: white;
-            border-radius: 25px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            transition: 0.3s;
-            display: flex;
-            flex-direction: column;
-        }
-        .package-card:hover { transform: translateY(-10px); box-shadow: 0 20px 45px rgba(0,0,0,0.1); }
+        .package-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
 
-        .package-img-box { height: 200px; position: relative; overflow: hidden; background: #fdf9f6; }
-        .package-img-box img { width: 100%; height: 100%; object-fit: cover; }
-        .package-badge {
-            position: absolute; top: 20px; left: 20px;
-            background: #ff6600; color: white; padding: 6px 15px;
-            border-radius: 20px; font-weight: 800; font-size: 0.7rem; text-transform: uppercase;
-        }
+        .package-card { background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: 0.3s; display: flex; flex-direction: column; border: 1px solid #f0f0f0; }
+        .package-card:hover { transform: translateY(-10px); box-shadow: 0 20px 45px rgba(0,0,0,0.1); border-color: #ff6600; }
+
+        .package-img-box { height: 220px; position: relative; overflow: hidden; }
+        .package-img-box img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .package-card:hover .package-img-box img { transform: scale(1.1); }
+        
+        .package-badge { position: absolute; top: 20px; right: 20px; background: #ff6600; color: white; padding: 5px 12px; border-radius: 10px; font-weight: 800; font-size: 0.65rem; text-transform: uppercase; z-index: 10; }
+        .verified-badge { position: absolute; top: 20px; left: 20px; background: #2e7d32; color: white; padding: 5px 12px; border-radius: 10px; font-weight: 800; font-size: 0.65rem; z-index: 10; }
+        .photo-count { position: absolute; bottom: 20px; right: 20px; background: rgba(0,0,0,0.6); color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; backdrop-filter: blur(4px); }
 
         .package-body { padding: 25px; flex-grow: 1; }
-        .package-body h3 { font-size: 1.4rem; margin-bottom: 12px; color: #1a1a1a; }
-        .provider-link { font-size: 0.85rem; color: #888; margin-bottom: 15px; display: block; text-decoration: none; }
-        .provider-link b { color: #ff6600; }
+        .package-body h3 { font-size: 1.3rem; margin-bottom: 8px; color: #1a1a1a; }
+        .package-info-row { display: flex; gap: 15px; margin-bottom: 15px; color: #777; font-size: 0.85rem; }
+        .package-info-row span { display: flex; align-items: center; gap: 5px; }
 
-        .bundle-preview { 
-            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; 
-            background: #fafafa; padding: 15px; border-radius: 15px;
-        }
-        .bundle-tag { font-size: 0.75rem; color: #666; font-weight: 700; background: white; padding: 5px 10px; border: 1px solid #eee; border-radius: 8px; }
+        .bundle-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+        .bundle-tag { font-size: 0.7rem; color: #666; font-weight: 700; background: #f5f5f5; padding: 4px 10px; border-radius: 6px; }
 
-        .package-footer { 
-            padding: 20px 25px; border-top: 1px solid #f5f5f5; 
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .package-price { font-size: 1.5rem; font-weight: 800; color: #ff6600; }
-        .book-btn {
-            background: #1a1a1a; color: white; text-decoration: none;
-            padding: 12px 25px; border-radius: 12px; font-weight: 700; transition: 0.3s;
-        }
-        .book-btn:hover { background: #ff6600; transform: scale(1.05); }
+        .package-footer { padding: 20px 25px; border-top: 1px solid #f5f5f5; display: flex; justify-content: space-between; align-items: center; }
+        .package-price { font-size: 1.4rem; font-weight: 800; color: #ff6600; }
+        .book-btn { background: #1a1a1a; color: white; text-decoration: none; padding: 10px 20px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; transition: 0.3s; }
+        .book-btn:hover { background: #ff6600; }
 
-        .empty-state { grid-column: 1/-1; text-align: center; padding: 100px 0; }
-        .empty-state i { font-size: 4rem; color: #eee; margin-bottom: 20px; }
+        .back-btn { position: fixed; top: 30px; left: 30px; z-index: 1000; background: white; padding: 12px 25px; border-radius: 15px; text-decoration: none; color: #1a1a1a; font-weight: 700; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #eee; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: #ff6600; color: white; border-color: #ff6600; }
     </style>
 </head>
 <body>
@@ -90,8 +78,16 @@
                         <i class="fa-solid fa-user"></i>
                     </button>
                     <div class="profile-menu-box" id="profileMenu">
+                        <div class="profile-menu-header">
+                            <div class="profile-avatar">{{ request.user.username|slice:":1"|upper }}</div>
+                            <div>
+                                <h4>{{ request.user.username }}</h4>
+                                <p>{{ request.user.profile.role|title }}</p>
+                            </div>
+                        </div>
                         <a href="{% if request.user.profile.role == 'provider' %}{% url 'provider_dashboard' %}{% else %}{% url 'user_dashboard' %}{% endif %}"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-                        <a href="{% url 'settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
+                        <a href="{% url 'my_profile' %}"><i class="fa-solid fa-user"></i> My Profile</a>
+                        <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
                         <a href="{% url 'logout' %}" class="logout-menu"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
                     </div>
                 </div>
@@ -102,64 +98,101 @@
     </nav>
 </header>
 
-<a href="{% url 'packages' %}" class="back-btn" style="position: fixed; top: 100px; left: 30px; z-index: 100; background: white; border: 1px solid #eee; padding: 10px 20px; border-radius: 12px; text-decoration: none; color: #1a1a1a; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px; transition: 0.3s;">
-    <i class="fa-solid fa-arrow-left"></i> All Themes
+<a href="{% url 'packages' %}" class="back-btn">
+    <i class="fa-solid fa-arrow-left"></i> All Packages
 </a>
 
 <div class="list-header">
     <h1>{{ type_name }}</h1>
-    <p>Premium all-in-one bundles curated for your special day.</p>
+    <p>Professional combo bundles for your next event.</p>
 </div>
 
-<div class="package-container">
-    <div class="package-grid">
-        {% for package in packages %}
-        <div class="package-card">
-            <div class="package-img-box">
-                {% if package.image %}
-                    <img src="{{ package.image.url }}" alt="{{ package.package_name }}">
-                {% else %}
-                    <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#ff6600; font-size:3rem;">
-                        <i class="fa-solid fa-boxes-stacked"></i>
+<div class="main-layout">
+    <aside class="filter-sidebar">
+        <form method="GET">
+            <div class="filter-group">
+                <h4>Budget Range</h4>
+                <input type="number" name="min_price" class="filter-input" placeholder="Min ₹" value="{{ filters.min_price }}">
+                <input type="number" name="max_price" class="filter-input" placeholder="Max ₹" value="{{ filters.max_price }}">
+            </div>
+
+            <div class="filter-group">
+                <h4>Min Guests</h4>
+                <input type="number" name="guests" class="filter-input" placeholder="e.g. 100" value="{{ filters.guests }}">
+            </div>
+
+            <div class="filter-group">
+                <h4>Outdoor Preference</h4>
+                <label class="filter-radio"><input type="radio" name="outdoor" value="any" {% if filters.outdoor == 'any' or not filters.outdoor %}checked{% endif %}> Any</label>
+                <label class="filter-radio"><input type="radio" name="outdoor" value="yes" {% if filters.outdoor == 'yes' %}checked{% endif %}> Outdoor Only</label>
+                <label class="filter-radio"><input type="radio" name="outdoor" value="no" {% if filters.outdoor == 'no' %}checked{% endif %}> Indoor Only</label>
+            </div>
+
+            <div class="filter-group">
+                <h4>Verification</h4>
+                <label class="filter-radio"><input type="checkbox" name="verified" value="yes" {% if filters.verified == 'yes' %}checked{% endif %}> Verified Providers Only</label>
+            </div>
+
+            <button type="submit" class="apply-btn">Apply Filters</button>
+            <a href="?" style="display: block; text-align: center; margin-top: 15px; color: #888; font-size: 0.85rem; text-decoration: none;">Reset Filters</a>
+        </form>
+    </aside>
+
+    <main>
+        <div class="package-grid">
+            {% for package in packages %}
+            <div class="package-card">
+                <div class="package-img-box">
+                    {% if package.is_verified %}<span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified</span>{% endif %}
+                    <span class="package-badge">Combo</span>
+                    {% if package.image %}
+                        <img src="{{ package.image.url }}" alt="{{ package.package_name }}">
+                    {% else %}
+                        <div style="height:100%; background:#eee; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-boxes-stacked fa-3x" style="color:#ccc;"></i></div>
+                    {% endif %}
+                    <div class="photo-count"><i class="fa-solid fa-camera"></i> {{ package.gallery_count|add:1 }}</div>
+                </div>
+
+                <div class="package-body">
+                    <p style="font-size: 0.75rem; color: #ff6600; font-weight: 800; text-transform: uppercase; margin-bottom: 5px;">{{ package.package_type }}</p>
+                    <h3>{{ package.package_name }}</h3>
+                    
+                    <div class="package-info-row">
+                        <span><i class="fa-solid fa-users"></i> Up to {{ package.max_guests|default:"500" }}</span>
+                        <span><i class="fa-solid fa-location-dot"></i> {{ package.location_coverage|default:"All Assam" }}</span>
+                        {% if package.is_outdoor %}<span><i class="fa-solid fa-sun"></i> Outdoor</span>{% endif %}
                     </div>
-                {% endif %}
-                <div class="package-badge">Combo Deal</div>
-            </div>
 
-            <div class="package-body">
-                <a href="{% url 'provider_profile' package.provider.id %}" class="provider-link">By <b>{{ package.provider.username }}</b></a>
-                <h3>{{ package.package_name }}</h3>
-                <div class="bundle-preview">
-                    {% for item in package.included_services.split %}
-                        <span class="bundle-tag"><i class="fa-solid fa-check" style="color:#ff6600; font-size:0.6rem;"></i> {{ item|cut:"," }}</span>
-                    {% endfor %}
+                    <div class="bundle-preview">
+                        {% for item in package.included_services.split %}
+                            {% if item %}
+                                <span class="bundle-tag">{{ item|cut:"," }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
-                <p style="color:#666; font-size:0.9rem; line-height:1.5;">{{ package.description|truncatewords:20 }}</p>
-            </div>
 
-            <div class="package-footer">
-                <div class="package-price">₹{{ package.total_price }}</div>
-                <div style="display:flex; gap:10px;">
-                    <a href="{% url 'add_package_wishlist' package.id %}" style="color:#e74c3c; font-size:1.2rem; padding:10px;"><i class="fa-regular fa-heart"></i></a>
-                    <a href="#" class="book-btn">Book Bundle</a>
+                <div class="package-footer">
+                    <div class="package-price">₹{{ package.total_price }}</div>
+                    <a href="{% url 'book_package' package.id %}" class="book-btn">View Details</a>
                 </div>
             </div>
+            {% empty %}
+            <div style="grid-column: 1/-1; text-align: center; padding: 100px 0;">
+                <i class="fa-solid fa-search fa-4x" style="color: #eee; margin-bottom: 20px;"></i>
+                <h3>No Matching Packages</h3>
+                <p style="color: #888;">Try adjusting your filters or searching for something else.</p>
+            </div>
+            {% endfor %}
         </div>
-        {% empty %}
-        <div class="empty-state">
-            <i class="fa-solid fa-ghost"></i>
-            <h3>No Packages Yet</h3>
-            <p style="color:#888;">Providers haven't listed any combo deals for this theme.</p>
-        </div>
-        {% endfor %}
-    </div>
+    </main>
 </div>
 
-<footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
+<footer style="background: #1a1a1a; color: white; padding: 60px 10% 20px; text-align: center;">
     <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
-    <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
+    <p style="opacity: 0.6; margin-bottom: 40px;">Professional Event Marketplace.</p>
     <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
-        © 2026 EventNest | All Rights Reserved
+        © 2026 EventNest
     </div>
 </footer>
 
@@ -171,3 +204,4 @@
 
 </body>
 </html>
+ml>

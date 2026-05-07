@@ -1,0 +1,252 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book {{ package.package_name }} - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #fdfdfd; font-family: 'Inter', sans-serif; min-height: 100vh; }
+        .booking-hero { background: white; padding: 100px 10% 60px; text-align: center; border-bottom: 1px solid #eee; }
+        .booking-hero h1 { font-size: 2.5rem; color: #1a1a1a; margin-bottom: 10px; }
+        
+        .booking-container { max-width: 1000px; margin: 40px auto; display: grid; grid-template-columns: 1fr 380px; gap: 30px; padding: 0 20px; }
+        
+        .booking-form-box { background: white; padding: 40px; border-radius: 25px; box-shadow: 0 15px 45px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
+        
+        .input-group { margin-bottom: 25px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 700; color: #1a1a1a; font-size: 0.9rem; }
+        .input-group input, .input-group textarea, .input-group select { width: 100%; padding: 14px 18px; border-radius: 12px; border: 2px solid #f0f0f0; background: #fafafa; font-size: 0.95rem; transition: 0.3s; }
+        .input-group input:focus, .input-group textarea:focus { border-color: #ff6600; background: white; outline: none; }
+
+        .variant-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 30px; }
+        .variant-card { border: 2px solid #f0f0f0; padding: 15px; border-radius: 15px; cursor: pointer; transition: 0.3s; text-align: center; }
+        .variant-card h4 { font-size: 0.8rem; text-transform: uppercase; margin-bottom: 5px; color: #888; }
+        .variant-card .v-price { font-size: 1.1rem; font-weight: 800; color: #1a1a1a; }
+        .variant-card:hover { border-color: #ff6600; background: #fff9f5; }
+        .variant-card.active { border-color: #ff6600; background: #ff6600; color: white; }
+        .variant-card.active h4, .variant-card.active .v-price { color: white; }
+
+        .summary-card { background: white; border-radius: 25px; border: 1px solid #eee; overflow: hidden; position: sticky; top: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+        .summary-img { height: 200px; overflow: hidden; }
+        .summary-img img { width: 100%; height: 100%; object-fit: cover; }
+        .summary-body { padding: 25px; }
+        .summary-price { font-size: 1.5rem; font-weight: 800; color: #ff6600; margin-top: 15px; }
+
+        .btn-book { background: #ff6600; color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.3s; margin-top: 20px; }
+        .btn-book:hover { background: #e65c00; transform: translateY(-2px); }
+        
+        .bundle-preview { margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 15px; }
+        .bundle-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #555; margin-bottom: 5px; }
+        .bundle-item i { color: #2e7d32; font-size: 0.7rem; }
+
+        /* GALLERY STYLES */
+        .service-gallery { margin-bottom: 40px; }
+        .gallery-main { width: 100%; height: 450px; border-radius: 25px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #eee; }
+        .gallery-main img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+        .gallery-item { height: 100px; border-radius: 12px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: 0.3s; }
+        .gallery-item:hover { transform: scale(1.05); }
+        .gallery-item.active { border-color: #ff6600; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+    </style>
+</head>
+<body>
+
+<a href="{% url 'package_by_type' package.package_type %}" class="back-btn" style="position: fixed; top: 30px; left: 30px; z-index: 100; background: white; border: 1px solid #eee; padding: 10px 20px; border-radius: 12px; text-decoration: none; color: #1a1a1a; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px;">
+    <i class="fa-solid fa-arrow-left"></i> Back to Packages
+</a>
+
+<div class="booking-hero">
+    <h1>Book Professional Package</h1>
+    <p>Secure your combo deal for <b>{{ package.package_name }}</b>.</p>
+</div>
+
+<div class="booking-container">
+    <div class="booking-left">
+        <!-- GALLERY SECTION -->
+        <div class="service-gallery">
+            <div class="gallery-main" id="mainGalleryBox">
+                {% if package.image %}
+                    <img src="{{ package.image.url }}" id="expandedImg">
+                {% else %}
+                    <div style="width:100%; height:100%; background:#f9f9f9; display:flex; align-items:center; justify-content:center; color:#ccc; font-size:4rem;">
+                        <i class="fa-solid fa-image"></i>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="gallery-grid">
+                {% if package.image %}
+                    <div class="gallery-item active" onclick="updateGallery('{{ package.image.url }}', this)">
+                        <img src="{{ package.image.url }}">
+                    </div>
+                {% endif %}
+                
+                {% for gallery in package.gallery.all %}
+                    <div class="gallery-item" onclick="updateGallery('{{ gallery.image.url }}', this)">
+                        <img src="{{ gallery.image.url }}">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="booking-form-box">
+        <form method="POST">
+            {% csrf_token %}
+            
+            <h3 style="margin-bottom: 20px; font-size: 1.1rem; color: #1a1a1a;">1. Select Your Tier</h3>
+            <input type="hidden" name="selected_variant" id="variant_input" value="Basic">
+            <div class="variant-selector">
+                <div class="variant-card active" onclick="selectVariant('Basic', '{{ package.variants.Basic.price }}')">
+                    <h4>Basic</h4>
+                    <div class="v-price">₹{{ package.variants.Basic.price|default:package.total_price }}</div>
+                </div>
+                <div class="variant-card" onclick="selectVariant('Standard', '{{ package.variants.Standard.price }}')">
+                    <h4>Standard</h4>
+                    <div class="v-price">₹{{ package.variants.Standard.price|default:package.total_price }}</div>
+                </div>
+                <div class="variant-card" onclick="selectVariant('Premium', '{{ package.variants.Premium.price }}')">
+                    <h4>Premium</h4>
+                    <div class="v-price">₹{{ package.variants.Premium.price|default:package.total_price }}</div>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 20px; font-size: 1.1rem; color: #1a1a1a;">2. Event Details</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="input-group">
+                    <label>Event Date</label>
+                    <input type="date" name="event_date" required min="{{ today|date:'Y-m-d' }}">
+                </div>
+                <div class="input-group">
+                    <label>Number of Guests</label>
+                    <input type="number" name="number_of_guests" placeholder="Approx. guests" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Venue Location</label>
+                <input type="text" name="booking_detail_venue" placeholder="e.g. City Garden, Jorhat" required>
+            </div>
+
+            <div class="input-group">
+                <label>Contact Number</label>
+                <input type="text" name="booking_detail_contact" placeholder="For coordination" required>
+            </div>
+
+            <!-- TYPE SPECIFIC BOOKING FIELDS -->
+            {% if package.package_type == "Birthday Package" %}
+            <div style="background: #f9f9f9; padding: 25px; border-radius: 20px; border: 1px solid #eee; margin-bottom: 25px;">
+                <h4 style="margin-bottom: 15px; color: #ff6600;"><i class="fa-solid fa-cake-candles"></i> Birthday Specifics</h4>
+                <div class="input-group">
+                    <label>Birthday Person Name</label>
+                    <input type="text" name="booking_detail_bday_name">
+                </div>
+                <div class="input-group">
+                    <label>Preferred Theme</label>
+                    <input type="text" name="booking_detail_bday_theme" placeholder="e.g. Space, Jungle">
+                </div>
+            </div>
+            {% elif package.package_type == "Wedding Package" %}
+            <div style="background: #f9f9f9; padding: 25px; border-radius: 20px; border: 1px solid #eee; margin-bottom: 25px;">
+                <h4 style="margin-bottom: 15px; color: #ff6600;"><i class="fa-solid fa-ring"></i> Wedding Specifics</h4>
+                <div class="input-group">
+                    <label>Couple Names</label>
+                    <input type="text" name="booking_detail_couple_names" placeholder="e.g. Amit & Sneha">
+                </div>
+                <div class="input-group">
+                    <label>Primary Theme Style</label>
+                    <select name="booking_detail_wedding_style">
+                        <option value="Traditional">Traditional</option>
+                        <option value="Royal">Royal</option>
+                        <option value="Modern / Minimal">Modern / Minimal</option>
+                    </select>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="input-group">
+                <label>Special Requests / Notes</label>
+                <textarea name="message" rows="4" placeholder="Anything else you want the provider to know?"></textarea>
+            </div>
+
+            <div style="background: #fff8f1; padding: 20px; border-radius: 15px; border: 1px solid #ffe8d6; margin-bottom: 25px;">
+                <p style="font-size: 0.85rem; color: #8d6e63; line-height: 1.5;">
+                    <i class="fa-solid fa-circle-info" style="color: #ff6600;"></i> This is a booking request. No payment is required until the provider accepts.
+                </p>
+            </div>
+
+            <button type="submit" class="btn-book">Send Booking Request</button>
+        </form>
+    </div>
+</div>
+
+    <div class="summary-card">
+        <div class="summary-img">
+            {% if package.image %}
+                <img src="{{ package.image.url }}" alt="{{ package.package_name }}">
+            {% else %}
+                <div style="width: 100%; height: 100%; background: #fdf9f6; display: flex; align-items: center; justify-content: center; color: #ff6600; font-size: 3rem;">
+                    <i class="fa-solid fa-boxes-packing"></i>
+                </div>
+            {% endif %}
+        </div>
+        <div class="summary-body">
+            <span style="font-size: 0.7rem; background: #1a1a1a; color: white; padding: 4px 10px; border-radius: 20px; font-weight: 800; text-transform: uppercase;">{{ package.package_type }}</span>
+            <h3 style="margin-top: 10px; font-size: 1.25rem; font-weight: 800;">{{ package.package_name }}</h3>
+            
+            <div class="bundle-preview">
+                <p style="font-size: 0.75rem; font-weight: 800; color: #888; text-transform: uppercase; margin-bottom: 10px;">What's Inside:</p>
+                <div id="bundle_items">
+                    {{ package.included_services }}
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #f5f5f5;">
+                <div style="font-size: 0.8rem; color: #888; font-weight: 600;">Selected Tier Price:</div>
+                <div class="summary-price" id="display_price">₹{{ package.total_price }}</div>
+                <p style="font-size: 0.75rem; color: #aaa; margin-top: 5px;">* Price may vary based on guest count</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateGallery(imgSrc, element) {
+        document.getElementById('expandedImg').src = imgSrc;
+        document.querySelectorAll('.gallery-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        element.classList.add('active');
+    }
+
+    function selectVariant(tier, price) {
+        document.getElementById('variant_input').value = tier;
+        document.querySelectorAll('.variant-card').forEach(c => c.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        
+        if(price && price !== 'None' && price !== '') {
+            document.getElementById('display_price').innerText = '₹' + price;
+        } else {
+            document.getElementById('display_price').innerText = '₹{{ package.total_price }}';
+        }
+    }
+
+    // Format bundle items
+    const bundleDiv = document.getElementById('bundle_items');
+    const items = bundleDiv.innerText.split(',');
+    bundleDiv.innerHTML = '';
+    items.forEach(item => {
+        if(item.trim()) {
+            const div = document.createElement('div');
+            div.className = 'bundle-item';
+            div.innerHTML = `<i class="fa-solid fa-check"></i> ${item.trim()}`;
+            bundleDiv.appendChild(div);
+        }
+    });
+</script>
+
+</body>
+</html>

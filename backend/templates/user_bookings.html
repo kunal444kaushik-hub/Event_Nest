@@ -66,7 +66,9 @@
     {% for booking in bookings %}
     <div class="booking-card">
         <div class="service-icon">
-            {% if booking.service.service_type == "Catering" %}
+            {% if booking.package %}
+                <i class="fa-solid fa-box-archive" style="color: #6c5ce7;"></i>
+            {% elif booking.service.service_type == "Catering" %}
                 <i class="fa-solid fa-utensils"></i>
             {% elif booking.service.service_type == "DJ & Music" %}
                 <i class="fa-solid fa-music"></i>
@@ -78,7 +80,11 @@
         </div>
         
         <div class="service-info">
-            <h3>{{ booking.service.service_name }}</h3>
+            {% if booking.package %}
+                <h3>{{ booking.package.package_name }} <span style="font-size: 0.7rem; background: #6c5ce7; color: white; padding: 2px 8px; border-radius: 10px; vertical-align: middle; margin-left: 5px;">PACKAGE</span></h3>
+            {% else %}
+                <h3>{{ booking.service.service_name }}</h3>
+            {% endif %}
             <p><i class="fa-solid fa-circle-user"></i> {{ booking.provider.username }}</p>
         </div>
 

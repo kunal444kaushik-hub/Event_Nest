@@ -4,39 +4,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Packages - EventNest</title>
+    <title>Event Marketplace - EventNest</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .packages-hero {
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1600&q=80');
+        :root {
+            --primary: #ff6600;
+            --primary-dark: #e65c00;
+            --secondary: #1a1a1a;
+            --accent: #fdf2f0;
+            --text-dark: #333;
+            --text-light: #888;
+            --bg-light: #f8f9fa;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: #fff; overflow-x: hidden; }
+
+        /* HERO SECTION */
+        .marketplace-hero {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1600&q=80');
             background-size: cover;
             background-position: center;
-            height: 350px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            padding: 120px 10% 80px;
             text-align: center;
             color: white;
-            padding: 0 5%;
+            border-bottom: 5px solid var(--primary);
         }
-        .packages-hero h1 { font-size: 3rem; margin-bottom: 10px; }
-        .packages-hero p { font-size: 1.1rem; opacity: 0.9; }
-
-        .packages-container { padding: 80px 10%; background: #f8f9fa; }
+        .marketplace-hero h1 { font-size: 4rem; font-weight: 900; margin-bottom: 20px; letter-spacing: -1px; }
+        .marketplace-hero p { font-size: 1.3rem; opacity: 0.9; margin-bottom: 40px; max-width: 700px; margin-left: auto; margin-right: auto; }
         
-        .section-header { text-align: center; margin-bottom: 60px; }
-        .section-header h2 { font-size: 2.2rem; color: #1a1a1a; margin-bottom: 10px; }
-        .section-header p { color: #777; font-size: 1.1rem; }
-
-        .packages-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
+        .hero-search-bar {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 10px;
+            border-radius: 20px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
         }
+        .hero-search-bar input { flex-grow: 1; border: none; padding: 15px 25px; font-size: 1.1rem; outline: none; border-radius: 15px; }
+        .hero-search-bar button { background: var(--primary); color: white; border: none; padding: 15px 40px; border-radius: 15px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .hero-search-bar button:hover { background: var(--primary-dark); transform: scale(1.02); }
 
-        .package-card {
+        /* SECTION STYLES */
+        .section-container { padding: 80px 10%; }
+        .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; }
+        .section-header h2 { font-size: 2.5rem; color: var(--secondary); font-weight: 800; position: relative; }
+        .section-header h2::after { content: ''; position: absolute; bottom: -10px; left: 0; width: 60px; height: 4px; background: var(--primary); border-radius: 2px; }
+        .view-all { color: var(--primary); text-decoration: none; font-weight: 700; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .view-all:hover { gap: 12px; }
+
+        /* GRID CARDS */
+        .packages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
+        
+        .market-card {
+            background: white;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            border: 1px solid #f0f0f0;
+        }
+        .market-card:hover { transform: translateY(-15px); box-shadow: 0 25px 50px rgba(0,0,0,0.1); border-color: var(--primary); }
+        
+        .card-img { height: 220px; position: relative; overflow: hidden; }
+        .card-img img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .market-card:hover .card-img img { transform: scale(1.1); }
+        
+        .badge { position: absolute; top: 20px; left: 20px; padding: 6px 15px; border-radius: 20px; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; z-index: 10; }
+        .badge-trending { background: #e63946; color: white; }
+        .badge-featured { background: var(--primary); color: white; }
+        .badge-verified { background: #2e7d32; color: white; right: 20px; left: auto; }
+        .badge-offer { background: #f1c40f; color: #000; bottom: 20px; right: 20px; left: auto; top: auto; }
+
+        .card-body { padding: 25px; }
+        .card-body h3 { font-size: 1.3rem; margin-bottom: 10px; color: var(--secondary); }
+        .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
+        .card-price { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+        .card-rating { color: #f1c40f; font-weight: 700; font-size: 0.9rem; }
+
+        /* OCCASIONS SECTION */
+        .occasions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
+        .occasion-card {
+            background: var(--bg-light);
+            padding: 40px 20px;
+            border-radius: 24px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--secondary);
+            transition: 0.3s;
+            border: 2px solid transparent;
+        }
+        .occasion-card:hover { background: white; border-color: var(--primary); transform: translateY(-5px); box-shadow: 0 10px 25px rgba(255,102,0,0.1); }
+        .occasion-card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; display: block; }
+        .occasion-card span { font-weight: 700; }
+
+        /* THEMES SECTION */
+        .themes-row { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 20px; scrollbar-width: none; }
+        .theme-pill {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 12px 30px;
+            border-radius: 50px;
+            white-space: nowrap;
+            text-decoration: none;
+            color: var(--secondary);
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .theme-pill:hover { background: var(--secondary); color: white; border-color: var(--secondary); }
+
+        /* BUILDER CALL TO ACTION */
+        .builder-cta {
+            background: linear-gradient(135deg, var(--secondary), #333);
+            border-radius: 40px;
+            padding: 80px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .builder-cta::before { content: '\f0d0'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; right: -50px; top: -50px; font-size: 20rem; opacity: 0.05; pointer-events: none; }
+        .builder-cta-text { max-width: 60%; }
+        .builder-cta-text h2 { font-size: 3.5rem; margin-bottom: 20px; line-height: 1.1; }
+        .builder-cta-text p { font-size: 1.2rem; opacity: 0.8; margin-bottom: 40px; }
+        .builder-btn-large:hover { background: var(--primary-dark); transform: scale(1.05) rotate(-2deg); }
+
+        /* OLD DESIGN STYLES RESTORED */
+        .package-card-old {
             background: white;
             border-radius: 24px;
             padding: 40px 30px;
@@ -50,17 +151,16 @@
             align-items: center;
             border: 1px solid transparent;
         }
-        .package-card:hover {
+        .package-card-old:hover {
             transform: translateY(-10px);
-            border-color: #ff6600;
+            border-color: var(--primary);
             box-shadow: 0 15px 40px rgba(255, 102, 0, 0.1);
         }
-
-        .package-icon {
+        .package-icon-old {
             width: 80px;
             height: 80px;
             background: rgba(255, 102, 0, 0.1);
-            color: #ff6600;
+            color: var(--primary);
             border-radius: 20px;
             display: flex;
             align-items: center;
@@ -69,36 +169,43 @@
             margin-bottom: 25px;
             transition: 0.3s;
         }
-        .package-card:hover .package-icon {
-            background: #ff6600;
+        .package-card-old:hover .package-icon-old {
+            background: var(--primary);
             color: white;
         }
-
-        .package-card h3 { font-size: 1.3rem; margin-bottom: 20px; color: #1a1a1a; }
-        
-        .custom-highlight {
-            background: #1a1a1a;
-            color: white;
-        }
-        .custom-highlight h3 { color: white; }
-        .custom-highlight p { color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 20px; }
-        .custom-highlight .package-icon { background: rgba(255,255,255,0.1); color: #ff6600; }
-        .custom-highlight:hover { border-color: white; }
-
-        .view-link {
+        .package-card-old h3 { font-size: 1.3rem; margin-bottom: 20px; color: var(--secondary); }
+        .view-link-old {
             font-weight: 700;
-            color: #ff6600;
+            color: var(--primary);
             font-size: 0.95rem;
             display: flex;
             align-items: center;
             gap: 8px;
         }
+
+        .back-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .back-btn-top { position: fixed; top: 30px; left: 30px; z-index: 1000; background: white; padding: 12px 25px; border-radius: 15px; text-decoration: none; color: var(--secondary); font-weight: 700; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #eee; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .back-btn-top:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* HOVER SLIDESHOW - Simple CSS implementation */
+        .card-img .slideshow-container { height: 100%; position: relative; }
+        .card-img .slide { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 0.5s; }
+        .card-img .slide:first-child { opacity: 1; }
+        .market-card:hover .slide:nth-child(2) { opacity: 1; } /* Basic two-image swap on hover */
+
+        @media (max-width: 900px) {
+            .builder-cta { flex-direction: column; text-align: center; padding: 60px 30px; }
+            .builder-cta-text { max-width: 100%; margin-bottom: 40px; }
+            .builder-cta-text h2 { font-size: 2.5rem; }
+            .marketplace-hero h1 { font-size: 2.5rem; }
+        }
     </style>
 </head>
-<body style="background: #f4f7f6;">
+<body>
 
-<a href="{% if request.user.is_staff or request.user.is_superuser %}{% url 'admin_home' %}{% elif request.user.is_authenticated %}{% url 'user_home' %}{% else %}{% url 'home' %}{% endif %}" class="back-btn">
-    <i class="fa-solid fa-arrow-left"></i> Back
+<a href="{% url 'home' %}" class="back-btn-top">
+    <i class="fa-solid fa-house"></i> Home
 </a>
 
 <header>
@@ -140,21 +247,60 @@
     </nav>
 </header>
 
-<div class="packages-hero">
-    <h1>Bundled for Your Joy</h1>
-    <p>Choose from our expertly curated event packages or build your own dream celebration.</p>
-</div>
+<section class="marketplace-hero">
+    <h1>Redefining Celebrations</h1>
+    <p>Discover hand-picked combo packages and custom event solutions for every life's milestone.</p>
+    
+    <form action="{% url 'package_by_type' 'All' %}" method="GET" class="hero-search-bar">
+        <input type="text" name="location" placeholder="Search for 'Guwahati' or 'Tezpur'...">
+        <input type="text" name="q" placeholder="What are you looking for?" style="flex-grow: 2;">
+        <button type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+    </form>
+</section>
 
-<div class="packages-container">
+<!-- TRENDING PACKAGES -->
+<section class="section-container">
     <div class="section-header">
-        <h2>Choose Event Type</h2>
-        <p>Select a package category to see available curated options.</p>
+        <h2>Trending Now 🔥</h2>
+        <a href="{% url 'packages' %}" class="view-all">See All <i class="fa-solid fa-arrow-right"></i></a>
     </div>
+    <div class="packages-grid">
+        {% for package in trending_packages %}
+            <a href="{% url 'book_package' package.id %}" class="market-card">
+                <span class="badge badge-trending">Trending</span>
+                {% if package.is_verified %}<span class="badge badge-verified"><i class="fa-solid fa-circle-check"></i> Verified</span>{% endif %}
+                <div class="card-img">
+                    {% if package.image %}
+                        <img src="{{ package.image.url }}" alt="{{ package.package_name }}">
+                    {% else %}
+                        <div style="height:100%; background:#eee; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-image fa-3x" style="color:#ccc;"></i></div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <span style="font-size: 0.7rem; color: var(--primary); font-weight: 800; text-transform: uppercase;">{{ package.package_type }}</span>
+                    <h3>{{ package.package_name }}</h3>
+                    <div class="card-meta">
+                        <div class="card-price">₹{{ package.total_price }}</div>
+                        <div class="card-rating"><i class="fa-solid fa-star"></i> 4.9 <span style="color:#aaa; font-weight:400;">(120)</span></div>
+                    </div>
+                </div>
+            </a>
+        {% empty %}
+            <p style="grid-column: 1/-1; text-align: center; color: #888;">Stay tuned! Trending packages are coming soon.</p>
+        {% endfor %}
+    </div>
+</section>
 
+<!-- ALL EVENT CATEGORIES (Restored Design) -->
+<section class="section-container" style="background: #fdfdfd;">
+    <div class="section-header">
+        <h2>Choose Event Type 📦</h2>
+        <p style="color: #777; margin-top: 5px;">Select a package category to see available curated options.</p>
+    </div>
     <div class="packages-grid">
         {% for type in event_types %}
-        <a href="{% url 'package_by_type' type %}" class="package-card">
-            <div class="package-icon">
+        <a href="{% url 'package_by_type' type %}" class="package-card-old">
+            <div class="package-icon-old">
                 {% if type == "Birthday Package" %}
                     <i class="fa-solid fa-cake-candles"></i>
                 {% elif type == "Marriage Package" %}
@@ -168,24 +314,178 @@
                 {% endif %}
             </div>
             <h3>{{ type }}</h3>
-            <div class="view-link">View Packages <i class="fa-solid fa-arrow-right"></i></div>
+            <div class="view-link-old">View Packages <i class="fa-solid fa-arrow-right"></i></div>
         </a>
         {% endfor %}
 
-        <a href="{% url 'make_custom_package' %}" class="package-card custom-highlight">
-            <div class="package-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <a href="{% url 'make_custom_package' %}" class="package-card-old" style="background: var(--secondary); color: white;">
+            <div class="package-icon-old" style="background: rgba(255,102,0,0.2); color: var(--primary);">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
             <h3>Custom Package</h3>
-            <p>Don't see what you need? Pick your own services and build a personalized experience.</p>
-            <div class="view-link" style="color: white;">Start Building <i class="fa-solid fa-arrow-right"></i></div>
+            <div class="view-link-old" style="color: var(--primary);">Start Building <i class="fa-solid fa-arrow-right"></i></div>
         </a>
     </div>
-</div>
+</section>
 
-<footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
-    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
-    <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
-    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
-        © 2026 EventNest | All Rights Reserved
+<!-- BROWSE BY OCCASION -->
+<section class="section-container" style="background: white;">
+    <div class="section-header">
+        <h2>Browse by Occasion 🎯</h2>
+    </div>
+    <div class="occasions-grid">
+        {% for occasion in occasions %}
+            <a href="{% url 'package_by_type' 'All' %}?occasion={{ occasion.name }}" class="occasion-card">
+                <i class="fa-solid {{ occasion.icon }}"></i>
+                <span>{{ occasion.name }}</span>
+            </a>
+        {% endfor %}
+    </div>
+</section>
+
+
+<!-- FEATURED CUSTOM PACKAGES -->
+<section class="section-container">
+    <div class="section-header">
+        <h2>Handcrafted Custom Packages 🛠️</h2>
+        <p style="color: #777; margin-top: 5px;">Exclusive multi-service bundles from our top providers.</p>
+    </div>
+    <div class="packages-grid">
+        {% for package in custom_combo_packages %}
+            <a href="{% url 'book_package' package.id %}" class="market-card">
+                <span class="badge badge-featured">Custom Combo</span>
+                <div class="card-img">
+                    {% if package.image %}
+                        <img src="{{ package.image.url }}" alt="{{ package.package_name }}">
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h3>{{ package.package_name }}</h3>
+                    <div class="card-meta">
+                        <div class="card-price">₹{{ package.total_price }}</div>
+                        <div style="font-size: 0.8rem; color: #888;">By {{ package.provider.username }}</div>
+                    </div>
+                </div>
+            </a>
+        {% empty %}
+            <p style="grid-column: 1/-1; text-align: center; color: #888;">Custom packages are being brewed!</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- FEATURED PACKAGES -->
+<section class="section-container" style="background: #fdfdfd;">
+    <div class="section-header">
+        <h2>Featured Experiences ⭐</h2>
+    </div>
+    <div class="packages-grid">
+        {% for package in featured_packages %}
+            <a href="{% url 'book_package' package.id %}" class="market-card">
+                <span class="badge badge-featured">Featured</span>
+                {% if package.discount_percentage > 0 %}<span class="badge badge-offer">{{ package.discount_percentage }}% OFF</span>{% endif %}
+                <div class="card-img">
+                    {% if package.image %}
+                        <img src="{{ package.image.url }}" alt="{{ package.package_name }}">
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h3>{{ package.package_name }}</h3>
+                    <p style="color:#777; font-size:0.85rem; margin-bottom:15px;">{{ package.short_description|truncatechars:80 }}</p>
+                    <div class="card-meta">
+                        <div class="card-price">₹{{ package.total_price }}</div>
+                        <div class="card-rating"><i class="fa-solid fa-star"></i> Premium</div>
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- THEMES SECTION -->
+<section class="section-container">
+    <div class="section-header">
+        <h2>Discover Themes 🎭</h2>
+    </div>
+    <div class="themes-row">
+        {% for theme in themes %}
+            <a href="{% url 'packages' %}?theme={{ theme }}" class="theme-pill">{{ theme }}</a>
+        {% endfor %}
+    </div>
+</section>
+
+
+<!-- RECOMMENDED -->
+<section class="section-container">
+    <div class="section-header">
+        <h2>Recommended For You 🧠</h2>
+    </div>
+    <div class="packages-grid">
+        {% for package in recommended_packages %}
+            <a href="{% url 'book_package' package.id %}" class="market-card">
+                <div class="card-img">
+                    {% if package.image %}
+                        <img src="{{ package.image.url }}" alt="{{ package.package_name }}">
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h3>{{ package.package_name }}</h3>
+                    <div class="card-meta">
+                        <div class="card-price">₹{{ package.total_price }}</div>
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- BUDGET & LUXURY -->
+<section class="section-container" style="background: var(--bg-light); border-radius: 100px 100px 0 0;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+        <div>
+            <div class="section-header">
+                <h2>Budget Friendly 🏷️</h2>
+            </div>
+            <div class="packages-grid" style="grid-template-columns: 1fr;">
+                {% for package in budget_packages %}
+                    <a href="{% url 'book_package' package.id %}" class="market-card" style="display: flex; height: 120px;">
+                        <div class="card-img" style="width: 150px; height: 100%;"><img src="{{ package.image.url }}"></div>
+                        <div class="card-body" style="flex:1; padding: 15px;">
+                            <h3 style="font-size: 1rem; margin:0;">{{ package.package_name }}</h3>
+                            <div class="card-price" style="font-size: 1.2rem; margin-top: 5px;">₹{{ package.total_price }}</div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        <div>
+            <div class="section-header">
+                <h2>Luxury Collection 💎</h2>
+            </div>
+            <div class="packages-grid" style="grid-template-columns: 1fr;">
+                {% for package in luxury_packages %}
+                    <a href="{% url 'book_package' package.id %}" class="market-card" style="display: flex; height: 120px;">
+                        <div class="card-img" style="width: 150px; height: 100%;"><img src="{{ package.image.url }}"></div>
+                        <div class="card-body" style="flex:1; padding: 15px;">
+                            <h3 style="font-size: 1rem; margin:0;">{{ package.package_name }}</h3>
+                            <div class="card-price" style="font-size: 1.2rem; margin-top: 5px; color: #daa520;">₹{{ package.total_price }}</div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer style="background: var(--secondary); color: white; padding: 100px 10% 40px; text-align: center;">
+    <div style="font-size: 2.5rem; font-weight: 900; margin-bottom: 20px;">EventNest</div>
+    <p style="opacity: 0.6; margin-bottom: 60px; max-width: 500px; margin-left: auto; margin-right: auto;">The ultimate destination for discovery, comparison, and booking of professional event services.</p>
+    <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 60px;">
+        <a href="#" style="color: white; font-size: 1.5rem;"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" style="color: white; font-size: 1.5rem;"><i class="fa-brands fa-facebook"></i></a>
+        <a href="#" style="color: white; font-size: 1.5rem;"><i class="fa-brands fa-twitter"></i></a>
+    </div>
+    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 40px; font-size: 0.9rem; opacity: 0.4;">
+        © 2026 EventNest
     </div>
 </footer>
 
@@ -193,7 +493,18 @@
     function toggleProfileMenu() {
         document.getElementById("profileMenu").classList.toggle("show-profile-menu");
     }
+    
+    // Smooth scroll for anchors
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
 </script>
 
 </body>
 </html>
+>

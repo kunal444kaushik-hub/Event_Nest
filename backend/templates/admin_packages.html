@@ -75,6 +75,7 @@
               <th>Provider</th>
               <th>Included</th>
               <th>Price</th>
+              <th>Guests</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -85,7 +86,8 @@
               <td><span style="font-size:0.8rem; background:#f0f0f0; padding:4px 10px; border-radius:8px;">{{ package.package_type }}</span></td>
               <td>{{ package.provider.username }}</td>
               <td style="font-size:0.85rem; color:#666;">{{ package.included_services }}</td>
-              <td><b>₹{{ package.total_price }}</b></td>
+              <td><b>₹{{ package.total_price }}</b><br><small>{{ package.pricing_structure }}</small></td>
+              <td>{{ package.max_guests|default:"N/A" }}</td>
               <td>
                 <a href="{% url 'delete_package_admin' package.id %}" class="admin-btn-table danger" onclick="return confirm('Delete this package deal permanently?')">Delete</a>
               </td>

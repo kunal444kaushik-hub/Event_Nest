@@ -19,7 +19,6 @@
         <div class="step-dot active"></div>
         <div class="step-dot active"></div>
         <div class="step-dot active"></div>
-        <div class="step-dot active"></div>
     </div>
 
     <h2>Final Details</h2>
@@ -29,25 +28,19 @@
         {% csrf_token %}
 
         <label>Which services do you provide?</label>
-        <div class="checkbox-group">
-            <label class="checkbox-item">
-                <input type="checkbox" name="service_types" value="DJ & Music"> DJ & Music
-            </label>
-            <label class="checkbox-item">
-                <input type="checkbox" name="service_types" value="Catering" id="cateringCheck"> Catering
-            </label>
-            <label class="checkbox-item">
-                <input type="checkbox" name="service_types" value="Decoration"> Decoration
-            </label>
-            <label class="checkbox-item">
-                <input type="checkbox" name="service_types" value="Photography"> Photography
-            </label>
-            <label class="checkbox-item">
-                <input type="checkbox" name="service_types" value="Lighting Setup"> Lighting Setup
-            </label>
-            <label class="checkbox-item">
-                <input type="checkbox" name="service_types" value="Event Planning"> Event Planning
-            </label>
+        <div class="checkbox-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+            <label class="checkbox-item"><input type="checkbox" name="service_types" value="DJ & Music"> DJ & Music</label>
+            <label class="checkbox-item"><input type="checkbox" name="service_types" value="Catering"> Catering</label>
+            <label class="checkbox-item"><input type="checkbox" name="service_types" value="Decoration"> Decoration</label>
+            <label class="checkbox-item"><input type="checkbox" name="service_types" value="Photography"> Photography</label>
+            <label class="checkbox-item"><input type="checkbox" name="service_types" value="Lighting Setup"> Lighting Setup</label>
+            <label class="checkbox-item"><input type="checkbox" name="service_types" value="Event Planning"> Event Planning</label>
+            <label class="checkbox-item"><input type="checkbox" name="service_types" value="Host / Anchor"> Host / Anchor</label>
+            <label class="checkbox-item"><input type="checkbox" name="service_types" value="Cake Service"> Cake Service</label>
+            <label class="checkbox-item"><input type="checkbox" name="service_types" value="Furniture / Tent"> Furniture / Tent</label>
+            <label class="checkbox-item"><input type="checkbox" name="service_types" value="Car Rental"> Car Rental</label>
+            <label class="checkbox-item"><input type="checkbox" name="service_types" value="Venue Provider"> Venue Provider</label>
+            <label class="checkbox-item"><input type="checkbox" name="service_types" value="Wedding Planner"> Wedding Planner</label>
         </div>
 
         <textarea name="bio" placeholder="Briefly describe your business" required></textarea>

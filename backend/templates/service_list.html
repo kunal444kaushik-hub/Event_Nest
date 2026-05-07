@@ -152,6 +152,11 @@
                     </div>
                 {% endif %}
                 <div class="price-tag">₹{{ service.price }}</div>
+                {% if service.experience_years > 0 %}
+                <div style="position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.6); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; backdrop-filter: blur(5px);">
+                    <i class="fa-solid fa-award" style="color: #ff6600;"></i> {{ service.experience_years }} Years Exp.
+                </div>
+                {% endif %}
             </div>
 
             <div class="service-info">
@@ -168,6 +173,7 @@
                     <i class="fa-solid fa-circle-user"></i> 
                     by <a href="{% url 'provider_profile' service.provider.id %}">{{ service.provider.username }}</a>
                 </div>
+                <p style="font-weight: 700; color: #333; margin-bottom: 10px; font-size: 0.9rem;">{{ service.short_description|default:"" }}</p>
                 <p class="service-description">{{ service.description }}</p>
                 
                 <div class="card-footer">
@@ -192,7 +198,7 @@
     <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
     <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
     <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
-        © 2026 EventNest | All Rights Reserved
+        © 2026 EventNest
     </div>
 </footer>
 

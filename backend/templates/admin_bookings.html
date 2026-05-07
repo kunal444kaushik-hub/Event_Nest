@@ -82,7 +82,13 @@
             <tr>
               <td>{{ booking.user.username }}</td>
               <td>{{ booking.provider.username }}</td>
-              <td>{{ booking.service.service_name }}</td>
+              <td>
+                {% if booking.package %}
+                  <b>{{ booking.package.package_name }}</b> (Package)
+                {% else %}
+                  {{ booking.service.service_name }}
+                {% endif %}
+              </td>
               <td>{{ booking.event_date }}</td>
               <td>
                 <span class="admin-status status-{{ booking.status|lower }}">

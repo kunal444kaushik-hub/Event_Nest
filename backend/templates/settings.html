@@ -369,27 +369,28 @@
                 <h2>Recent Activity</h2>
                 <p>A log of your recent account actions and logins.</p>
             </div>
+            {% for activity in activities %}
             <div class="activity-item">
-                <div class="activity-icon"><i class="fa-solid fa-right-to-bracket"></i></div>
+                <div class="activity-icon">
+                    {% if activity.action == "Profile Updated" %}
+                        <i class="fa-solid fa-user-pen"></i>
+                    {% elif activity.action == "Password Changed" %}
+                        <i class="fa-solid fa-shield-halved"></i>
+                    {% else %}
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    {% endif %}
+                </div>
                 <div class="activity-info">
-                    <h5>Account Login</h5>
-                    <p>Signed in from Chrome on Windows • Just now</p>
+                    <h5>{{ activity.action }}</h5>
+                    <p>{{ activity.details }} • {{ activity.created_at|timesince }} ago</p>
                 </div>
             </div>
-            <div class="activity-item">
-                <div class="activity-icon"><i class="fa-solid fa-user-pen"></i></div>
-                <div class="activity-info">
-                    <h5>Profile Update</h5>
-                    <p>Updated contact information • 2 hours ago</p>
-                </div>
+            {% empty %}
+            <div style="text-align: center; padding: 40px; color: #888;">
+                <i class="fa-solid fa-ghost" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;"></i>
+                <p>No recent activity found.</p>
             </div>
-            <div class="activity-item">
-                <div class="activity-icon"><i class="fa-solid fa-shield-check"></i></div>
-                <div class="activity-info">
-                    <h5>Security Check</h5>
-                    <p>Password verified for settings access • Yesterday</p>
-                </div>
-            </div>
+            {% endfor %}
         </section>
 
         <!-- DANGER ZONE SECTION -->
@@ -415,7 +416,7 @@
     <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
     <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
     <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
-        © 2026 EventNest | All Rights Reserved
+        © 2026 EventNest
     </div>
 </footer>
 

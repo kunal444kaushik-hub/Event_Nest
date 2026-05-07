@@ -91,15 +91,16 @@
             <div class="step-dot" id="dot-2"></div>
             <div class="step-dot" id="dot-3"></div>
             <div class="step-dot" id="dot-4"></div>
+            <div class="step-dot" id="dot-5"></div>
         </div>
 
         <form method="POST" enctype="multipart/form-data" id="packageForm">
             {% csrf_token %}
             
-            <!-- STEP 1: PACKAGE THEME -->
+            <!-- STEP 1: PACKAGE CATEGORY -->
             <div class="form-step active" id="step-1">
                 <h1 style="font-size: 1.8rem; margin-bottom: 8px;">What's the occasion?</h1>
-                <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Select the primary event category for this combo package.</p>
+                <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Select the primary event category for this professional package.</p>
                 
                 <input type="hidden" name="package_type" id="package_type_input" required>
                 <div class="type-grid">
@@ -107,17 +108,29 @@
                         <i class="fa-solid fa-cake-candles"></i>
                         <span>Birthday</span>
                     </div>
-                    <div class="type-card" onclick="selectType('Marriage Package', 'fa-ring')">
+                    <div class="type-card" onclick="selectType('Wedding Package', 'fa-ring')">
                         <i class="fa-solid fa-ring"></i>
-                        <span>Marriage</span>
+                        <span>Wedding</span>
                     </div>
-                    <div class="type-card" onclick="selectType('Office Party Package', 'fa-building-user')">
+                    <div class="type-card" onclick="selectType('Corporate Event', 'fa-building-user')">
                         <i class="fa-solid fa-building-user"></i>
                         <span>Corporate</span>
                     </div>
-                    <div class="type-card" onclick="selectType('Bachelor Party Package', 'fa-glass-cheers')">
+                    <div class="type-card" onclick="selectType('Party Package', 'fa-glass-cheers')">
                         <i class="fa-solid fa-glass-cheers"></i>
-                        <span>Bachelor Party</span>
+                        <span>Party</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('College Fest', 'fa-graduation-cap')">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span>College Fest</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Baby Shower', 'fa-baby')">
+                        <i class="fa-solid fa-baby"></i>
+                        <span>Baby Shower</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Anniversary', 'fa-heart')">
+                        <i class="fa-solid fa-heart"></i>
+                        <span>Anniversary</span>
                     </div>
                 </div>
 
@@ -128,9 +141,23 @@
 
             <!-- STEP 2: BUNDLE BUILDER -->
             <div class="form-step" id="step-2">
-                <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Bundle Builder</h1>
+                <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Professional Bundle Builder</h1>
                 <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Select the services included in this special combo.</p>
 
+                <h3 style="font-size: 1rem; margin-bottom: 15px; color: #333;">1. Custom Builder (Your Own Services)</h3>
+                <div class="service-selection-grid" style="margin-bottom: 30px;">
+                    {% for service in my_services %}
+                    <div class="service-chip" onclick="toggleService(this, '{{ service.service_name }}')">
+                        <input type="checkbox" name="included_services" value="{{ service.service_name }}" style="display:none">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>{{ service.service_name }} ({{ service.service_type }})</span>
+                    </div>
+                    {% empty %}
+                    <p style="grid-column: 1/-1; font-size: 0.85rem; color: #888; background: #f9f9f9; padding: 15px; border-radius: 12px; border: 1px dashed #ddd;">No services listed yet. You can still select generic services below.</p>
+                    {% endfor %}
+                </div>
+
+                <h3 style="font-size: 1rem; margin-bottom: 15px; color: #333;">2. Generic Services</h3>
                 <div class="service-selection-grid">
                     <div class="service-chip" onclick="toggleService(this, 'Decoration')">
                         <input type="checkbox" name="included_services" value="Decoration" style="display:none">
@@ -152,70 +179,170 @@
                         <i class="fa-solid fa-camera-retro"></i>
                         <span>Photography</span>
                     </div>
-                    <div class="service-chip" onclick="toggleService(this, 'Lighting Setup')">
-                        <input type="checkbox" name="included_services" value="Lighting Setup" style="display:none">
-                        <i class="fa-solid fa-lightbulb"></i>
-                        <span>Lighting Setup</span>
-                    </div>
-                    <div class="service-chip" onclick="toggleService(this, 'Event Planning')">
-                        <input type="checkbox" name="included_services" value="Event Planning" style="display:none">
-                        <i class="fa-solid fa-calendar-day"></i>
-                        <span>Event Planning</span>
-                    </div>
                 </div>
 
                 <div class="btn-row">
                     <button type="button" class="btn-prev" onclick="prevStep(1)">Back</button>
-                    <button type="button" class="btn-next" onclick="nextStep(3)">Details & Pricing</button>
+                    <button type="button" class="btn-next" onclick="nextStep(3)">Professional Details</button>
                 </div>
             </div>
 
-            <!-- STEP 3: DETAILS & PRICING -->
+            <!-- STEP 3: PROFESSIONAL DETAILS (DYNAMIC) -->
             <div class="form-step" id="step-3">
-                <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Details & Pricing</h1>
-                <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Name your package and set a competitive combo price.</p>
+                <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Professional Details</h1>
+                <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Configure category-specific options for your package.</p>
 
+                <!-- DYNAMIC FIELDS FOR BIRTHDAY -->
+                <div class="dynamic-section" id="section-Birthday-Package" style="display:none">
+                    <div class="input-group">
+                        <label>Theme Options</label>
+                        <input type="text" name="detail_birthday_themes" placeholder="Cartoon, Kids, Elegant, Superhero">
+                    </div>
+                    <div class="input-group">
+                        <label>Extra Add-ons</label>
+                        <input type="text" name="detail_birthday_extras" placeholder="Balloon setup, LED numbers, Welcome board">
+                    </div>
+                </div>
+
+                <!-- DYNAMIC FIELDS FOR WEDDING -->
+                <div class="dynamic-section" id="section-Wedding-Package" style="display:none">
+                    <div class="input-group">
+                        <label>Functions Included</label>
+                        <input type="text" name="detail_wedding_functions" placeholder="Engagement, Mehendi, Haldi, Reception">
+                    </div>
+                    <div class="input-group">
+                        <label>Special Features</label>
+                        <input type="text" name="detail_wedding_extras" placeholder="Bridal entry, Drone shoot, Live music">
+                    </div>
+                    <div class="input-group">
+                        <label>Theme Type</label>
+                        <select name="detail_wedding_theme">
+                            <option value="Traditional">Traditional</option>
+                            <option value="Luxury">Luxury</option>
+                            <option value="Modern">Modern</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- DYNAMIC FIELDS FOR CORPORATE -->
+                <div class="dynamic-section" id="section-Corporate-Event" style="display:none">
+                    <div class="input-group">
+                        <label>Event Duration</label>
+                        <input type="text" name="package_duration" placeholder="e.g. 4 Hours, 1 Day">
+                    </div>
+                    <div class="input-group">
+                        <label>Branding Support?</label>
+                        <select name="detail_corp_branding">
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- COMMON PROFESSIONAL FIELDS -->
                 <div class="input-group">
                     <label>Package Name</label>
                     <input type="text" name="package_name" id="name_input" placeholder="e.g. Platinum Wedding Bundle" oninput="updatePreview()" required>
                 </div>
-
                 <div class="input-group">
-                    <label>Total Combo Price (₹)</label>
-                    <input type="number" name="total_price" id="price_input" placeholder="0" oninput="updatePreview()" required>
-                    <p style="font-size: 0.75rem; color: #888; margin-top: 8px;"><i class="fa-solid fa-tag"></i> Combo prices should be lower than individual service totals to attract bookings.</p>
+                    <label>Short Catchy Description</label>
+                    <input type="text" name="short_description" placeholder="A brief one-liner to attract customers">
                 </div>
-
-                <div class="input-group">
-                    <label>What's included in this deal?</label>
-                    <textarea name="description" id="desc_input" rows="4" placeholder="Briefly explain the value proposition..." oninput="updatePreview()" required></textarea>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="input-group">
+                        <label>Max Guest Capacity</label>
+                        <input type="number" name="max_guests" placeholder="e.g. 500">
+                    </div>
+                    <div class="input-group">
+                        <label>Location Coverage</label>
+                        <input type="text" name="location_coverage" placeholder="City or Region">
+                    </div>
                 </div>
 
                 <div class="btn-row">
                     <button type="button" class="btn-prev" onclick="prevStep(2)">Back</button>
-                    <button type="button" class="btn-next" onclick="nextStep(4)">Final Showcase</button>
+                    <button type="button" class="btn-next" onclick="nextStep(4)">Pricing & Variants</button>
                 </div>
             </div>
 
-            <!-- STEP 4: SHOWCASE -->
+            <!-- STEP 4: PRICING & VARIANTS -->
             <div class="form-step" id="step-4">
-                <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Final Showcase</h1>
-                <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Upload a cover image that represents the entire package.</p>
+                <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Pricing & Variants</h1>
+                <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Define your pricing model and package tiers.</p>
 
-                <div class="input-group">
-                    <label>Package Cover Photo</label>
-                    <input type="file" name="image" id="img_input" accept="image/*" onchange="previewImage(this)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                    <div class="input-group">
+                        <label>Starting Price (₹)</label>
+                        <input type="number" name="total_price" id="price_input" placeholder="0" oninput="updatePreview()" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Pricing Structure</label>
+                        <select name="pricing_structure">
+                            <option value="Fixed Price">Fixed Price</option>
+                            <option value="Per Guest">Per Guest</option>
+                            <option value="Per Day">Per Day</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div style="background: #e8f5e9; padding: 20px; border-radius: 15px; border: 1px solid #c8e6c9; margin-bottom: 25px;">
-                    <p style="font-size: 0.85rem; color: #2e7d32; font-weight: 600;">
-                        <i class="fa-solid fa-circle-check"></i> Combo packages increase booking probability by 45%.
-                    </p>
+                <div style="background: #fdf9f6; padding: 25px; border-radius: 20px; border: 1px solid #ffe8d6;">
+                    <h3 style="font-size: 1rem; margin-bottom: 20px; color: #1a1a1a;"><i class="fa-solid fa-layer-group"></i> Package Variants</h3>
+                    
+                    <div class="variant-box" style="margin-bottom: 20px;">
+                        <label style="font-weight: 800; font-size: 0.8rem; color: #ff6600;">BASIC PACKAGE</label>
+                        <div style="display: grid; grid-template-columns: 120px 1fr; gap: 10px; margin-top: 5px;">
+                            <input type="number" name="variant_basic_price" placeholder="Price">
+                            <input type="text" name="variant_basic_features" placeholder="Core features included...">
+                        </div>
+                    </div>
+
+                    <div class="variant-box" style="margin-bottom: 20px;">
+                        <label style="font-weight: 800; font-size: 0.8rem; color: #1a1a1a;">STANDARD PACKAGE</label>
+                        <div style="display: grid; grid-template-columns: 120px 1fr; gap: 10px; margin-top: 5px;">
+                            <input type="number" name="variant_standard_price" placeholder="Price">
+                            <input type="text" name="variant_standard_features" placeholder="Mid-range features...">
+                        </div>
+                    </div>
+
+                    <div class="variant-box">
+                        <label style="font-weight: 800; font-size: 0.8rem; color: #9c27b0;">PREMIUM PACKAGE</label>
+                        <div style="display: grid; grid-template-columns: 120px 1fr; gap: 10px; margin-top: 5px;">
+                            <input type="number" name="variant_premium_price" placeholder="Price">
+                            <input type="text" name="variant_premium_features" placeholder="All-inclusive luxury features...">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="btn-row">
                     <button type="button" class="btn-prev" onclick="prevStep(3)">Back</button>
-                    <button type="submit" class="btn-next" style="background: #ff6600;">Launch Combo Package</button>
+                    <button type="button" class="btn-next" onclick="nextStep(5)">Final Showcase</button>
+                </div>
+            </div>
+
+            <!-- STEP 5: SHOWCASE -->
+            <div class="form-step" id="step-5">
+                <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Final Showcase</h1>
+                <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Upload high-quality images to attract bookings.</p>
+
+                <div class="input-group">
+                    <label>Main Cover Photo <span style="color: #ff6600;">(Required - This will be shown at the top)</span></label>
+                    <input type="file" name="image" id="img_input" accept="image/*" onchange="previewImage(this)" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Gallery Photos <span style="color: #888;">(Upload at least 2 more photos, max 9)</span></label>
+                    <input type="file" name="gallery_images" accept="image/*" multiple required>
+                    <p style="font-size: 0.8rem; color: #888; margin-top: 5px;">Minimum 3 photos total (1 Main + 2 Gallery) and Maximum 10 photos total are allowed.</p>
+                </div>
+
+                <div class="input-group">
+                    <label>Full Detailed Description</label>
+                    <textarea name="description" id="desc_input" rows="4" placeholder="Deep dive into everything the customer gets..." oninput="updatePreview()" required></textarea>
+                </div>
+
+                <div class="btn-row">
+                    <button type="button" class="btn-prev" onclick="prevStep(4)">Back</button>
+                    <button type="submit" class="btn-next" style="background: #ff6600;">Launch Professional Package</button>
                 </div>
             </div>
         </form>
@@ -223,13 +350,13 @@
 
     <!-- PREVIEW SIDEBAR -->
     <div class="preview-pane">
-        <div style="font-size: 0.8rem; font-weight: 800; color: #bbb; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">Bundle Preview</div>
+        <div style="font-size: 0.8rem; font-weight: 800; color: #bbb; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">Package Preview</div>
         <div class="package-preview-card">
             <div class="preview-img" id="card_img_preview">
                 <i class="fa-solid fa-boxes-stacked" id="card_icon"></i>
             </div>
             <div class="preview-body">
-                <span class="preview-tag">Combo Deal</span>
+                <span class="preview-tag">Professional Bundle</span>
                 <h3 class="preview-name" id="card_name">Package Name</h3>
                 
                 <div id="preview_bundle_list" class="preview-bundle">
@@ -251,6 +378,12 @@
         document.querySelectorAll('.type-card').forEach(card => card.classList.remove('selected'));
         event.currentTarget.classList.add('selected');
         document.getElementById('card_icon').className = 'fa-solid ' + icon;
+
+        // Show category specific fields
+        document.querySelectorAll('.dynamic-section').forEach(s => s.style.display = 'none');
+        const sectionId = 'section-' + type.replace(/ /g, '-');
+        const section = document.getElementById(sectionId);
+        if(section) section.style.display = 'block';
     }
 
     function toggleService(el, name) {

@@ -96,6 +96,10 @@
                         <i class="fa-solid fa-utensils"></i>
                         <span>Catering</span>
                     </div>
+                    <div class="type-card" onclick="selectType('Decoration', 'fa-holly-berry')">
+                        <i class="fa-solid fa-holly-berry"></i>
+                        <span>Decoration</span>
+                    </div>
                     <div class="type-card" onclick="selectType('Photography', 'fa-camera-retro')">
                         <i class="fa-solid fa-camera-retro"></i>
                         <span>Photography</span>
@@ -104,17 +108,33 @@
                         <i class="fa-solid fa-music"></i>
                         <span>DJ & Music</span>
                     </div>
-                    <div class="type-card" onclick="selectType('Decoration', 'fa-holly-berry')">
-                        <i class="fa-solid fa-holly-berry"></i>
-                        <span>Decoration</span>
-                    </div>
-                    <div class="type-card" onclick="selectType('Lighting Setup', 'fa-lightbulb')">
+                    <div class="type-card" onclick="selectType('Lighting Service', 'fa-lightbulb')">
                         <i class="fa-solid fa-lightbulb"></i>
                         <span>Lighting</span>
                     </div>
-                    <div class="type-card" onclick="selectType('Event Planning', 'fa-calendar-day')">
-                        <i class="fa-solid fa-calendar-day"></i>
-                        <span>Planning</span>
+                    <div class="type-card" onclick="selectType('Cake Service', 'fa-cake-candles')">
+                        <i class="fa-solid fa-cake-candles"></i>
+                        <span>Cake</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Furniture / Tent', 'fa-chair')">
+                        <i class="fa-solid fa-chair"></i>
+                        <span>Furniture</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Car Rental', 'fa-car')">
+                        <i class="fa-solid fa-car"></i>
+                        <span>Car Rental</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Venue Provider', 'fa-building-columns')">
+                        <i class="fa-solid fa-building-columns"></i>
+                        <span>Venue</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Host / Anchor', 'fa-microphone')">
+                        <i class="fa-solid fa-microphone"></i>
+                        <span>Host</span>
+                    </div>
+                    <div class="type-card" onclick="selectType('Wedding Planner', 'fa-ring')">
+                        <i class="fa-solid fa-ring"></i>
+                        <span>Wedding Planner</span>
                     </div>
                 </div>
 
@@ -130,65 +150,371 @@
 
                 <!-- CATERING SECTION -->
                 <div class="dynamic-section" id="section-Catering">
-                    <div class="input-group">
-                        <label>Menu Type</label>
-                        <select name="detail_menu_type">
-                            <option value="Veg Only">Veg Only</option>
-                            <option value="Non-Veg Included">Non-Veg Included</option>
-                            <option value="Both Available">Both Available</option>
-                        </select>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Cuisine Types</label>
+                            <input type="text" name="detail_cuisines" placeholder="Assamese, North Indian, Chinese, Bengali">
+                        </div>
+                        <div class="input-group">
+                            <label>Food Type</label>
+                            <select name="detail_veg_nonveg">
+                                <option value="Veg Only">Veg Only</option>
+                                <option value="Non-Veg Only">Non-Veg Only</option>
+                                <option value="Both">Both</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="input-group">
-                        <label>Featured Items / Signature Dishes</label>
-                        <textarea name="detail_items" rows="3" placeholder="e.g. Paneer Tikka, Chicken Biryani, Chocolate Lava Cake..."></textarea>
+                        <label>Meal Types Offered</label>
+                        <input type="text" name="detail_meal_types" placeholder="Breakfast, Lunch, Dinner">
                     </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Min Guests</label>
+                            <input type="number" name="detail_min_guests" placeholder="e.g. 50">
+                        </div>
+                        <div class="input-group">
+                            <label>Max Guests</label>
+                            <input type="number" name="detail_max_guests" placeholder="e.g. 1000">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Price per Plate (₹)</label>
+                            <input type="number" name="detail_price_per_plate" placeholder="e.g. 500">
+                        </div>
+                        <div class="input-group">
+                            <label>Buffet Price (₹)</label>
+                            <input type="number" name="detail_buffet_price" placeholder="e.g. 800">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
+                        <label style="display: flex; align-items: center; gap: 5px;"><input type="checkbox" name="detail_waiters"> Waiters Included?</label>
+                        <label style="display: flex; align-items: center; gap: 5px;"><input type="checkbox" name="detail_utensils"> Utensils Included?</label>
+                        <label style="display: flex; align-items: center; gap: 5px;"><input type="checkbox" name="detail_live_counter"> Live Counter?</label>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>FSSAI Number</label>
+                            <input type="text" name="detail_fssai" placeholder="Enter FSSAI No.">
+                        </div>
+                        <div class="input-group">
+                            <label>Hygiene Certificate No.</label>
+                            <input type="text" name="detail_hygiene_cert" placeholder="Enter Certificate No.">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DECORATION SECTION -->
+                <div class="dynamic-section" id="section-Decoration">
                     <div class="input-group">
-                        <label>Max Serving Capacity (Guests)</label>
-                        <input type="number" name="detail_capacity" placeholder="e.g. 500">
+                        <label>Decoration Specialties</label>
+                        <input type="text" name="detail_deco_specialties" placeholder="Wedding, Birthday, Stage, Floral, Balloon">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Venue Type</label>
+                            <select name="detail_venue_type">
+                                <option value="Indoor">Indoor</option>
+                                <option value="Outdoor">Outdoor</option>
+                                <option value="Both">Both</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Team Size</label>
+                            <input type="number" name="detail_team_size" placeholder="e.g. 10">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Setup Duration (Hours)</label>
+                            <input type="number" name="detail_setup_duration" placeholder="e.g. 6">
+                        </div>
+                        <div class="input-group">
+                            <label>Theme Customization?</label>
+                            <select name="detail_customization">
+                                <option value="Available">Available</option>
+                                <option value="Limited">Limited</option>
+                                <option value="Not Available">Not Available</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
                 <!-- PHOTOGRAPHY SECTION -->
                 <div class="dynamic-section" id="section-Photography">
                     <div class="input-group">
-                        <label>Shoot Types</label>
-                        <input type="text" name="detail_shoot_types" placeholder="e.g. Candid, Traditional, Pre-wedding">
+                        <label>Services</label>
+                        <input type="text" name="detail_services" placeholder="Photography, Videography, Drone, Pre-wedding">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Primary Camera</label>
+                            <input type="text" name="detail_camera" placeholder="e.g. Sony A7R IV">
+                        </div>
+                        <div class="input-group">
+                            <label>Drone Available?</label>
+                            <select name="detail_drone">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Hourly Rate (₹)</label>
+                            <input type="number" name="detail_hourly_rate">
+                        </div>
+                        <div class="input-group">
+                            <label>Full Event Rate (₹)</label>
+                            <input type="number" name="detail_full_rate">
+                        </div>
                     </div>
                     <div class="input-group">
-                        <label>Equipment / Gear</label>
-                        <input type="text" name="detail_gear" placeholder="e.g. Sony A7R IV, Prime Lenses, Drones">
+                        <label>Deliverables</label>
+                        <input type="text" name="detail_deliverables" placeholder="Album, Edited photos, Highlight reel">
                     </div>
                     <div class="input-group">
-                        <label>Delivery Time (Days)</label>
-                        <input type="number" name="detail_delivery" placeholder="e.g. 15">
+                        <label>Total Events Covered</label>
+                        <input type="number" name="detail_total_events" placeholder="e.g. 100">
                     </div>
                 </div>
 
                 <!-- DJ & MUSIC SECTION -->
                 <div class="dynamic-section" id="section-DJ-Music">
                     <div class="input-group">
-                        <label>Music Genres</label>
-                        <input type="text" name="detail_genres" placeholder="e.g. Bollywood, EDM, Sufi, Retro">
+                        <label>Music Types</label>
+                        <input type="text" name="detail_music_genres" placeholder="Bollywood, EDM, Traditional, Live Band">
                     </div>
-                    <div class="input-group">
-                        <label>Sound System Power</label>
-                        <input type="text" name="detail_sound" placeholder="e.g. 5000 Watts JBL System">
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
+                        <label style="display: flex; align-items: center; gap: 5px;"><input type="checkbox" name="detail_sound_included"> Sound System?</label>
+                        <label style="display: flex; align-items: center; gap: 5px;"><input type="checkbox" name="detail_mic_included"> Mic Included?</label>
+                        <label style="display: flex; align-items: center; gap: 5px;"><input type="checkbox" name="detail_lighting_included"> Lighting?</label>
+                        <label style="display: flex; align-items: center; gap: 5px;"><input type="checkbox" name="detail_dance_floor"> Dance Floor?</label>
+                        <label style="display: flex; align-items: center; gap: 5px;"><input type="checkbox" name="detail_smoke_machine"> Smoke Machine?</label>
                     </div>
-                    <div class="input-group">
-                        <label>Performance Duration (Hours)</label>
-                        <input type="number" name="detail_duration" placeholder="e.g. 4">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Hourly Price (₹)</label>
+                            <input type="number" name="detail_dj_hourly">
+                        </div>
+                        <div class="input-group">
+                            <label>Suitable Crowd Size</label>
+                            <input type="text" name="detail_crowd_size" placeholder="e.g. Up to 500">
+                        </div>
                     </div>
                 </div>
 
-                <!-- DEFAULT SECTION (DECO/LIGHTS/PLANNING) -->
-                <div class="dynamic-section" id="section-Default">
+                <!-- LIGHTING SECTION -->
+                <div class="dynamic-section" id="section-Lighting-Service">
                     <div class="input-group">
-                        <label>Special Themes Available</label>
-                        <input type="text" name="detail_themes" placeholder="e.g. Floral, Vintage, Royal, Minimalist">
+                        <label>Lighting Types</label>
+                        <input type="text" name="detail_light_types" placeholder="Stage lights, Decorative, LED wall, Outdoor">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Price Per Setup (₹)</label>
+                            <input type="number" name="detail_price_per_setup">
+                        </div>
+                        <div class="input-group">
+                            <label>Price Per Hour (₹)</label>
+                            <input type="number" name="detail_price_per_hour">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Total Light Units</label>
+                            <input type="number" name="detail_light_count">
+                        </div>
+                        <div class="input-group">
+                            <label>Generator Backup?</label>
+                            <select name="detail_generator">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CAKE SECTION -->
+                <div class="dynamic-section" id="section-Cake-Service">
+                    <div class="input-group">
+                        <label>Flavors</label>
+                        <input type="text" name="detail_cake_flavors" placeholder="Chocolate, Vanilla, Red Velvet, etc.">
                     </div>
                     <div class="input-group">
-                        <label>Setup Time (Hours)</label>
-                        <input type="number" name="detail_setup_time" placeholder="e.g. 6">
+                        <label>Available Sizes</label>
+                        <input type="text" name="detail_cake_sizes" placeholder="0.5kg, 1kg, 2kg, Multi-tier">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Theme Cakes?</label>
+                            <select name="detail_theme_cakes">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Eggless Option?</label>
+                            <select name="detail_eggless">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Price per kg (₹)</label>
+                            <input type="number" name="detail_price_per_kg">
+                        </div>
+                        <div class="input-group">
+                            <label>Home Delivery?</label>
+                            <select name="detail_cake_delivery">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FURNITURE SECTION -->
+                <div class="dynamic-section" id="section-Furniture-Tent">
+                    <div class="input-group">
+                        <label>Items (Separate with comma)</label>
+                        <input type="text" name="detail_furniture_list" placeholder="Chairs, Tables, Sofas, Tent types">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Total Chairs Available</label>
+                            <input type="number" name="detail_chair_count">
+                        </div>
+                        <div class="input-group">
+                            <label>Total Tables Available</label>
+                            <input type="number" name="detail_table_count">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Full Setup Price (₹)</label>
+                            <input type="number" name="detail_setup_price">
+                        </div>
+                        <div class="input-group">
+                            <label>Transportation Included?</label>
+                            <select name="detail_furniture_transport">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CAR RENTAL SECTION -->
+                <div class="dynamic-section" id="section-Car-Rental">
+                    <div class="input-group">
+                        <label>Vehicle Types</label>
+                        <input type="text" name="detail_vehicle_types" placeholder="Luxury cars, Buses, SUVs">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Seating Capacity</label>
+                            <input type="number" name="detail_seats">
+                        </div>
+                        <div class="input-group">
+                            <label>Driver Included?</label>
+                            <select name="detail_driver">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Price Per Km (₹)</label>
+                            <input type="number" name="detail_price_per_km">
+                        </div>
+                        <div class="input-group">
+                            <label>Price Per Day (₹)</label>
+                            <input type="number" name="detail_price_per_day">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VENUE SECTION -->
+                <div class="dynamic-section" id="section-Venue-Provider">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Hall Capacity</label>
+                            <input type="number" name="detail_hall_capacity">
+                        </div>
+                        <div class="input-group">
+                            <label>AC Available?</label>
+                            <select name="detail_ac_avail">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Parking Capacity</label>
+                            <input type="number" name="detail_parking_slots">
+                        </div>
+                        <div class="input-group">
+                            <label>Guest Rooms Available?</label>
+                            <input type="number" name="detail_rooms" placeholder="0">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Per Day Price (₹)</label>
+                            <input type="number" name="detail_venue_day_price">
+                        </div>
+                        <div class="input-group">
+                            <label>Per Function Price (₹)</label>
+                            <input type="number" name="detail_venue_func_price">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 15px;">
+                        <label style="display: flex; align-items: center; gap: 5px;"><input type="checkbox" name="detail_inhouse_catering"> In-house Catering?</label>
+                        <label style="display: flex; align-items: center; gap: 5px;"><input type="checkbox" name="detail_inhouse_deco"> In-house Decoration?</label>
+                    </div>
+                </div>
+
+                <!-- HOST SECTION -->
+                <div class="dynamic-section" id="section-Host-Anchor">
+                    <div class="input-group">
+                        <label>Languages Known</label>
+                        <input type="text" name="detail_languages" placeholder="English, Hindi, Assamese">
+                    </div>
+                    <div class="input-group">
+                        <label>Preferred Event Types</label>
+                        <input type="text" name="detail_host_events" placeholder="Wedding, Corporate, Cultural">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Total Events Hosted</label>
+                            <input type="number" name="detail_host_exp">
+                        </div>
+                        <div class="input-group">
+                            <label>Price Per Event (₹)</label>
+                            <input type="number" name="detail_host_price">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WEDDING PLANNER SECTION -->
+                <div class="dynamic-section" id="section-Wedding-Planner">
+                    <div class="input-group">
+                        <label>Core Services</label>
+                        <input type="text" name="detail_planner_core" placeholder="Decoration, Catering, Photography, Makeup">
+                    </div>
+                    <div class="input-group">
+                        <label>Package Tiers Available</label>
+                        <input type="text" name="detail_planner_tiers" placeholder="Silver, Gold, Premium">
+                    </div>
+                    <div class="input-group">
+                        <label>Standard Budget Range</label>
+                        <input type="text" name="detail_budget_range" placeholder="e.g. 5 Lakhs - 20 Lakhs">
                     </div>
                 </div>
 
@@ -209,12 +535,22 @@
                 </div>
 
                 <div class="input-group">
+                    <label>Short Catchy Description</label>
+                    <input type="text" name="short_description" placeholder="e.g. Professional catering for grand events">
+                </div>
+
+                <div class="input-group">
                     <label>Starting Price (₹)</label>
                     <input type="number" name="price" id="price_input" placeholder="0" oninput="updatePreview()" required>
                 </div>
 
                 <div class="input-group">
-                    <label>Description</label>
+                    <label>Experience (Years)</label>
+                    <input type="number" name="experience_years" placeholder="e.g. 5">
+                </div>
+
+                <div class="input-group">
+                    <label>Full Detailed Description</label>
                     <textarea name="description" id="desc_input" rows="4" placeholder="Briefly describe your service..." oninput="updatePreview()" required></textarea>
                 </div>
 
@@ -224,19 +560,56 @@
                 </div>
             </div>
 
-            <!-- STEP 4: MEDIA -->
+            <!-- STEP 4: AVAILABILITY & LOCATION -->
             <div class="form-step" id="step-4">
                 <h1 style="font-size: 1.8rem; margin-bottom: 8px;">Final Touches</h1>
-                <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Upload a photo and set your base location.</p>
+                <p style="color: #888; margin-bottom: 30px; font-size: 0.95rem;">Set your availability and upload a showcase photo.</p>
 
-                <div class="input-group">
-                    <label>Base City</label>
-                    <input type="text" name="location" id="loc_input" placeholder="e.g. Jorhat, Assam" oninput="updatePreview()" required>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="input-group">
+                        <label>Base City</label>
+                        <input type="text" name="location" id="loc_input" placeholder="e.g. Jorhat, Assam" oninput="updatePreview()" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Contact Number</label>
+                        <input type="text" name="contact_number" placeholder="e.g. +91 9876543210">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="input-group">
+                        <label>Min Booking Price (₹)</label>
+                        <input type="number" name="min_booking_price" placeholder="e.g. 10000">
+                    </div>
+                    <div class="input-group">
+                        <label>Max Capacity</label>
+                        <input type="number" name="max_capacity" placeholder="e.g. 1000">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 25px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" name="advance_payment_required" id="advance_pay" style="width: 18px; height: 18px;">
+                        <label for="advance_pay" style="margin: 0; font-weight: 600;">Advance Payment Required?</label>
+                    </div>
+                    <div class="input-group" style="margin: 0; flex: 1;">
+                        <select name="availability_status">
+                            <option value="Available">Currently Available</option>
+                            <option value="Busy">Busy (Limited Bookings)</option>
+                            <option value="Offline">Offline</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="input-group">
-                    <label>Showcase Photo</label>
-                    <input type="file" name="image" id="img_input" accept="image/*" onchange="previewImage(this)">
+                    <label>Main Cover Photo <span style="color: #ff6600;">(Required - This will be shown at the top)</span></label>
+                    <input type="file" name="image" id="img_input" accept="image/*" onchange="previewImage(this)" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Gallery Photos <span style="color: #888;">(Upload at least 2 more photos, max 9)</span></label>
+                    <input type="file" name="gallery_images" accept="image/*" multiple required>
+                    <p style="font-size: 0.8rem; color: #888; margin-top: 5px;">Minimum 3 photos total (1 Main + 2 Gallery) and Maximum 10 photos total are allowed.</p>
                 </div>
 
                 <div class="btn-row">
@@ -279,6 +652,13 @@
         document.getElementById('card_type').innerText = type;
         
         document.querySelectorAll('.type-card').forEach(card => card.classList.remove('selected'));
+        // Find the card by text content
+        const cards = document.querySelectorAll('.type-card');
+        cards.forEach(c => {
+            if(c.querySelector('span').innerText === type || c.getAttribute('onclick').includes(type)) {
+                // c.classList.add('selected'); // This will be handled by event.currentTarget if clicked
+            }
+        });
         event.currentTarget.classList.add('selected');
         
         document.getElementById('card_icon').className = 'fa-solid ' + icon;
@@ -286,12 +666,16 @@
         // Reset dynamic sections
         document.querySelectorAll('.dynamic-section').forEach(s => s.classList.remove('active'));
         
-        let sectionId = 'section-Default';
-        if(type === 'Catering') sectionId = 'section-Catering';
-        else if(type === 'Photography') sectionId = 'section-Photography';
-        else if(type === 'DJ & Music') sectionId = 'section-DJ-Music';
+        // Map type to section ID
+        let sectionId = 'section-' + type.replace(/ \/ /g, '-').replace(/ /g, '-');
         
-        document.getElementById(sectionId).classList.add('active');
+        const targetSection = document.getElementById(sectionId);
+        if(targetSection) {
+            targetSection.classList.add('active');
+        } else {
+            // fallback
+            console.log("No section for " + sectionId);
+        }
     }
 
     function nextStep(step) {

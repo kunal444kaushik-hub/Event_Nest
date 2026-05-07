@@ -119,12 +119,17 @@
             transition: 0.3s;
         }
         .category-card:hover .view-btn { gap: 15px; }
+         .icon-box i { transition: 0.3s; }
+        .category-card:hover .icon-box i { transform: scale(1.2); }
+
+        .back-btn-top { position: fixed; top: 30px; left: 30px; z-index: 1000; background: white; padding: 12px 25px; border-radius: 15px; text-decoration: none; color: #1a1a1a; font-weight: 700; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #eee; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .back-btn-top:hover { background: #ff6600; color: white; border-color: #ff6600; }
     </style>
 </head>
 <body style="background: #f4f7f6;">
 
-<a href="{% if request.user.is_staff or request.user.is_superuser %}{% url 'admin_home' %}{% elif request.user.is_authenticated %}{% url 'user_home' %}{% else %}{% url 'home' %}{% endif %}" class="back-btn">
-    <i class="fa-solid fa-arrow-left"></i> Back
+<a href="{% url 'home' %}" class="back-btn-top">
+    <i class="fa-solid fa-house"></i> Home
 </a>
 
 <header>
@@ -173,12 +178,12 @@
 </div>
 
 <div class="services-container">
-    <div class="search-container">
-        <input type="text" class="search-input" placeholder="Search for DJs, Caterers, Decorators...">
-        <a href="{% url 'search_services' %}" class="search-btn">
+    <form action="{% url 'search_services' %}" method="GET" class="search-container">
+        <input type="text" name="q" class="search-input" placeholder="Search for DJs, Caterers, Decorators..." value="{{ request.GET.q }}">
+        <button type="submit" class="search-btn" style="border: none; cursor: pointer;">
             <i class="fa-solid fa-magnifying-glass"></i> Search Services
-        </a>
-    </div>
+        </button>
+    </form>
 
     <div class="services-grid">
         <a href="{% url 'service_by_type' 'DJ & Music' %}" class="category-card">
@@ -223,13 +228,69 @@
             <div class="view-btn">Explore Providers <i class="fa-solid fa-arrow-right"></i></div>
         </a>
     </div>
+
+    <!-- NEW SECTION: PROFESSIONAL SUPPORT -->
+    <div style="margin-top: 80px; margin-bottom: 40px;">
+        <h2 style="font-size: 2rem; color: #1a1a1a; margin-bottom: 10px;">Professional Event Support</h2>
+        <p style="color: #666; margin-bottom: 30px;">Small essentials that make a big difference in your event.</p>
+        <div class="services-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
+            <a href="{% url 'service_by_type' 'Host / Anchor' %}" class="category-card" style="padding: 30px;">
+                <div class="icon-box" style="width: 70px; height: 70px; font-size: 1.8rem;"><i class="fa-solid fa-microphone"></i></div>
+                <h3 style="font-size: 1.2rem;">Host / Anchor</h3>
+                <p style="font-size: 0.85rem;">Engaging MCs and anchors to keep your crowd entertained and events on track.</p>
+                <div class="view-btn" style="font-size: 0.85rem;">Explore <i class="fa-solid fa-arrow-right"></i></div>
+            </a>
+
+            <a href="{% url 'service_by_type' 'Cake Service' %}" class="category-card" style="padding: 30px;">
+                <div class="icon-box" style="width: 70px; height: 70px; font-size: 1.8rem;"><i class="fa-solid fa-cake-candles"></i></div>
+                <h3 style="font-size: 1.2rem;">Cake Service</h3>
+                <p style="font-size: 0.85rem;">Custom designer cakes, cupcakes, and dessert tables for every celebration.</p>
+                <div class="view-btn" style="font-size: 0.85rem;">Explore <i class="fa-solid fa-arrow-right"></i></div>
+            </a>
+
+            <a href="{% url 'service_by_type' 'Furniture / Tent' %}" class="category-card" style="padding: 30px;">
+                <div class="icon-box" style="width: 70px; height: 70px; font-size: 1.8rem;"><i class="fa-solid fa-chair"></i></div>
+                <h3 style="font-size: 1.2rem;">Furniture / Tent</h3>
+                <p style="font-size: 0.85rem;">Tent house rentals, premium furniture, and seating arrangements for any scale.</p>
+                <div class="view-btn" style="font-size: 0.85rem;">Explore <i class="fa-solid fa-arrow-right"></i></div>
+            </a>
+        </div>
+    </div>
+
+    <!-- NEW SECTION: LOGISTICS & VENUES -->
+    <div style="margin-top: 80px;">
+        <h2 style="font-size: 2rem; color: #1a1a1a; margin-bottom: 10px;">Logistics & Venue Support</h2>
+        <p style="color: #666; margin-bottom: 30px;">Everything you need to manage your guests and locations.</p>
+        <div class="services-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
+            <a href="{% url 'service_by_type' 'Car Rental' %}" class="category-card" style="padding: 30px;">
+                <div class="icon-box" style="width: 70px; height: 70px; font-size: 1.8rem;"><i class="fa-solid fa-car"></i></div>
+                <h3 style="font-size: 1.2rem;">Car Rental</h3>
+                <p style="font-size: 0.85rem;">Luxury wedding cars and guest transport services with professional drivers.</p>
+                <div class="view-btn" style="font-size: 0.85rem;">Explore <i class="fa-solid fa-arrow-right"></i></div>
+            </a>
+
+            <a href="{% url 'service_by_type' 'Venue Provider' %}" class="category-card" style="padding: 30px;">
+                <div class="icon-box" style="width: 70px; height: 70px; font-size: 1.8rem;"><i class="fa-solid fa-building-columns"></i></div>
+                <h3 style="font-size: 1.2rem;">Venue Provider</h3>
+                <p style="font-size: 0.85rem;">Banquets, open-air lawns, and hotel halls for weddings and corporate meets.</p>
+                <div class="view-btn" style="font-size: 0.85rem;">Explore <i class="fa-solid fa-arrow-right"></i></div>
+            </a>
+
+            <a href="{% url 'service_by_type' 'Wedding Planner' %}" class="category-card" style="padding: 30px;">
+                <div class="icon-box" style="width: 70px; height: 70px; font-size: 1.8rem;"><i class="fa-solid fa-ring"></i></div>
+                <h3 style="font-size: 1.2rem;">Wedding Planner</h3>
+                <p style="font-size: 0.85rem;">Dedicated planners to handle every detail of your big day from start to finish.</p>
+                <div class="view-btn" style="font-size: 0.85rem;">Explore <i class="fa-solid fa-arrow-right"></i></div>
+            </a>
+        </div>
+    </div>
 </div>
 
 <footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
     <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
     <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
     <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; opacity: 0.5;">
-        © 2026 EventNest | All Rights Reserved
+        © 2026 EventNest
     </div>
 </footer>
 

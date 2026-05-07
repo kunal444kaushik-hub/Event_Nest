@@ -8,11 +8,27 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password
 
 from django.db.models import Count, Sum, Avg, Q
-from .models import Profile, Service, Package, Notification, EmailOTP, Booking, CustomPackageBooking,Wishlist,Review
+from .models import Profile, Service, Package, Notification, EmailOTP, Booking, CustomPackageBooking, Wishlist, Review, PackageImage, ActivityLog
+
+# Global constant for service categories
+SERVICE_CATEGORIES = [
+    "DJ & Music", "Catering", "Decoration", "Photography", 
+    "Lighting Setup", "Event Planning", "Host / Anchor", 
+    "Cake Service", "Furniture / Tent", "Car Rental", 
+    "Venue Provider", "Wedding Planner"
+]
+
+# Global constant for popular locations
+POPULAR_LOCATIONS = [
+    "Guwahati", "Jorhat", "Dibrugarh", "Silchar", "Tezpur", 
+    "Nagaon", "Tinsukia", "Sivasagar", "Delhi", "Mumbai", 
+    "Bangalore", "Kolkata"
+]
 
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import update_session_auth_hash
+from django.utils import timezone
 
 
 
@@ -57,27 +73,6 @@ def services(request):
     return render(request, 'services.html')
 
 
-def service_list_by_type(request, type_name):
-    services = Service.objects.filter(service_type=type_name).annotate(
-        avg_rating=Avg('provider__reviews__rating'),
-        review_count=Count('provider__reviews')
-    ).order_by('-created_at')
-
-    if request.user.is_authenticated:
-        wishlist_ids = list(
-            Wishlist.objects.filter(
-                user=request.user,
-                service__isnull=False
-            ).values_list('service_id', flat=True)
-        )
-    else:
-        wishlist_ids = []
-
-    return render(request, 'service_list.html', {
-        'services': services,
-        'type_name': type_name,
-        'wishlist_ids': wishlist_ids
-    })
 
 
 @login_required(login_url='login')
@@ -95,10 +90,27 @@ def list_service(request):
     if request.method == "POST":
         service_type = request.POST.get("service_type")
         service_name = request.POST.get("service_name")
+        short_description = request.POST.get("short_description")
         description = request.POST.get("description")
         price = request.POST.get("price")
         location = request.POST.get("location")
+        contact_number = request.POST.get("contact_number")
+        experience_years = request.POST.get("experience_years", 0)
+        min_booking_price = request.POST.get("min_booking_price", 0)
+        max_capacity = request.POST.get("max_capacity")
+        advance_payment_required = request.POST.get("advance_payment_required") == 'on'
+        availability_status = request.POST.get("availability_status", "Available")
         image = request.FILES.get("image")
+        gallery_images = request.FILES.getlist("gallery_images")
+
+        # Validation: Min 3, Max 10 total (Main + Gallery)
+        total_images = (1 if image else 0) + len(gallery_images)
+        if total_images < 3:
+            messages.error(request, f"Please upload at least 3 photos in total (1 main photo and at least 2 gallery photos). You have uploaded {total_images}.")
+            return render(request, "list_service.html")
+        if total_images > 10:
+            messages.error(request, f"You can upload a maximum of 10 photos in total. You have uploaded {total_images}.")
+            return render(request, "list_service.html")
 
         # Collect dynamic extra details
         extra_details = {}
@@ -110,16 +122,27 @@ def list_service(request):
                     clean_key = key.replace("detail_", "")
                     extra_details[clean_key] = val
 
-        Service.objects.create(
+        service = Service.objects.create(
             provider=request.user,
             service_type=service_type,
             service_name=service_name,
+            short_description=short_description,
             description=description,
             price=price,
             location=location,
+            contact_number=contact_number,
+            experience_years=experience_years if experience_years else 0,
+            min_booking_price=min_booking_price if min_booking_price else 0,
+            max_capacity=max_capacity if max_capacity else None,
+            advance_payment_required=advance_payment_required,
+            availability_status=availability_status,
             image=image,
             extra_details=extra_details
         )
+
+        # Save gallery images
+        for img in gallery_images:
+            ServiceImage.objects.create(service=service, image=img)
         
         Notification.objects.create(
             user=request.user,
@@ -127,6 +150,7 @@ def list_service(request):
         )
 
         messages.success(request, f"Service '{service_name}' listed successfully!")
+        ActivityLog.objects.create(user=request.user, action="Service Listed", details=f"Listed new service: {service_name}")
         return redirect("provider_dashboard")
 
     return render(request, "list_service.html")
@@ -140,15 +164,99 @@ def packages(request):
         "Custom Combo Package"
     ]
 
-    return render(request, 'packages.html', {'event_types': event_types})
+    trending_packages = Package.objects.filter(is_trending=True).annotate(gallery_count=Count('gallery'))[:6]
+    featured_packages = Package.objects.filter(is_featured=True).annotate(gallery_count=Count('gallery'))[:4]
+    budget_packages = Package.objects.filter(total_price__lte=50000).annotate(gallery_count=Count('gallery'))[:6]
+    luxury_packages = Package.objects.filter(total_price__gte=100000).annotate(gallery_count=Count('gallery'))[:6]
+    custom_combo_packages = Package.objects.filter(package_type="Custom Combo Package").annotate(gallery_count=Count('gallery'))[:6]
+    
+    # Simple recommendation based on random for now, or could be based on user preference if exists
+    recommended_packages = Package.objects.all().annotate(gallery_count=Count('gallery')).order_by('?')[:6]
+
+    occasions = [
+        {"name": "Birthday", "icon": "fa-cake-candles"},
+        {"name": "Wedding", "icon": "fa-ring"},
+        {"name": "Corporate", "icon": "fa-briefcase"},
+        {"name": "Festival", "icon": "fa-holly-berry"},
+        {"name": "College", "icon": "fa-graduation-cap"},
+        {"name": "Luxury", "icon": "fa-crown"},
+        {"name": "Outdoor", "icon": "fa-tree"},
+        {"name": "Budget", "icon": "fa-tags"},
+    ]
+
+    themes = ["Royal Theme", "Minimal Theme", "Traditional Theme", "Luxury Theme", "Outdoor Garden Theme"]
+
+    return render(request, 'packages.html', {
+        'event_types': event_types,
+        'trending_packages': trending_packages,
+        'featured_packages': featured_packages,
+        'budget_packages': budget_packages,
+        'luxury_packages': luxury_packages,
+        'custom_combo_packages': custom_combo_packages,
+        'recommended_packages': recommended_packages,
+        'occasions': occasions,
+        'themes': themes
+    })
 
 
 def package_by_type(request, type_name):
-    packages = Package.objects.filter(package_type=type_name).order_by('-created_at')
+    # Base Query with Annotations
+    packages = Package.objects.all().annotate(
+        gallery_count=Count("gallery"),
+        avg_rating=Avg("provider__reviews__rating")
+    )
+
+    # Theme/Occasion/Type Filter
+    if type_name != "All":
+        packages = packages.filter(Q(package_type=type_name) | Q(occasion=type_name) | Q(theme=type_name))
+
+    # Query Parameters for Advanced Filtering
+    q = request.GET.get('q')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    guests = request.GET.get('guests')
+    location = request.GET.get('location')
+    outdoor = request.GET.get('outdoor')
+    verified = request.GET.get('verified')
+    rating = request.GET.get('rating')
+
+    if q:
+        packages = packages.filter(
+            Q(package_name__icontains=q) |
+            Q(description__icontains=q) |
+            Q(provider__username__icontains=q)
+        )
+    if min_price:
+        packages = packages.filter(total_price__gte=min_price)
+    if max_price:
+        packages = packages.filter(total_price__lte=max_price)
+    if guests:
+        packages = packages.filter(max_guests__gte=guests)
+    if location:
+        packages = packages.filter(location_coverage__icontains=location)
+    if outdoor == 'yes':
+        packages = packages.filter(is_outdoor=True)
+    elif outdoor == 'no':
+        packages = packages.filter(is_outdoor=False)
+    if verified == 'yes':
+        packages = packages.filter(is_verified=True)
+    if rating:
+        packages = packages.filter(avg_rating__gte=rating)
+
+    packages = packages.order_by('-created_at')
 
     return render(request, 'package_list.html', {
         'packages': packages,
-        'type_name': type_name
+        'type_name': type_name,
+        'filters': {
+            'min_price': min_price,
+            'max_price': max_price,
+            'guests': guests,
+            'location': location,
+            'outdoor': outdoor,
+            'verified': verified,
+            'rating': rating
+        }
     })
 
 def custom_package(request):
@@ -186,30 +294,89 @@ def list_package(request):
     if request.method == "POST":
         package_type = request.POST.get("package_type")
         package_name = request.POST.get("package_name")
-        included_services = request.POST.getlist("included_services")
+        short_description = request.POST.get("short_description")
         description = request.POST.get("description")
         total_price = request.POST.get("total_price")
+        pricing_structure = request.POST.get("pricing_structure", "Fixed Price")
+        max_guests = request.POST.get("max_guests")
+        package_duration = request.POST.get("package_duration")
+        location_coverage = request.POST.get("location_coverage")
+        availability_status = request.POST.get("availability_status", "Available")
+        
+        included_services = request.POST.getlist("included_services")
         image = request.FILES.get("image")
+        gallery_images = request.FILES.getlist("gallery_images")
 
-        Package.objects.create(
+        # Validation: Min 3, Max 10 total (Main + Gallery)
+        total_images = (1 if image else 0) + len(gallery_images)
+        if total_images < 3:
+            my_services = Service.objects.filter(provider=request.user)
+            messages.error(request, f"Please upload at least 3 photos in total (1 main photo and at least 2 gallery photos). You have uploaded {total_images}.")
+            return render(request, "list_package.html", {"my_services": my_services})
+        if total_images > 10:
+            my_services = Service.objects.filter(provider=request.user)
+            messages.error(request, f"You can upload a maximum of 10 photos in total. You have uploaded {total_images}.")
+            return render(request, "list_package.html", {"my_services": my_services})
+
+        # Collect dynamic extra details (themes, add-ons, etc.)
+        extra_details = {}
+        for key in request.POST:
+            if key.startswith("detail_"):
+                val = request.POST.get(key)
+                if val:
+                    extra_details[key.replace("detail_", "")] = val
+
+        # Collect Variants (Basic, Standard, Premium)
+        variants = {
+            "Basic": {
+                "price": request.POST.get("variant_basic_price"),
+                "features": request.POST.get("variant_basic_features")
+            },
+            "Standard": {
+                "price": request.POST.get("variant_standard_price"),
+                "features": request.POST.get("variant_standard_features")
+            },
+            "Premium": {
+                "price": request.POST.get("variant_premium_price"),
+                "features": request.POST.get("variant_premium_features")
+            }
+        }
+
+        package = Package.objects.create(
             provider=request.user,
             package_type=package_type,
             package_name=package_name,
-            included_services=", ".join(included_services),
+            short_description=short_description,
             description=description,
             total_price=total_price,
+            pricing_structure=pricing_structure,
+            max_guests=max_guests if max_guests else None,
+            package_duration=package_duration,
+            location_coverage=location_coverage,
+            availability_status=availability_status,
+            included_services=", ".join(included_services),
+            extra_details=extra_details,
+            variants=variants,
             image=image
         )
         
+        # Save gallery images
+        for img in gallery_images:
+            PackageImage.objects.create(package=package, image=img)
+
         Notification.objects.create(
             user=request.user,
-            message=f"Success! Your combo package '{package_name}' has been listed."
+            message=f"Success! Your professional combo package '{package_name}' has been listed."
         )
 
         messages.success(request, f"Package '{package_name}' listed successfully!")
+        ActivityLog.objects.create(user=request.user, action="Package Listed", details=f"Created professional bundle: {package_name}")
         return redirect("provider_dashboard")
 
-    return render(request, "list_package.html")
+    # Pass provider's own services for the builder
+    my_services = Service.objects.filter(provider=request.user)
+    
+    return render(request, "list_package.html", {"my_services": my_services})
 
 
 def contact(request):
@@ -375,12 +542,12 @@ def provider_step4(request):
             is_approved=False
         )
 
+        # Clear registration session data safely before login
+        request.session.flush()
+
         # Auto login
         from django.contrib.auth import login
         login(request, user)
-
-        # Clear session
-        request.session.flush()
 
         messages.success(request, "Registration successful! Welcome to EventNest.")
         return redirect("provider_home")
@@ -732,13 +899,24 @@ def reset_password(request):
 
 @login_required(login_url='user_login')
 def book_service(request, service_id):
-    service = Service.objects.get(id=service_id)
+    service = get_object_or_404(Service, id=service_id)
+    today = timezone.now().date()
 
     if request.method == "POST":
+        # ... (POST logic remains same)
         event_date = request.POST.get("event_date")
         number_of_guests = request.POST.get("number_of_guests")
         number_of_days = request.POST.get("number_of_days")
         message = request.POST.get("message")
+
+        # Collect dynamic booking details
+        extra_booking_details = {}
+        for key in request.POST:
+            if key.startswith("booking_detail_"):
+                val = request.POST.get(key)
+                if val:
+                    clean_key = key.replace("booking_detail_", "")
+                    extra_booking_details[clean_key] = val
 
         Booking.objects.create(
             user=request.user,
@@ -747,53 +925,61 @@ def book_service(request, service_id):
             event_date=event_date,
             number_of_guests=number_of_guests if number_of_guests else None,
             number_of_days=number_of_days if number_of_days else None,
-            message=message
+            message=message,
+            extra_booking_details=extra_booking_details
         )
 
         Notification.objects.create(
             user=service.provider,
             message=f"New booking request for {service.service_name}"
-)
+        )
 
         messages.success(request, "Booking request sent. Please wait for provider confirmation.")
+        ActivityLog.objects.create(user=request.user, action="Service Booked", details=f"Sent booking request for: {service.service_name}")
         return redirect("user_bookings")
 
-    return render(request, "book_service.html", {"service": service})
+    return render(request, "book_service.html", {"service": service, "today": today})
 
-def provider_bookings(request):
-    bookings = Booking.objects.filter(provider=request.user).order_by('-created_at')
-    return render(request, "provider_bookings.html", {"bookings": bookings})
+@login_required(login_url='user_login')
+def book_package(request, package_id):
+    package = Package.objects.get(id=package_id)
+
+    if request.method == "POST":
+        event_date = request.POST.get("event_date")
+        number_of_guests = request.POST.get("number_of_guests")
+        message = request.POST.get("message")
+        selected_variant = request.POST.get("selected_variant", "Basic")
+
+        # Collect dynamic booking details if any
+        extra_booking_details = {"variant": selected_variant}
+        for key in request.POST:
+            if key.startswith("booking_detail_"):
+                val = request.POST.get(key)
+                if val:
+                    extra_booking_details[key.replace("booking_detail_", "")] = val
+
+        Booking.objects.create(
+            user=request.user,
+            provider=package.provider,
+            package=package,
+            event_date=event_date,
+            number_of_guests=number_of_guests if number_of_guests else None,
+            message=message,
+            extra_booking_details=extra_booking_details
+        )
+
+        Notification.objects.create(
+            user=package.provider,
+            message=f"New package booking request for {package.package_name} ({selected_variant})"
+        )
+
+        messages.success(request, f"Package '{package.package_name}' booking request sent!")
+        ActivityLog.objects.create(user=request.user, action="Package Booked", details=f"Booked professional bundle: {package.package_name}")
+        return redirect("user_bookings")
+
+    return render(request, "book_package.html", {"package": package})
 
 
-def accept_booking(request, booking_id):
-    booking = Booking.objects.get(id=booking_id, provider=request.user)
-    booking.status = "Accepted"
-    booking.save()
-
-    Notification.objects.create(
-        user=booking.user,
-        message=f"Your booking for {booking.service.service_name} has been accepted."
-    )
-
-    return redirect("provider_bookings")
-
-
-def reject_booking(request, booking_id):
-    booking = Booking.objects.get(id=booking_id, provider=request.user)
-    booking.status = "Rejected"
-    booking.save()
-
-    Notification.objects.create(
-        user=booking.user,
-        message=f"Your booking for {booking.service.service_name} has been rejected."
-    )
-
-    return redirect("provider_bookings")
-
-
-def user_bookings(request):
-    bookings = Booking.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, "user_bookings.html", {"bookings": bookings})
 
 def about(request):
     notify_count = 0
@@ -814,92 +1000,6 @@ def about(request):
 
 
 
-@login_required(login_url='user_login')
-def make_custom_package(request):
-    event_requirements = {
-        "Birthday Event": ["Decoration", "Catering", "DJ & Music", "Photography"],
-        "Marriage Event": ["Decoration", "Catering", "Photography", "Lighting Setup", "Event Planning"],
-        "Office Party": ["Catering", "Lighting Setup", "Event Planning", "Photography"],
-        "Bachelor Party": ["DJ & Music", "Catering", "Decoration", "Lighting Setup"],
-        "College Event": ["DJ & Music", "Lighting Setup", "Photography", "Event Planning"],
-    }
-
-    selected_event = request.GET.get("event_type")
-
-    services_by_type = {}
-
-    if selected_event:
-        required_services = event_requirements.get(selected_event, [])
-
-        for service_type in required_services:
-            services_by_type[service_type] = Service.objects.filter(service_type=service_type)
-
-    if request.method == "POST":
-        event_type = request.POST.get("event_type")
-        event_date = request.POST.get("event_date")
-        message = request.POST.get("message")
-        selected_service_ids = request.POST.getlist("selected_services")
-
-        selected_services = Service.objects.filter(id__in=selected_service_ids)
-
-        total_price = sum(service.price for service in selected_services)
-
-        custom_booking = CustomPackageBooking.objects.create(
-            user=request.user,
-            event_date=event_date,
-            message=message,
-            total_price=total_price
-        )
-
-        custom_booking.selected_services.set(selected_services)
-
-        for service in selected_services:
-            Notification.objects.create(
-                user=service.provider,
-                message=f"New custom package request for {event_type}: {service.service_name} from {request.user.username}."
-            )
-
-        messages.success(request, "Custom package request sent to all selected providers.")
-        return redirect("user_bookings")
-
-    return render(request, "make_custom_package.html", {
-        "event_requirements": event_requirements,
-        "selected_event": selected_event,
-        "services_by_type": services_by_type,
-    })
-    
-    
-    #new
-@login_required(login_url='user_login')
-def book_service(request, service_id):
-    service = Service.objects.get(id=service_id)
-
-    if request.method == "POST":
-        event_date = request.POST.get("event_date")
-        number_of_guests = request.POST.get("number_of_guests")
-        number_of_days = request.POST.get("number_of_days")
-        message = request.POST.get("message")
-
-        Booking.objects.create(
-            user=request.user,
-            provider=service.provider,
-            service=service,
-            event_date=event_date,
-            number_of_guests=number_of_guests if number_of_guests else None,
-            number_of_days=number_of_days if number_of_days else None,
-            message=message,
-            status="Pending"
-        )
-
-        Notification.objects.create(
-            user=service.provider,
-            message=f"New booking request for {service.service_name} from {request.user.username}."
-        )
-
-        messages.success(request, "Booking request sent. Please wait for provider confirmation.")
-        return redirect("user_bookings")
-
-    return render(request, "book_service.html", {"service": service})
 
 
 @login_required(login_url='user_login')
@@ -922,7 +1022,7 @@ def accept_booking(request, booking_id):
 
     Notification.objects.create(
         user=booking.user,
-        message=f"Your booking for {booking.service.service_name} has been accepted."
+        message=f"Your booking for {booking.booked_item_name} has been accepted."
     )
 
     return redirect("provider_bookings")
@@ -936,7 +1036,7 @@ def reject_booking(request, booking_id):
 
     Notification.objects.create(
         user=booking.user,
-        message=f"Your booking for {booking.service.service_name} has been rejected."
+        message=f"Your booking for {booking.booked_item_name} has been rejected."
     )
 
     return redirect("provider_bookings")
@@ -952,7 +1052,7 @@ def cancel_booking(request, booking_id):
 
         Notification.objects.create(
             user=booking.provider,
-            message=f"{request.user.username} cancelled booking for {booking.service.service_name}."
+            message=f"{request.user.username} cancelled booking for {booking.booked_item_name}."
         )
 
     return redirect("user_bookings")
@@ -968,7 +1068,7 @@ def complete_booking(request, booking_id):
 
         Notification.objects.create(
             user=booking.user,
-            message=f"Your booking for {booking.service.service_name} is marked as completed."
+            message=f"Your booking for {booking.booked_item_name} is marked as completed."
         )
 
     return redirect("provider_bookings")
@@ -977,8 +1077,12 @@ def provider_profile(request, provider_id):
     provider = User.objects.get(id=provider_id)
     profile = Profile.objects.get(user=provider)
 
-    services = Service.objects.filter(provider=provider).order_by('-created_at')
-    packages = Package.objects.filter(provider=provider).order_by('-created_at')
+    services = Service.objects.filter(provider=provider).annotate(
+        gallery_count=Count("gallery")
+    ).order_by('-created_at')
+    packages = Package.objects.filter(provider=provider).annotate(
+        gallery_count=Count("gallery")
+    ).order_by('-created_at')
     reviews = Review.objects.filter(provider=provider).order_by('-created_at')
 
     avg_rating = reviews.aggregate(Avg('rating'))['rating__avg']
@@ -1028,7 +1132,8 @@ def search_services(request):
 
     services = Service.objects.all().annotate(
         avg_rating=Avg("provider__reviews__rating"),
-        review_count=Count("provider__reviews")
+        review_count=Count("provider__reviews"),
+        gallery_count=Count("gallery")
     ).order_by("-created_at")
 
     if query:
@@ -1047,25 +1152,16 @@ def search_services(request):
 
     if min_price:
         services = services.filter(price__gte=min_price)
-
     if max_price:
         services = services.filter(price__lte=max_price)
 
     if min_rating:
         services = services.filter(avg_rating__gte=min_rating)
 
-    service_types = [
-        "DJ & Music",
-        "Catering",
-        "Decoration",
-        "Photography",
-        "Lighting Setup",
-        "Event Planning",
-    ]
-
     return render(request, "search_services.html", {
         "services": services,
-        "service_types": service_types,
+        "service_types": SERVICE_CATEGORIES,
+        "locations": POPULAR_LOCATIONS,
         "query": query,
         "selected_type": service_type,
         "location": location,
@@ -1073,6 +1169,26 @@ def search_services(request):
         "max_price": max_price,
         "min_rating": min_rating,
     })
+
+def service_list_by_type(request, type_name):
+    services = Service.objects.filter(service_type=type_name).annotate(
+        avg_rating=Avg("provider__reviews__rating"),
+        review_count=Count("provider__reviews"),
+        gallery_count=Count("gallery")
+    ).order_by("-created_at")
+    
+    return render(request, "search_services.html", {
+        "services": services,
+        "selected_type": type_name,
+        "query": "",
+        "location": "",
+        "min_price": "",
+        "max_price": "",
+        "min_rating": "",
+        "service_types": SERVICE_CATEGORIES,
+        "locations": POPULAR_LOCATIONS
+    })
+
 @login_required(login_url='user_login')
 def make_custom_package(request):
     event_requirements = {
@@ -1083,13 +1199,14 @@ def make_custom_package(request):
         "College Event": ["DJ & Music", "Lighting Setup", "Photography", "Event Planning"],
     }
 
-    selected_event = request.GET.get("event_type")
+    selected_event = request.GET.get("event_type", "Birthday Event") # Default to Birthday
     services_by_type = {}
 
-    if selected_event:
-        required_services = event_requirements.get(selected_event, [])
-        for service_type in required_services:
-            services_by_type[service_type] = Service.objects.filter(service_type=service_type)
+    # Fetch all services grouped by category for the builder
+    for category in SERVICE_CATEGORIES:
+        services = Service.objects.filter(service_type=category).annotate(avg_rating=Avg('provider__reviews__rating'))
+        if services.exists():
+            services_by_type[category] = services
 
     if request.method == "POST":
         event_type = request.POST.get("event_type")
@@ -1119,13 +1236,14 @@ def make_custom_package(request):
                 message=f"New custom package request for {event_type}: {service.service_name} from {request.user.username}."
             )
 
-        messages.success(request, "Custom package request sent to all selected providers.")
+        messages.success(request, f"Your custom {event_type} request for ₹{total_price} has been sent!")
         return redirect("user_bookings")
 
     return render(request, "make_custom_package.html", {
         "event_requirements": event_requirements,
         "selected_event": selected_event,
         "services_by_type": services_by_type,
+        "categories": SERVICE_CATEGORIES
     })
 
 
@@ -1220,7 +1338,6 @@ def edit_provider_profile(request):
     return render(request, "edit_provider_profile.html", {
         "profile": profile
     })
-    
 # Show all notifications page
 @login_required
 def notifications_page(request):
@@ -1438,6 +1555,7 @@ def settings_view(request):
         return redirect('home')
         
     profile = request.user.profile
+    activities = ActivityLog.objects.filter(user=request.user).order_by("-created_at")[:10]
 
     if request.method == "POST":
         action = request.POST.get("action")
@@ -1465,6 +1583,7 @@ def settings_view(request):
                     profile.cover_image = request.FILES.get("cover_image")
 
             profile.save()
+            ActivityLog.objects.create(user=request.user, action="Profile Updated", details="Changed personal or business information.")
             messages.success(request, "Profile updated successfully.")
             return redirect("settings")
 
@@ -1485,6 +1604,7 @@ def settings_view(request):
             request.user.set_password(new_password)
             request.user.save()
             update_session_auth_hash(request, request.user)
+            ActivityLog.objects.create(user=request.user, action="Password Changed", details="User updated account security credentials.")
 
             messages.success(request, "Password changed successfully.")
             return redirect("settings")
@@ -1541,5 +1661,14 @@ def settings_view(request):
             return redirect("logout")
 
     return render(request, "settings.html", {
-        "profile": profile
+        "profile": profile,
+        "activities": activities
     })
+
+
+from django.contrib.auth.signals import user_logged_in
+from django.dispatch import receiver
+
+@receiver(user_logged_in)
+def log_user_login(sender, request, user, **kwargs):
+    ActivityLog.objects.create(user=user, action="Account Login", details="Signed in to EventNest platform.")

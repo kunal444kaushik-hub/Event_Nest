@@ -35,13 +35,13 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
 
     path('services/', views.services, name='services'),
-    path('services/<str:type_name>/', views.service_list_by_type, name='service_by_type'),
+    path('services/<path:type_name>/', views.service_list_by_type, name='service_by_type'),
 
     path('packages/', views.packages, name='packages'),
     path('contact/', views.contact, name='contact'),
     path('custom-package/', views.custom_package, name='custom_package'),
     path('packages/', views.packages, name='packages'),
-    path('packages/<str:type_name>/', views.package_by_type, name='package_by_type'),
+    path('packages/<path:type_name>/', views.package_by_type, name='package_by_type'),
     
     path('user-dashboard/', views.user_dashboard, name='user_dashboard'),
     path('provider-dashboard/', views.provider_dashboard, name='provider_dashboard'),
@@ -106,6 +106,7 @@ urlpatterns = [
     path('custom-admin/reviews/delete/<int:review_id>/', views.delete_review_admin, name='delete_review_admin'),
     path('admin-home/', views.admin_home, name='admin_home'),
     path('settings/', views.settings_view, name='settings'),
+    path('book-package/<int:package_id>/', views.book_package, name='book_package'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -5,104 +5,787 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book {{ service.service_name }} - EventNest</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        body { background: #fdfdfd; font-family: 'Inter', sans-serif; min-height: 100vh; }
-        .booking-hero { background: white; padding: 100px 10% 60px; text-align: center; border-bottom: 1px solid #eee; }
-        .booking-hero h1 { font-size: 2.5rem; color: #1a1a1a; margin-bottom: 10px; }
-        
-        .booking-container { max-width: 900px; margin: 40px auto; display: grid; grid-template-columns: 1fr 350px; gap: 30px; padding: 0 20px; }
-        
-        .booking-form-box { background: white; padding: 40px; border-radius: 25px; box-shadow: 0 15px 45px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
-        
-        .input-group { margin-bottom: 25px; }
-        .input-group label { display: block; margin-bottom: 8px; font-weight: 700; color: #1a1a1a; font-size: 0.9rem; }
-        .input-group input, .input-group textarea { width: 100%; padding: 14px 18px; border-radius: 12px; border: 2px solid #f0f0f0; background: #fafafa; font-size: 0.95rem; transition: 0.3s; }
-        .input-group input:focus, .input-group textarea:focus { border-color: #ff6600; background: white; outline: none; }
+        :root {
+            --primary-gradient: linear-gradient(135deg, #ff6b00, #ff8c42);
+            --primary-color: #ff6b00;
+            --secondary-color: #ff8c42;
+            --bg-light: #f8f9fb;
+            --text-dark: #1a1d23;
+            --text-muted: #6b7280;
+            --card-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            --border-radius: 24px;
+            --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
 
-        .summary-card { background: white; border-radius: 25px; border: 1px solid #eee; overflow: hidden; position: sticky; top: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
-        .summary-img { height: 180px; overflow: hidden; }
-        .summary-img img { width: 100%; height: 100%; object-fit: cover; }
-        .summary-body { padding: 25px; }
-        .summary-price { font-size: 1.5rem; font-weight: 800; color: #ff6600; margin-top: 15px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
 
-        .btn-book { background: #ff6600; color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.3s; margin-top: 20px; }
-        .btn-book:hover { background: #e65c00; transform: translateY(-2px); }
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Fade-in Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-wrapper {
+            animation: fadeIn 0.8s ease-out;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Floating Back Button */
+        .back-btn {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 1000;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+        }
+        .back-btn:hover {
+            transform: translateX(-5px);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Layout */
+        .booking-grid {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        /* Left Side: Gallery & Form */
+        .content-left {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        /* Image Gallery */
+        .gallery-container {
+            background: white;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+        }
+
+        .main-image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            border-radius: 18px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            background: #eee;
+        }
+
+        /* Loading Shimmer */
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .main-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+        .main-image-wrapper:hover img {
+            transform: scale(1.03);
+        }
+
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: var(--transition);
+            z-index: 10;
+            border: none;
+        }
+        .nav-arrow:hover { background: white; transform: translateY(-50%) scale(1.1); color: var(--primary-color); }
+        .prev-arrow { left: 20px; }
+        .next-arrow { right: 20px; }
+
+        .thumbnail-grid {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            scrollbar-width: none;
+        }
+        .thumbnail-grid::-webkit-scrollbar { display: none; }
+
+        .thumbnail-item {
+            flex: 0 0 100px;
+            height: 80px;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: var(--transition);
+            background: #eee;
+        }
+        .thumbnail-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        .thumbnail-item:hover img { transform: scale(1.1); }
+        .thumbnail-item.active { border-color: var(--primary-color); }
+
+        /* Booking Card (Right Side) */
+        .sticky-card {
+            position: sticky;
+            top: 40px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 30px;
+            transition: var(--transition);
+        }
+        .sticky-card:hover { transform: translateY(-5px); }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: #fff5ed;
+            color: var(--primary-color);
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .service-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+            line-height: 1.2;
+        }
+
+        .provider-brief {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .provider-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #eee;
+        }
+        .provider-info h4 { font-size: 1rem; font-weight: 700; }
+        .provider-info p { font-size: 0.85rem; color: var(--text-muted); }
+
+        .price-box {
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 18px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        .price-label { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
+        .price-value { font-size: 2rem; font-weight: 800; color: var(--primary-color); }
+
+        .features-list {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+        .features-list li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            color: #4b5563;
+        }
+        .features-list li i { color: #10b981; font-size: 1rem; }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 10px 20px rgba(255, 107, 0, 0.2);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 25px rgba(255, 107, 0, 0.3); }
+
+        .btn-outline {
+            background: white;
+            color: var(--text-dark);
+            border: 2px solid #e5e7eb;
+            margin-top: 15px;
+        }
+        .btn-outline:hover { background: #f9fafb; border-color: var(--primary-color); color: var(--primary-color); }
+
+        /* Form Section */
+        .form-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f3f4f6;
+            padding-bottom: 15px;
+        }
+        .section-header i {
+            width: 45px;
+            height: 45px;
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .section-header h2 { font-size: 1.4rem; font-weight: 700; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .input-group label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #374151;
+            margin-left: 5px;
+        }
+        .input-wrapper {
+            position: relative;
+        }
+        .input-wrapper i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 14px 18px 14px 48px;
+            border-radius: 14px;
+            border: 2px solid #f3f4f6;
+            background: #f9fafb;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+            border-color: var(--primary-color);
+            background: white;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+        }
+        .input-group input:focus + i { color: var(--primary-color); }
+
+        .textarea-group textarea {
+            padding-left: 18px;
+            resize: none;
+        }
+
+        /* Provider Info Section */
+        .provider-section {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 40px;
+            margin-top: 30px;
+        }
+
+        .provider-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 18px;
+            transition: var(--transition);
+        }
+        .detail-item:hover { background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transform: translateY(-3px); }
+        .detail-item i { font-size: 1.5rem; color: var(--primary-color); }
+        .detail-text h5 { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .detail-text p { font-weight: 700; font-size: 0.95rem; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .booking-grid { grid-template-columns: 1fr; }
+            .sticky-card { position: relative; top: 0; }
+            .back-btn { top: 20px; left: 20px; padding: 10px 15px; font-size: 0.9rem; }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .main-image-wrapper { height: 350px; }
+            .page-wrapper { padding: 80px 15px 40px; }
+        }
     </style>
 </head>
 <body>
 
-<a href="{% url 'service_by_type' service.service_type %}" class="back-btn" style="position: fixed; top: 30px; left: 30px; z-index: 100; background: white; border: 1px solid #eee; padding: 10px 20px; border-radius: 12px; text-decoration: none; color: #1a1a1a; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px;">
-    <i class="fa-solid fa-arrow-left"></i> Back to List
+<a href="{% url 'service_by_type' service.service_type %}" class="back-btn">
+    <i class="fa-solid fa-chevron-left"></i> Back to Exploration
 </a>
 
-<div class="booking-hero">
-    <h1>Finalize Your Booking</h1>
-    <p>Fill in the details to request a booking from <b>{{ service.provider.username }}</b>.</p>
-</div>
-
-<div class="booking-container">
-    <div class="booking-form-box">
-        <form method="POST">
-            {% csrf_token %}
-            
-            <div class="input-group">
-                <label>Event Date</label>
-                <input type="date" name="event_date" required min="{{ today|date:'Y-m-d' }}">
+<div class="page-wrapper">
+    <div class="booking-grid">
+        <!-- LEFT CONTENT -->
+        <div class="content-left">
+            <!-- GALLERY -->
+            <div class="gallery-container">
+                <div class="main-image-wrapper" id="mainImageWrapper">
+                    <button class="nav-arrow prev-arrow" onclick="changeSlide(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                    <button class="nav-arrow next-arrow" onclick="changeSlide(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                    
+                    {% if service.image %}
+                        <img src="{{ service.image.url }}" id="activeImg" class="shimmer-loaded">
+                    {% else %}
+                        <div style="width:100%; height:100%; background:#f9f9f9; display:flex; align-items:center; justify-content:center; color:#ccc; font-size:4rem;">
+                            <i class="fa-solid fa-image"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="thumbnail-grid" id="thumbGrid">
+                    {% if service.image %}
+                        <div class="thumbnail-item active" onclick="setMainImage('{{ service.image.url }}', this)">
+                            <img src="{{ service.image.url }}">
+                        </div>
+                    {% endif %}
+                    
+                    {% for gallery in service.gallery.all %}
+                        <div class="thumbnail-item" onclick="setMainImage('{{ gallery.image.url }}', this)">
+                            <img src="{{ gallery.image.url }}">
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
 
-            {% if service.service_type == "Catering" %}
-            <div class="input-group">
-                <label>Estimated Guest Count</label>
-                <input type="number" name="number_of_guests" placeholder="How many people?" required>
-            </div>
-            {% else %}
-            <div class="input-group">
-                <label>Number of Days</label>
-                <input type="number" name="number_of_days" placeholder="For how many days?" required>
-            </div>
-            {% endif %}
+            <!-- BOOKING FORM -->
+            <div class="form-card">
+                <div class="section-header">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <h2>Event Details</h2>
+                </div>
 
-            <div class="input-group">
-                <label>Additional Requirements / Message</label>
-                <textarea name="message" rows="5" placeholder="Any special requests? (e.g. dietary restrictions, specific themes)"></textarea>
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>Event Name</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-star"></i>
+                                <input type="text" name="booking_detail_event_name" placeholder="e.g. My Wedding, 25th Birthday" required>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Event Type</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-tags"></i>
+                                <select name="booking_detail_event_type" style="padding-left: 48px;">
+                                    <option value="Wedding">Wedding</option>
+                                    <option value="Birthday">Birthday</option>
+                                    <option value="Corporate">Corporate</option>
+                                    <option value="Social Gathering">Social Gathering</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Event Date</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-calendar-days"></i>
+                                <input type="date" name="event_date" required min="{{ today|date:'Y-m-d' }}">
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Event Time</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-clock"></i>
+                                <input type="time" name="booking_detail_event_time" required>
+                            </div>
+                        </div>
+
+                        <div class="input-group" style="grid-column: span 2;">
+                            <label>Venue / Location</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <input type="text" name="booking_detail_venue" placeholder="e.g. Grand Plaza, Jorhat" required>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Contact Number</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-phone"></i>
+                                <input type="text" name="booking_detail_contact" placeholder="e.g. +91 9876543210" required>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Budget (Optional)</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-indian-rupee-sign"></i>
+                                <input type="number" name="booking_detail_budget" placeholder="Enter your budget">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SERVICE SPECIFIC FIELDS -->
+                    <div style="margin-top: 30px;">
+                        {% if service.service_type == "Catering" %}
+                        <div class="section-header" style="margin-bottom: 20px;">
+                            <i class="fa-solid fa-utensils"></i>
+                            <h2>Catering Preferences</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>Number of Guests</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-users"></i>
+                                    <input type="number" name="number_of_guests" placeholder="e.g. 200" required>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Food Selection</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-leaf"></i>
+                                    <select name="booking_detail_food_type" style="padding-left: 48px;">
+                                        <option value="Veg Only">Veg Only</option>
+                                        <option value="Non-Veg Included">Non-Veg Included</option>
+                                        <option value="Both">Both</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        {% elif service.service_type == "Decoration" %}
+                        <div class="section-header" style="margin-bottom: 20px;">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <h2>Decoration Preferences</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>Theme Preference</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-palette"></i>
+                                    <input type="text" name="booking_detail_theme" placeholder="e.g. Royal Gold, Floral">
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Venue Environment</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-mountain-sun"></i>
+                                    <select name="booking_detail_venue_env" style="padding-left: 48px;">
+                                        <option value="Indoor">Indoor</option>
+                                        <option value="Outdoor">Outdoor</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        {% elif service.service_type == "Photography" or service.service_type == "Photography / Videography" %}
+                        <div class="section-header" style="margin-bottom: 20px;">
+                            <i class="fa-solid fa-camera"></i>
+                            <h2>Photography Preferences</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>Number of Days</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-calendar"></i>
+                                    <input type="number" name="number_of_days" placeholder="e.g. 1" required>
+                                </div>
+                            </div>
+                            <div class="input-group" style="grid-column: span 2; display: flex; flex-direction: row; gap: 20px; align-items: center; background: #f9fafb; padding: 15px; border-radius: 14px;">
+                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 500;"><input type="checkbox" name="booking_detail_need_video" style="width: auto;"> Videography?</label>
+                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 500;"><input type="checkbox" name="booking_detail_need_drone" style="width: auto;"> Drone Shoot?</label>
+                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 500;"><input type="checkbox" name="booking_detail_need_album" style="width: auto;"> Album Needed?</label>
+                            </div>
+                        </div>
+                        {% elif service.service_type == "DJ & Music" %}
+                        <div class="section-header" style="margin-bottom: 20px;">
+                            <i class="fa-solid fa-music"></i>
+                            <h2>DJ & Music Details</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>Crowd Size</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-users"></i>
+                                    <input type="number" name="booking_detail_crowd_size" placeholder="e.g. 200">
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Music Genre Preference</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-compact-disc"></i>
+                                    <input type="text" name="booking_detail_music_pref" placeholder="e.g. Bollywood, EDM">
+                                </div>
+                            </div>
+                        </div>
+                        {% elif service.service_type == "Cake Service" %}
+                        <div class="section-header" style="margin-bottom: 20px;">
+                            <i class="fa-solid fa-cake-candles"></i>
+                            <h2>Cake Preferences</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>Flavor</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-ice-cream"></i>
+                                    <input type="text" name="booking_detail_flavor" placeholder="e.g. Chocolate" required>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Weight (kg)</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-weight-hanging"></i>
+                                    <input type="number" name="booking_detail_weight" step="0.5" placeholder="e.g. 2" required>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="input-group textarea-group" style="margin-top: 25px;">
+                        <label>Additional Requirements / Message</label>
+                        <textarea name="message" rows="5" placeholder="Any special requests? (e.g. dietary restrictions, specific themes)"></textarea>
+                    </div>
+
+                    <div style="background: #fffcf0; padding: 20px; border-radius: 18px; border: 1px solid #ffedb5; margin-top: 30px; display: flex; gap: 15px; align-items: flex-start;">
+                        <i class="fa-solid fa-circle-info" style="color: #f59e0b; font-size: 1.2rem; margin-top: 3px;"></i>
+                        <p style="font-size: 0.85rem; color: #92400e; line-height: 1.6;">
+                            <b>Important Notice:</b> By sending this request, you are initiating a conversation with the provider. Booking is only finalized once the provider accepts your request.
+                        </p>
+                    </div>
+                </form>
             </div>
 
-            <div style="background: #fff8f1; padding: 20px; border-radius: 15px; border: 1px solid #ffe8d6; margin-bottom: 25px;">
-                <p style="font-size: 0.85rem; color: #8d6e63; line-height: 1.5;">
-                    <i class="fa-solid fa-circle-info" style="color: #ff6600;"></i> <b>Note:</b> This is a booking request. The provider will review your details and confirm availability. Payment will be handled after confirmation.
+            <!-- PROVIDER DETAILS -->
+            <div class="provider-section">
+                <div class="section-header">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <h2>About the Provider</h2>
+                </div>
+                
+                <p style="color: #4b5563; margin-bottom: 25px;">{{ service.provider.profile.bio|default:"No bio available for this professional provider." }}</p>
+
+                <div class="provider-details-grid">
+                    <div class="detail-item">
+                        <i class="fa-solid fa-award"></i>
+                        <div class="detail-text">
+                            <h5>Experience</h5>
+                            <p>{{ service.provider.profile.experience|default:"Not Specified" }}</p>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fa-solid fa-location-crosshairs"></i>
+                        <div class="detail-text">
+                            <h5>Location</h5>
+                            <p>{{ service.provider.profile.location|default:"Pan India" }}</p>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <div class="detail-text">
+                            <h5>Member Since</h5>
+                            <p>{{ service.provider.date_joined|date:"M Y" }}</p>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fa-solid fa-bolt"></i>
+                        <div class="detail-text">
+                            <h5>Response Time</h5>
+                            <p>Under 24 Hours</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: STICKY CARD -->
+        <div class="content-right">
+            <div class="sticky-card">
+                <span class="badge">{{ service.service_type }}</span>
+                <h1 class="service-title">{{ service.service_name }}</h1>
+                
+                <div class="provider-brief">
+                    {% if service.provider.profile.profile_image %}
+                        <img src="{{ service.provider.profile.profile_image.url }}" class="provider-img">
+                    {% else %}
+                        <div class="provider-img" style="display:flex; align-items:center; justify-content:center; background:#ff6b00; color:white; font-weight:800; font-size:1.2rem;">
+                            {{ service.provider.username|slice:":1"|upper }}
+                        </div>
+                    {% endif %}
+                    <div class="provider-info">
+                        <h4>{{ service.provider.profile.business_name|default:service.provider.username }}</h4>
+                        <p><i class="fa-solid fa-star" style="color: #fbbf24;"></i> 4.9 (120+ Reviews)</p>
+                    </div>
+                </div>
+
+                <div class="price-box">
+                    <span class="price-label">Starting from</span>
+                    <span class="price-value">₹{{ service.price }}</span>
+                </div>
+
+                <ul class="features-list">
+                    <li><i class="fa-solid fa-circle-check"></i> Professional Quality Service</li>
+                    <li><i class="fa-solid fa-circle-check"></i> Guaranteed Fast Response</li>
+                    <li><i class="fa-solid fa-circle-check"></i> Verified Equipment</li>
+                    <li><i class="fa-solid fa-circle-check"></i> Customizable Options</li>
+                </ul>
+
+                <button type="button" class="btn btn-primary" onclick="document.querySelector('form').submit()">
+                    <i class="fa-solid fa-paper-plane"></i> Book Now
+                </button>
+                
+                <a href="#" class="btn btn-outline">
+                    <i class="fa-solid fa-comments"></i> Chat with Provider
+                </a>
+
+                <p style="text-align: center; margin-top: 20px; font-size: 0.8rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-shield-halved"></i> Secure Booking Protection
                 </p>
             </div>
-
-            <button type="submit" class="btn-book">Send Booking Request</button>
-        </form>
-    </div>
-
-    <div class="summary-card">
-        <div class="summary-img">
-            {% if service.image %}
-                <img src="{{ service.image.url }}" alt="{{ service.service_name }}">
-            {% else %}
-                <div style="width: 100%; height: 100%; background: #fdf9f6; display: flex; align-items: center; justify-content: center; color: #ff6600; font-size: 3rem;">
-                    <i class="fa-solid fa-briefcase"></i>
-                </div>
-            {% endif %}
-        </div>
-        <div class="summary-body">
-            <span style="font-size: 0.7rem; background: #fff5ed; color: #ff6600; padding: 4px 10px; border-radius: 20px; font-weight: 800; text-transform: uppercase;">{{ service.service_type }}</span>
-            <h3 style="margin-top: 10px; font-size: 1.2rem;">{{ service.service_name }}</h3>
-            <p style="color: #888; font-size: 0.85rem; margin-top: 5px;">Provider: {{ service.provider.username }}</p>
-            
-            <div class="summary-price">₹{{ service.price }} <span style="font-size: 0.8rem; color: #888; font-weight: 400;">/ starting</span></div>
         </div>
     </div>
 </div>
 
-<footer style="background: #222; color: white; padding: 60px 10% 20px; text-align: center;">
-    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">EventNest</div>
-    <p style="opacity: 0.6; margin-bottom: 40px;">Making every moment memorable.</p>
+<footer style="margin-top: 60px; padding: 40px 0; text-align: center; border-top: 1px solid #e5e7eb; color: var(--text-muted); font-size: 0.9rem;">
+    <p>&copy; 2026 EventNest Premium Booking. All rights reserved.</p>
 </footer>
+
+<script>
+    // Gallery Logic
+    let currentSlide = 0;
+    const thumbnails = document.querySelectorAll('.thumbnail-item');
+    const images = [];
+    thumbnails.forEach(t => images.push(t.querySelector('img').src));
+
+    function setMainImage(src, element) {
+        const activeImg = document.getElementById('activeImg');
+        activeImg.style.opacity = '0';
+        
+        setTimeout(() => {
+            activeImg.src = src;
+            activeImg.style.opacity = '1';
+        }, 200);
+
+        thumbnails.forEach(t => t.classList.remove('active'));
+        element.classList.add('active');
+        
+        // Update currentSlide index
+        currentSlide = images.indexOf(src);
+    }
+
+    function changeSlide(direction) {
+        currentSlide += direction;
+        if (currentSlide >= images.length) currentSlide = 0;
+        if (currentSlide < 0) currentSlide = images.length - 1;
+        
+        setMainImage(images[currentSlide], thumbnails[currentSlide]);
+    }
+
+    // Shimmer effect removal simulation
+    window.onload = () => {
+        document.querySelectorAll('.shimmer-loaded').forEach(img => {
+            img.parentElement.classList.remove('shimmer');
+        });
+    }
+
+    // Smooth scroll for form focus
+    function scrollToForm() {
+        document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
 
 </body>
 </html>
