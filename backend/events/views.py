@@ -1,5 +1,6 @@
 import random
 from django.shortcuts import render, redirect, get_object_or_404
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.contrib import messages
@@ -532,7 +533,7 @@ def register_view(request):
             return render(request, "register.html", {"error": "Email already registered"})
 
         request.session["user_register_email"] = email
-        send_otp_email(email, "user_register")
+        send_otp_email(request, email, "user_register")
         return redirect("verify_user_otp")
 
     return render(request, "register.html")
@@ -592,7 +593,7 @@ def provider_step1(request):
             return render(request, "provider_step1.html", {"error": "Email already registered"})
 
         request.session["provider_register_email"] = email
-        send_otp_email(email, "provider_register")
+        send_otp_email(request, email, "provider_register")
         return redirect("verify_provider_otp")
 
     return render(request, "provider_step1.html")
@@ -944,7 +945,8 @@ def provider_dashboard(request):
         'top_services': top_services,
         'avg_rating': avg_rating,
     })
-def send_otp_email(email, purpose):
+
+def send_otp_email(request, email, purpose):
     otp = str(random.randint(100000, 999999))
 
     EmailOTP.objects.create(
@@ -953,13 +955,17 @@ def send_otp_email(email, purpose):
         purpose=purpose
     )
 
-    send_mail(
-        'EventNest Verification Code',
-        f'Your EventNest verification code is: {otp}',
-        'eventnest@example.com',
-        [email],
-        fail_silently=False,
-    )
+    try:
+        send_mail(
+            'EventNest Verification Code',
+            f'Your EventNest verification code is: {otp}',
+            settings.EMAIL_HOST_USER,
+            [email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        print(f"Email sending failed: {e}")
+        messages.error(request, f"Failed to send verification email. Please try again later. Error: {e}")
     
 def verify_user_otp(request):
     email = request.session.get("user_register_email")
@@ -1013,7 +1019,7 @@ def forgot_password(request):
 
         if User.objects.filter(email=email).exists():
             request.session["reset_email"] = email
-            send_otp_email(email, "password_reset")
+            send_otp_email(request, email, "password_reset")
             return redirect("verify_reset_otp")
 
         return render(request, "forgot_password.html", {"error": "Email not found"})
