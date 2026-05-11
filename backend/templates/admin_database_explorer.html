@@ -1,0 +1,113 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Master - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-premium-body">
+
+<div class="admin-premium-layout">
+  <!-- SIDEBAR -->
+  <aside class="admin-premium-sidebar">
+    <div class="admin-premium-nav-top">
+        <div class="admin-logo">
+            <i class="fa-solid fa-feather-pointed"></i>
+            <h2>EventNest</h2>
+            <p>Admin Panel</p>
+        </div>
+
+        <a href="{% url 'admin_home' %}">
+            <i class="fa-solid fa-house"></i> Admin Home
+        </a>
+        <a href="{% url 'custom_admin_dashboard' %}">
+            <i class="fa-solid fa-chart-line"></i> Analytics
+        </a>
+        <a href="{% url 'admin_database_explorer' %}" class="admin-nav-active">
+            <i class="fa-solid fa-database"></i> Database Master
+        </a>
+        <a href="{% url 'admin_users' %}">
+            <i class="fa-solid fa-users"></i> Users
+        </a>
+        <a href="{% url 'admin_providers' %}">
+            <i class="fa-solid fa-store"></i> Providers
+        </a>
+        <a href="{% url 'admin_services' %}">
+            <i class="fa-solid fa-briefcase"></i> Services
+        </a>
+        <a href="{% url 'admin_packages' %}">
+            <i class="fa-solid fa-box-open"></i> Packages
+        </a>
+        <a href="{% url 'admin_bookings' %}">
+            <i class="fa-solid fa-calendar-check"></i> Bookings
+        </a>
+        <a href="{% url 'admin_reviews' %}">
+            <i class="fa-solid fa-star"></i> Reviews
+        </a>
+        <a href="{% url 'admin_notifications' %}">
+            <i class="fa-solid fa-bell"></i> Notifications
+        </a>
+    </div>
+
+    <div class="admin-premium-nav-bottom">
+        <a href="{% url 'logout' %}" class="admin-nav-action">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout & Back
+        </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="admin-premium-main">
+    <div class="admin-topbar">
+      <div>
+        <h1>Database Master Explorer</h1>
+        <p>Live visibility into all system tables and data records.</p>
+      </div>
+      <div class="admin-profile-pill">
+        <i class="fa-solid fa-user-shield"></i> {{ request.user.username }}
+      </div>
+    </div>
+
+    <div class="admin-premium-stats" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+      {% for stat in model_stats %}
+      <div class="admin-premium-card" style="display: flex; justify-content: space-between; align-items: center; padding: 25px;">
+        <div>
+            <p style="color: #666; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">{{ stat.name }}</p>
+            <h2 style="margin: 10px 0; font-size: 2.2rem;">{{ stat.count }}</h2>
+            {% if stat.url != '#' %}
+                <a href="{% url stat.url %}" style="color: #ff6600; text-decoration: none; font-size: 0.85rem; font-weight: 600;">Manage Table <i class="fa-solid fa-arrow-right" style="font-size: 0.7rem;"></i></a>
+            {% else %}
+                <span style="color: #999; font-size: 0.85rem;">System Internal</span>
+            {% endif %}
+        </div>
+        <div style="width: 60px; height: 60px; border-radius: 15px; background: rgba(255,102,0,0.1); display: flex; align-items: center; justify-content: center; color: #ff6600; font-size: 1.5rem;">
+            <i class="fa-solid {{ stat.icon }}"></i>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="admin-premium-panel" style="margin-top: 30px;">
+        <div class="admin-panel-head">
+            <h2><i class="fa-solid fa-screwdriver-wrench"></i> Advanced Database Actions</h2>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
+            <a href="/admin/" target="_blank" class="admin-btn-table" style="background: #1e293b; text-align: center; padding: 15px;">
+                <i class="fa-solid fa-gears"></i> Open Django Admin
+            </a>
+            <button onclick="alert('Maintenance mode coming soon')" class="admin-btn-table" style="background: #ff6600; text-align: center; padding: 15px; border:none; cursor:pointer;">
+                <i class="fa-solid fa-database"></i> Optimize Tables
+            </button>
+            <button onclick="alert('Backup process initiated')" class="admin-btn-table" style="background: #52c41a; text-align: center; padding: 15px; border:none; cursor:pointer;">
+                <i class="fa-solid fa-download"></i> Generate Backup
+            </button>
+        </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

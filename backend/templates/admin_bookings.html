@@ -13,47 +13,59 @@
 <div class="admin-premium-layout">
   <!-- SIDEBAR -->
   <aside class="admin-premium-sidebar">
-    <div class="admin-logo">
-      <i class="fa-solid fa-feather-pointed"></i>
-      <h2>EventNest</h2>
-      <p>Admin Panel</p>
+    <div class="admin-premium-nav-top">
+        <div class="admin-logo">
+            <i class="fa-solid fa-feather-pointed"></i>
+            <h2>EventNest</h2>
+            <p>Admin Panel</p>
+        </div>
+
+        <a href="{% url 'admin_home' %}">
+            <i class="fa-solid fa-house"></i> Admin Home
+        </a>
+
+        <a href="{% url 'custom_admin_dashboard' %}">
+            <i class="fa-solid fa-chart-line"></i> Analytics
+        </a>
+
+        <a href="{% url 'admin_database_explorer' %}">
+            <i class="fa-solid fa-database"></i> Database Master
+        </a>
+
+        <a href="{% url 'admin_users' %}">
+            <i class="fa-solid fa-users"></i> Users
+        </a>
+
+        <a href="{% url 'admin_providers' %}">
+            <i class="fa-solid fa-store"></i> Providers
+        </a>
+
+        <a href="{% url 'admin_services' %}">
+            <i class="fa-solid fa-briefcase"></i> Services
+        </a>
+
+        <a href="{% url 'admin_packages' %}">
+            <i class="fa-solid fa-box-open"></i> Packages
+        </a>
+
+        <a href="{% url 'admin_bookings' %}" class="admin-nav-active">
+            <i class="fa-solid fa-calendar-check"></i> Bookings
+        </a>
+
+        <a href="{% url 'admin_reviews' %}">
+            <i class="fa-solid fa-star"></i> Reviews
+        </a>
+
+        <a href="{% url 'admin_notifications' %}">
+            <i class="fa-solid fa-bell"></i> Notifications
+        </a>
     </div>
 
-    <a href="{% url 'admin_home' %}">
-      <i class="fa-solid fa-house"></i> Admin Home
-    </a>
-
-    <a href="{% url 'custom_admin_dashboard' %}">
-      <i class="fa-solid fa-chart-line"></i> Analytics
-    </a>
-
-    <a href="{% url 'admin_users' %}">
-      <i class="fa-solid fa-users"></i> Users
-    </a>
-
-    <a href="{% url 'admin_providers' %}">
-      <i class="fa-solid fa-store"></i> Providers
-    </a>
-
-    <a href="{% url 'admin_services' %}">
-      <i class="fa-solid fa-briefcase"></i> Services
-    </a>
-
-    <a href="{% url 'admin_packages' %}">
-      <i class="fa-solid fa-box-open"></i> Packages
-    </a>
-
-    <a href="{% url 'admin_bookings' %}" class="admin-nav-active">
-      <i class="fa-solid fa-calendar-check"></i> Bookings
-    </a>
-
-    <a href="{% url 'admin_reviews' %}">
-      <i class="fa-solid fa-star"></i> Reviews
-    </a>
-
-    <a href="{% url 'logout' %}" class="admin-site-link">
-      <i class="fa-solid fa-right-from-bracket"></i> Logout & Back to Site
-    </a>
+    <div class="admin-premium-nav-bottom">
+        <a href="{% url 'logout' %}" class="admin-nav-action">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout & Back
+        </a>
+    </div>
   </aside>
 
   <!-- MAIN CONTENT -->
@@ -63,6 +75,25 @@
       <div class="admin-profile-pill">
         <i class="fa-solid fa-user-shield"></i> {{ request.user.username }}
       </div>
+    </div>
+
+    <!-- FILTERS BAR -->
+    <div class="admin-filters-bar">
+      <form method="GET" class="admin-search-form">
+        <input type="text" name="q" value="{{ query }}" class="admin-input" placeholder="Search ID, customer or provider...">
+        <select name="status" class="admin-select" onchange="this.form.submit()">
+            <option value="">All Statuses</option>
+            <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="Accepted" {% if status_filter == 'Accepted' %}selected{% endif %}>Accepted</option>
+            <option value="Completed" {% if status_filter == 'Completed' %}selected{% endif %}>Completed</option>
+            <option value="Cancelled" {% if status_filter == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+        </select>
+        <button type="submit" class="admin-btn-table" style="background:#ff6600;">Search</button>
+        {% if query or status_filter %}
+            <a href="{% url 'admin_bookings' %}" class="admin-btn-table" style="background:#666;">Reset</a>
+        {% endif %}
+      </form>
+      <div style="font-weight: 600; color: #666;">Total: {{ bookings.paginator.count }} Bookings</div>
     </div>
 
     <div class="admin-premium-panel">
@@ -75,6 +106,7 @@
               <th>Service</th>
               <th>Event Date</th>
               <th>Status</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -91,15 +123,42 @@
               </td>
               <td>{{ booking.event_date }}</td>
               <td>
-                <span class="admin-status status-{{ booking.status|lower }}">
+                <span class="admin-status status-{{ booking.status|lower|cut:' ' }}">
                   {{ booking.status }}
                 </span>
+              </td>
+              <td>
+                <form method="POST" onsubmit="return confirm('Delete this booking record permanently?')" style="display: contents;">
+                    {% csrf_token %}
+                    <button type="submit" formaction="{% url 'delete_booking_admin' booking.id %}" class="admin-btn-table danger" style="border:none; cursor:pointer;">Delete</button>
+                </form>
               </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
+
+      <!-- PAGINATION -->
+      {% if bookings.has_other_pages %}
+      <div class="admin-pagination">
+          {% if bookings.has_previous %}
+              <a href="?page={{ bookings.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="admin-page-link">&laquo; Prev</a>
+          {% endif %}
+
+          {% for num in bookings.paginator.page_range %}
+              {% if bookings.number == num %}
+                  <span class="admin-page-link active">{{ num }}</span>
+              {% elif num > bookings.number|add:'-3' and num < bookings.number|add:'3' %}
+                  <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="admin-page-link">{{ num }}</a>
+              {% endif %}
+          {% endfor %}
+
+          {% if bookings.has_next %}
+              <a href="?page={{ bookings.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="admin-page-link">Next &raquo;</a>
+          {% endif %}
+      </div>
+      {% endif %}
     </div>
   </main>
 </div>

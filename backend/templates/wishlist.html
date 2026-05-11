@@ -54,9 +54,12 @@
         <div class="wishlist-grid">
             {% for item in saved_services %}
                 <div class="wishlist-card">
-                    <a href="{% url 'remove_wishlist' item.id %}" class="wishlist-remove" title="Remove from wishlist">
-                        <i class="fa-solid fa-xmark"></i>
-                    </a>
+                    <form action="{% url 'remove_wishlist' item.id %}" method="POST" style="position: absolute; top: 10px; right: 10px; z-index: 5;">
+                        {% csrf_token %}
+                        <button type="submit" class="wishlist-remove" title="Remove from wishlist" style="border:none; cursor:pointer; background:rgba(255,255,255,0.9); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#ff4444; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </form>
                     <div class="wishlist-img-box">
                         {% if item.service.image %}
                             <img src="{{ item.service.image.url }}" alt="{{ item.service.service_name }}">
@@ -77,11 +80,11 @@
                     </div>
                 </div>
             {% empty %}
-                <div class="wishlist-empty">
-                    <i class="fa-solid fa-heart-crack"></i>
-                    <h2>No saved services</h2>
-                    <p>Start exploring our world-class services and save the ones you love!</p>
-                    <a href="{% url 'services' %}" class="small-btn" style="display:inline-block; margin-top:20px; padding: 12px 30px;">Explore Services</a>
+                <div class="wishlist-empty" style="text-align: center; padding: 60px 20px; grid-column: 1 / -1;">
+                    <div style="font-size: 5rem; color: #eee; margin-bottom: 20px;"><i class="fa-solid fa-heart-crack"></i></div>
+                    <h2 style="color: #333; margin-bottom: 10px;">No saved services yet</h2>
+                    <p style="color: #888; max-width: 400px; margin: 0 auto 30px;">Start exploring our world-class services and save the ones you love for your next big event!</p>
+                    <a href="{% url 'services' %}" class="small-btn" style="display:inline-block; padding: 14px 40px; background: #ff6600; color: white; border-radius: 12px; text-decoration: none; font-weight: 600;">Explore Services</a>
                 </div>
             {% endfor %}
         </div>
@@ -92,9 +95,12 @@
         <div class="wishlist-grid">
             {% for item in saved_packages %}
                 <div class="wishlist-card">
-                    <a href="{% url 'remove_wishlist' item.id %}" class="wishlist-remove" title="Remove from wishlist">
-                        <i class="fa-solid fa-xmark"></i>
-                    </a>
+                    <form action="{% url 'remove_wishlist' item.id %}" method="POST" style="position: absolute; top: 10px; right: 10px; z-index: 5;">
+                        {% csrf_token %}
+                        <button type="submit" class="wishlist-remove" title="Remove from wishlist" style="border:none; cursor:pointer; background:rgba(255,255,255,0.9); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#ff4444; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </form>
                     <div class="wishlist-img-box">
                         {% if item.package.image %}
                             <img src="{{ item.package.image.url }}" alt="{{ item.package.package_name }}">
@@ -115,11 +121,11 @@
                     </div>
                 </div>
             {% empty %}
-                <div class="wishlist-empty">
-                    <i class="fa-solid fa-heart-crack"></i>
-                    <h2>No saved packages</h2>
-                    <p>Discover our curated event packages designed for every occasion.</p>
-                    <a href="{% url 'packages' %}" class="small-btn" style="display:inline-block; margin-top:20px; padding: 12px 30px;">Explore Packages</a>
+                <div class="wishlist-empty" style="text-align: center; padding: 60px 20px; grid-column: 1 / -1;">
+                    <div style="font-size: 5rem; color: #eee; margin-bottom: 20px;"><i class="fa-solid fa-box-open"></i></div>
+                    <h2 style="color: #333; margin-bottom: 10px;">Your package list is empty</h2>
+                    <p style="color: #888; max-width: 400px; margin: 0 auto 30px;">Curated event packages make planning easier. Save the ones that catch your eye!</p>
+                    <a href="{% url 'packages' %}" class="small-btn" style="display:inline-block; padding: 14px 40px; background: #6c5ce7; color: white; border-radius: 12px; text-decoration: none; font-weight: 600;">Discover Packages</a>
                 </div>
             {% endfor %}
         </div>

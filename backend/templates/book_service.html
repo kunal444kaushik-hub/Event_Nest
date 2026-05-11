@@ -453,6 +453,17 @@
                     <h2>Event Details</h2>
                 </div>
 
+                {% if messages %}
+                    <div style="margin-bottom: 20px;">
+                        {% for message in messages %}
+                            <div style="padding: 15px; border-radius: 12px; background: {% if message.tags == 'error' %}#fee2e2; color: #b91c1c;{% else %}#ecfdf5; color: #047857;{% endif %} margin-bottom: 10px; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid {% if message.tags == 'error' %}fa-circle-xmark{% else %}fa-circle-check{% endif %}"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
                 <form method="POST">
                     {% csrf_token %}
                     
@@ -516,6 +527,27 @@
                             <div class="input-wrapper">
                                 <i class="fa-solid fa-indian-rupee-sign"></i>
                                 <input type="number" name="booking_detail_budget" placeholder="Enter your budget">
+                            </div>
+                        </div>
+
+                        <div class="section-header" style="grid-column: span 2; margin-top: 20px;">
+                            <i class="fa-solid fa-kit-medical"></i>
+                            <h2>Emergency Contact</h2>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Emergency Person Name</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-user-tag"></i>
+                                <input type="text" name="emergency_contact_name" placeholder="Name of alternate contact" required>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Emergency Phone</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-phone-flip"></i>
+                                <input type="text" name="emergency_contact_number" placeholder="Alternate phone number" required>
                             </div>
                         </div>
                     </div>
@@ -630,6 +662,83 @@
                                     <i class="fa-solid fa-weight-hanging"></i>
                                     <input type="number" name="booking_detail_weight" step="0.5" placeholder="e.g. 2" required>
                                 </div>
+                            </div>
+                        </div>
+                        {% elif service.service_type == "Lighting Setup" %}
+                        <div class="section-header" style="margin-bottom: 20px;">
+                            <i class="fa-solid fa-lightbulb"></i>
+                            <h2>Lighting Requirements</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>Lighting Intensity</label>
+                                <select name="booking_detail_light_intensity">
+                                    <option value="Ambient / Subtle">Ambient / Subtle</option>
+                                    <option value="Bright / Full">Bright / Full</option>
+                                    <option value="Disco / Party">Disco / Party</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Power Backup Needed?</label>
+                                <select name="booking_detail_power_backup">
+                                    <option value="No">No (Venue provides)</option>
+                                    <option value="Yes">Yes (Provider must bring)</option>
+                                </select>
+                            </div>
+                        </div>
+                        {% elif service.service_type == "Host / Anchor" %}
+                        <div class="section-header" style="margin-bottom: 20px;">
+                            <i class="fa-solid fa-microphone"></i>
+                            <h2>Hosting Details</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>Event Language(s)</label>
+                                <input type="text" name="booking_detail_languages" placeholder="e.g. English, Assamese">
+                            </div>
+                            <div class="input-group">
+                                <label>Tone of Hosting</label>
+                                <select name="booking_detail_hosting_tone">
+                                    <option value="Formal">Formal / Professional</option>
+                                    <option value="Energetic">Energetic / Fun</option>
+                                    <option value="Traditional">Traditional</option>
+                                </select>
+                            </div>
+                        </div>
+                        {% elif service.service_type == "Car Rental" %}
+                        <div class="section-header" style="margin-bottom: 20px;">
+                            <i class="fa-solid fa-car"></i>
+                            <h2>Car Rental Details</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>Pick-up Point</label>
+                                <input type="text" name="booking_detail_pickup" placeholder="Full address">
+                            </div>
+                            <div class="input-group">
+                                <label>Hours of Service</label>
+                                <input type="number" name="booking_detail_duration_hours" placeholder="e.g. 8">
+                            </div>
+                            <div class="input-group" style="grid-column: span 2;">
+                                <label style="display: flex; align-items: center; gap: 10px;"><input type="checkbox" name="booking_detail_need_decoration"> Decorated car for wedding?</label>
+                            </div>
+                        </div>
+                        {% elif service.service_type == "Venue Provider" %}
+                        <div class="section-header" style="margin-bottom: 20px;">
+                            <i class="fa-solid fa-building"></i>
+                            <h2>Venue Preferences</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>Expected Headcount</label>
+                                <input type="number" name="number_of_guests" placeholder="e.g. 500">
+                            </div>
+                            <div class="input-group">
+                                <label>AC Required?</label>
+                                <select name="booking_detail_need_ac">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
                             </div>
                         </div>
                         {% endif %}

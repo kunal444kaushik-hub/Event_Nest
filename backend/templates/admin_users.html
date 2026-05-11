@@ -13,47 +13,59 @@
 <div class="admin-premium-layout">
   <!-- SIDEBAR -->
   <aside class="admin-premium-sidebar">
-    <div class="admin-logo">
-      <i class="fa-solid fa-feather-pointed"></i>
-      <h2>EventNest</h2>
-      <p>Admin Panel</p>
+    <div class="admin-premium-nav-top">
+        <div class="admin-logo">
+            <i class="fa-solid fa-feather-pointed"></i>
+            <h2>EventNest</h2>
+            <p>Admin Panel</p>
+        </div>
+
+        <a href="{% url 'admin_home' %}">
+            <i class="fa-solid fa-house"></i> Admin Home
+        </a>
+
+        <a href="{% url 'custom_admin_dashboard' %}">
+            <i class="fa-solid fa-chart-line"></i> Analytics
+        </a>
+
+        <a href="{% url 'admin_database_explorer' %}">
+            <i class="fa-solid fa-database"></i> Database Master
+        </a>
+
+        <a href="{% url 'admin_users' %}" class="admin-nav-active">
+            <i class="fa-solid fa-users"></i> Users
+        </a>
+
+        <a href="{% url 'admin_providers' %}">
+            <i class="fa-solid fa-store"></i> Providers
+        </a>
+
+        <a href="{% url 'admin_services' %}">
+            <i class="fa-solid fa-briefcase"></i> Services
+        </a>
+
+        <a href="{% url 'admin_packages' %}">
+            <i class="fa-solid fa-box-open"></i> Packages
+        </a>
+
+        <a href="{% url 'admin_bookings' %}">
+            <i class="fa-solid fa-calendar-check"></i> Bookings
+        </a>
+
+        <a href="{% url 'admin_reviews' %}">
+            <i class="fa-solid fa-star"></i> Reviews
+        </a>
+
+        <a href="{% url 'admin_notifications' %}">
+            <i class="fa-solid fa-bell"></i> Notifications
+        </a>
     </div>
 
-    <a href="{% url 'admin_home' %}">
-      <i class="fa-solid fa-house"></i> Admin Home
-    </a>
-
-    <a href="{% url 'custom_admin_dashboard' %}">
-      <i class="fa-solid fa-chart-line"></i> Analytics
-    </a>
-
-    <a href="{% url 'admin_users' %}" class="admin-nav-active">
-      <i class="fa-solid fa-users"></i> Users
-    </a>
-
-    <a href="{% url 'admin_providers' %}">
-      <i class="fa-solid fa-store"></i> Providers
-    </a>
-
-    <a href="{% url 'admin_services' %}">
-      <i class="fa-solid fa-briefcase"></i> Services
-    </a>
-
-    <a href="{% url 'admin_packages' %}">
-      <i class="fa-solid fa-box-open"></i> Packages
-    </a>
-
-    <a href="{% url 'admin_bookings' %}">
-      <i class="fa-solid fa-calendar-check"></i> Bookings
-    </a>
-
-    <a href="{% url 'admin_reviews' %}">
-      <i class="fa-solid fa-star"></i> Reviews
-    </a>
-
-    <a href="{% url 'logout' %}" class="admin-site-link">
-      <i class="fa-solid fa-right-from-bracket"></i> Logout & Back to Site
-    </a>
+    <div class="admin-premium-nav-bottom">
+        <a href="{% url 'logout' %}" class="admin-nav-action">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout & Back
+        </a>
+    </div>
   </aside>
 
   <!-- MAIN CONTENT -->
@@ -65,6 +77,23 @@
       </div>
     </div>
 
+    <!-- FILTERS BAR -->
+    <div class="admin-filters-bar">
+      <form method="GET" class="admin-search-form">
+        <input type="text" name="q" value="{{ query }}" class="admin-input" placeholder="Search by name, email or phone...">
+        <select name="status" class="admin-select" onchange="this.form.submit()">
+            <option value="">All Status</option>
+            <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+            <option value="blocked" {% if status_filter == 'blocked' %}selected{% endif %}>Blocked</option>
+        </select>
+        <button type="submit" class="admin-btn-table" style="background:#ff6600;">Search</button>
+        {% if query or status_filter %}
+            <a href="{% url 'admin_users' %}" class="admin-btn-table" style="background:#666;">Reset</a>
+        {% endif %}
+      </form>
+      <div style="font-weight: 600; color: #666;">Total: {{ users.paginator.count }} Users</div>
+    </div>
+
     <div class="admin-premium-panel">
       <div class="admin-table-wrap">
         <table class="admin-premium-table">
@@ -72,7 +101,7 @@
             <tr>
               <th>User</th>
               <th>Email</th>
-              <th>Location</th>
+              <th>Joined Date</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -87,7 +116,7 @@
                 </div>
               </td>
               <td>{{ profile.user.email }}</td>
-              <td>{{ profile.location|default:"N/A" }}</td>
+              <td>{{ profile.user.date_joined|date:"M d, Y" }}</td>
               <td>
                 {% if profile.is_blocked %}
                   <span class="admin-small-badge pending">Blocked</span>
@@ -96,18 +125,48 @@
                 {% endif %}
               </td>
               <td>
-                <a href="{% url 'admin_user_details' profile.id %}" class="admin-btn-table" style="background:#007bff;">View Services</a>
-                {% if profile.is_blocked %}
-                  <a href="{% url 'unblock_user' profile.id %}" class="admin-btn-table">Unblock</a>
-                {% else %}
-                  <a href="{% url 'block_user' profile.id %}" class="admin-btn-table danger">Block</a>
-                {% endif %}
+                <div style="display: flex; gap: 5px;">
+                  <a href="{% url 'admin_user_details' profile.id %}" class="admin-btn-table" style="background:#007bff;">Details</a>
+                  <form method="POST" style="display: contents;">
+                    {% csrf_token %}
+                    {% if profile.is_blocked %}
+                      <button type="submit" formaction="{% url 'unblock_user' profile.id %}" class="admin-btn-table" style="border:none; cursor:pointer;">Unblock</button>
+                    {% else %}
+                      <button type="submit" formaction="{% url 'block_user' profile.id %}" class="admin-btn-table danger" style="border:none; cursor:pointer;">Block</button>
+                    {% endif %}
+                  </form>
+                  <form method="POST" onsubmit="return confirm('Are you sure you want to delete this user and all their data?')" style="display: contents;">
+                    {% csrf_token %}
+                    <button type="submit" formaction="{% url 'delete_user_admin' profile.id %}" class="admin-btn-table danger" style="border:none; cursor:pointer;">Delete</button>
+                  </form>
+                </div>
               </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
+
+      <!-- PAGINATION -->
+      {% if users.has_other_pages %}
+      <div class="admin-pagination">
+          {% if users.has_previous %}
+              <a href="?page={{ users.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="admin-page-link">&laquo; Prev</a>
+          {% endif %}
+
+          {% for num in users.paginator.page_range %}
+              {% if users.number == num %}
+                  <span class="admin-page-link active">{{ num }}</span>
+              {% elif num > users.number|add:'-3' and num < users.number|add:'3' %}
+                  <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="admin-page-link">{{ num }}</a>
+              {% endif %}
+          {% endfor %}
+
+          {% if users.has_next %}
+              <a href="?page={{ users.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="admin-page-link">Next &raquo;</a>
+          {% endif %}
+      </div>
+      {% endif %}
     </div>
   </main>
 </div>

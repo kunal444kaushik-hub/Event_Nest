@@ -1,0 +1,215 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Availability - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff6600;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --radius: 16px;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            margin: 0;
+        }
+
+        .manage-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .header-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .block-form-card {
+            background: white;
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 20px;
+            align-items: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+
+        .btn-add {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-add:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 102, 0, 0.3); }
+
+        .blocks-list {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #fdfdfd;
+            text-align: left;
+            padding: 15px 20px;
+            border-bottom: 2px solid #f8f9fa;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: #888;
+        }
+
+        td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f8f9fa;
+            font-size: 0.95rem;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: #fff0e6;
+            color: var(--primary);
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #ff4444;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-delete:hover { transform: scale(1.1); }
+    </style>
+</head>
+<body>
+
+{% include 'navbar.html' %}
+
+<div class="manage-container">
+    <div class="header-box">
+        <div>
+            <h1 style="margin:0;">Manage Availability</h1>
+            <p style="color:#666; margin-top:5px;">Block specific dates when you are unavailable for bookings.</p>
+        </div>
+        <a href="{% url 'provider_dashboard' %}" style="text-decoration:none; color:var(--primary); font-weight:600;"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
+    </div>
+
+    <!-- ADD BLOCK FORM -->
+    <div class="block-form-card">
+        <h3 style="margin-top:0; margin-bottom:20px;"><i class="fa-solid fa-calendar-plus"></i> Block New Dates</h3>
+        <form method="POST" class="form-grid">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" name="start_date" required>
+            </div>
+            <div class="form-group">
+                <label>End Date</label>
+                <input type="date" name="end_date" required>
+            </div>
+            <div class="form-group">
+                <label>Reason (Optional)</label>
+                <input type="text" name="reason" placeholder="e.g. Personal Holiday">
+            </div>
+            <button type="submit" class="btn-add">Block Dates</button>
+        </form>
+    </div>
+
+    <!-- CURRENT BLOCKS -->
+    <div class="blocks-list">
+        <div style="padding: 20px; border-bottom: 1px solid #f8f9fa; display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-calendar-days" style="color: var(--primary);"></i>
+            <h3 style="margin:0;">Blocked Dates</h3>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Duration</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for block in blocks %}
+                    <tr>
+                        <td>
+                            <div style="font-weight:600;">{{ block.start_date|date:"M d, Y" }} - {{ block.end_date|date:"M d, Y" }}</div>
+                        </td>
+                        <td>{{ block.reason|default:"No reason provided" }}</td>
+                        <td><span class="status-badge">Blocked</span></td>
+                        <td>
+                            <form method="POST" action="{% url 'delete_availability' block.id %}" onsubmit="return confirm('Remove this block?')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-delete">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" style="text-align:center; padding:40px; color:#ccc;">
+                            <i class="fa-solid fa-calendar-check" style="font-size:3rem; margin-bottom:15px; display:block;"></i>
+                            No dates blocked. You are available for all days!
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'footer.html' %}
+
+</body>
+</html>

@@ -67,47 +67,59 @@
 <div class="admin-premium-layout">
   <!-- SIDEBAR -->
   <aside class="admin-premium-sidebar">
-    <div class="admin-logo">
-      <i class="fa-solid fa-feather-pointed"></i>
-      <h2>EventNest</h2>
-      <p>Admin Panel</p>
+    <div class="admin-premium-nav-top">
+        <div class="admin-logo">
+            <i class="fa-solid fa-feather-pointed"></i>
+            <h2>EventNest</h2>
+            <p>Admin Panel</p>
+        </div>
+
+        <a href="{% url 'admin_home' %}">
+            <i class="fa-solid fa-house"></i> Admin Home
+        </a>
+
+        <a href="{% url 'custom_admin_dashboard' %}" class="admin-nav-active">
+            <i class="fa-solid fa-chart-line"></i> Analytics
+        </a>
+
+        <a href="{% url 'admin_database_explorer' %}">
+            <i class="fa-solid fa-database"></i> Database Master
+        </a>
+
+        <a href="{% url 'admin_users' %}">
+            <i class="fa-solid fa-users"></i> Users
+        </a>
+
+        <a href="{% url 'admin_providers' %}">
+            <i class="fa-solid fa-store"></i> Providers
+        </a>
+
+        <a href="{% url 'admin_services' %}">
+            <i class="fa-solid fa-briefcase"></i> Services
+        </a>
+
+        <a href="{% url 'admin_packages' %}">
+            <i class="fa-solid fa-box-open"></i> Packages
+        </a>
+
+        <a href="{% url 'admin_bookings' %}">
+            <i class="fa-solid fa-calendar-check"></i> Bookings
+        </a>
+
+        <a href="{% url 'admin_reviews' %}">
+            <i class="fa-solid fa-star"></i> Reviews
+        </a>
+
+        <a href="{% url 'admin_notifications' %}">
+            <i class="fa-solid fa-bell"></i> Notifications
+        </a>
     </div>
 
-    <a href="{% url 'admin_home' %}">
-      <i class="fa-solid fa-house"></i> Admin Home
-    </a>
-
-    <a href="{% url 'custom_admin_dashboard' %}" class="admin-nav-active">
-      <i class="fa-solid fa-chart-line"></i> Analytics
-    </a>
-
-    <a href="{% url 'admin_users' %}">
-      <i class="fa-solid fa-users"></i> Users
-    </a>
-
-    <a href="{% url 'admin_providers' %}">
-      <i class="fa-solid fa-store"></i> Providers
-    </a>
-
-    <a href="{% url 'admin_services' %}">
-      <i class="fa-solid fa-briefcase"></i> Services
-    </a>
-
-    <a href="{% url 'admin_packages' %}">
-      <i class="fa-solid fa-box-open"></i> Packages
-    </a>
-
-    <a href="{% url 'admin_bookings' %}">
-      <i class="fa-solid fa-calendar-check"></i> Bookings
-    </a>
-
-    <a href="{% url 'admin_reviews' %}">
-      <i class="fa-solid fa-star"></i> Reviews
-    </a>
-
-    <a href="{% url 'logout' %}" class="admin-site-link">
-      <i class="fa-solid fa-right-from-bracket"></i> Logout & Back to Site
-    </a>
+    <div class="admin-premium-nav-bottom">
+        <a href="{% url 'logout' %}" class="admin-nav-action">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout & Back
+        </a>
+    </div>
   </aside>
 
   <!-- MAIN CONTENT -->
@@ -154,33 +166,45 @@
         <div class="revenue-info">
           <p style="opacity: 0.7; text-transform: uppercase; font-size: 0.8rem; font-weight: 700; letter-spacing: 1px;">Platform Revenue</p>
           <h3>₹{{ total_revenue|default:"0" }}</h3>
-          <p style="color: #4cd137;"><i class="fa-solid fa-arrow-trend-up"></i> +12% this month</p>
+          <p style="color: #4cd137;"><i class="fa-solid fa-arrow-trend-up"></i> Growth Tracking Active</p>
         </div>
         <div style="font-size: 3rem; opacity: 0.5;"><i class="fa-solid fa-wallet"></i></div>
       </div>
 
       <div class="admin-premium-card">
-        <i class="fa-solid fa-users"></i>
+        <i class="fa-solid fa-users" style="color:#007bff;"></i>
         <h2>{{ total_users }}</h2>
-        <p>Active Customers</p>
+        <p>Customers</p>
       </div>
 
       <div class="admin-premium-card">
-        <i class="fa-solid fa-store"></i>
+        <i class="fa-solid fa-store" style="color:#52c41a;"></i>
         <h2>{{ total_providers }}</h2>
-        <p>Verified Partners</p>
+        <p>Partners</p>
       </div>
 
       <div class="admin-premium-card {% if pending_providers > 0 %}warning{% endif %}">
-        <i class="fa-solid fa-hourglass-half"></i>
+        <i class="fa-solid fa-hourglass-half" style="color:#faad14;"></i>
         <h2>{{ pending_providers }}</h2>
         <p>Pending Approval</p>
       </div>
 
       <div class="admin-premium-card">
-        <i class="fa-solid fa-briefcase"></i>
-        <h2>{{ total_services }}</h2>
-        <p>Live Services</p>
+        <i class="fa-solid fa-calendar-check" style="color:#1890ff;"></i>
+        <h2>{{ total_bookings }}</h2>
+        <p>Total Bookings</p>
+      </div>
+
+      <div class="admin-premium-card">
+        <i class="fa-solid fa-circle-check" style="color:#52c41a;"></i>
+        <h2>{{ completed_bookings }}</h2>
+        <p>Success Rate</p>
+      </div>
+
+      <div class="admin-premium-card">
+        <i class="fa-solid fa-circle-xmark" style="color:#ff4d4f;"></i>
+        <h2>{{ cancelled_bookings }}</h2>
+        <p>Cancellations</p>
       </div>
     </div>
 
@@ -188,7 +212,7 @@
       <!-- RECENT BOOKINGS -->
       <div class="admin-premium-panel">
         <div class="admin-panel-head">
-          <h2>Recent Bookings</h2>
+          <h2><i class="fa-solid fa-clock-rotate-left"></i> Recent Bookings</h2>
           <a href="{% url 'admin_bookings' %}" class="admin-view-all">View All <i class="fa-solid fa-chevron-right"></i></a>
         </div>
 
@@ -196,18 +220,18 @@
           <table class="admin-premium-table">
             <thead>
               <tr>
-                <th>Customer</th>
+                <th>Booking ID</th>
+                <th>User</th>
                 <th>Provider</th>
-                <th>Service</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
               {% for booking in recent_bookings %}
               <tr>
+                <td>#{{ booking.id }}</td>
                 <td>{{ booking.user.username }}</td>
                 <td>{{ booking.provider.username }}</td>
-                <td>{{ booking.service.service_name }}</td>
                 <td>
                   <span class="admin-status status-{{ booking.status|lower }}">
                     {{ booking.status }}
@@ -224,34 +248,58 @@
         </div>
       </div>
 
-      <!-- NEW PROVIDERS -->
+      <!-- RECENT REVIEWS -->
       <div class="admin-premium-panel">
         <div class="admin-panel-head">
-          <h2>New Provider Applications</h2>
-          <a href="{% url 'admin_providers' %}" class="admin-view-all">Manage <i class="fa-solid fa-chevron-right"></i></a>
+          <h2><i class="fa-solid fa-star"></i> Latest Reviews</h2>
+          <a href="{% url 'admin_reviews' %}" class="admin-view-all">Manage <i class="fa-solid fa-chevron-right"></i></a>
         </div>
-
-        <div class="admin-provider-list">
-          {% for profile in recent_providers %}
-            <div class="admin-provider-item">
-              <div class="admin-provider-avatar">
-                {{ profile.user.username|slice:":1"|upper }}
-              </div>
-
-              <div>
-                <h4>{{ profile.business_name|default:profile.user.username }}</h4>
-                <p>{{ profile.service_type|default:"Awaiting Setup" }}</p>
-
-                {% if profile.is_approved %}
-                  <span class="admin-small-badge approved">Approved</span>
-                {% else %}
-                  <span class="admin-small-badge pending">Pending</span>
-                {% endif %}
-              </div>
+        <div class="admin-activity-list" style="max-height: 400px; overflow-y: auto;">
+            {% for review in recent_reviews %}
+            <div class="admin-activity-item" style="padding: 15px; border-bottom: 1px solid #eee;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <strong>{{ review.user.username }} → {{ review.provider.username }}</strong>
+                    <span style="color:#faad14;"><i class="fa-solid fa-star"></i> {{ review.rating }}/5</span>
+                </div>
+                <p style="font-size:0.85rem; color:#666; margin:5px 0;">"{{ review.comment|truncatechars:80 }}"</p>
+                <small style="color:#999;">{{ review.created_at|timesince }} ago</small>
             </div>
-          {% empty %}
-            <p style="text-align: center; padding: 40px; color: #999;">No new providers yet.</p>
-          {% endfor %}
+            {% empty %}
+            <p style="text-align:center; padding:20px; color:#999;">No reviews yet.</p>
+            {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-premium-grid" style="margin-top: 30px;">
+      <!-- SYSTEM ACTIVITY -->
+      <div class="admin-premium-panel" style="grid-column: span 2;">
+        <div class="admin-panel-head">
+          <h2><i class="fa-solid fa-list-check"></i> System Activity Log</h2>
+        </div>
+        <div class="admin-table-wrap">
+            <table class="admin-premium-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Details</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in recent_activities %}
+                    <tr>
+                        <td><b>{{ log.user.username }}</b></td>
+                        <td><span class="admin-small-badge approved">{{ log.action }}</span></td>
+                        <td>{{ log.details|truncatechars:100 }}</td>
+                        <td>{{ log.created_at|date:"M d, H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" style="text-align:center; padding:30px; color:#999;">No activity logged yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
       </div>
     </div>

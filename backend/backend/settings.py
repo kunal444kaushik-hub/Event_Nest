@@ -1,14 +1,19 @@
-from pathlib import Path
 import os
+from pathlib import Path
+# pyrefly: ignore [missing-import]
+from dotenv import load_dotenv
+
+# Load .env file
+load_dotenv()
 
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY
-SECRET_KEY = 'django-insecure-your-key'
-DEBUG = True
-ALLOWED_HOSTS = []
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-for-local')
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
 
 
 # INSTALLED APPS
@@ -110,9 +115,11 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = 'kunal444kaushik@gmail.com'
-EMAIL_HOST_PASSWORD = 'lfskcvkxifgtaydi'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 LOGIN_URL = 'login'
+
+
 
 

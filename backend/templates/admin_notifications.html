@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Manage Packages - EventNest</title>
+    <title>Admin - Notifications - EventNest</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -44,7 +44,7 @@
             <i class="fa-solid fa-briefcase"></i> Services
         </a>
 
-        <a href="{% url 'admin_packages' %}" class="admin-nav-active">
+        <a href="{% url 'admin_packages' %}">
             <i class="fa-solid fa-box-open"></i> Packages
         </a>
 
@@ -56,7 +56,7 @@
             <i class="fa-solid fa-star"></i> Reviews
         </a>
 
-        <a href="{% url 'admin_notifications' %}">
+        <a href="{% url 'admin_notifications' %}" class="admin-nav-active">
             <i class="fa-solid fa-bell"></i> Notifications
         </a>
     </div>
@@ -71,7 +71,7 @@
   <!-- MAIN CONTENT -->
   <main class="admin-premium-main">
     <div class="admin-topbar">
-      <h1>All Combo Packages</h1>
+      <h1>System Notifications</h1>
       <div class="admin-profile-pill">
         <i class="fa-solid fa-user-shield"></i> {{ request.user.username }}
       </div>
@@ -80,20 +80,13 @@
     <!-- FILTERS BAR -->
     <div class="admin-filters-bar">
       <form method="GET" class="admin-search-form">
-        <input type="text" name="q" value="{{ query }}" class="admin-input" placeholder="Search package name or provider...">
-        <select name="type" class="admin-select" onchange="this.form.submit()">
-            <option value="">All Themes</option>
-            <option value="Wedding" {% if type_filter == 'Wedding' %}selected{% endif %}>Wedding</option>
-            <option value="Birthday" {% if type_filter == 'Birthday' %}selected{% endif %}>Birthday</option>
-            <option value="Corporate" {% if type_filter == 'Corporate' %}selected{% endif %}>Corporate</option>
-            <option value="Concert" {% if type_filter == 'Concert' %}selected{% endif %}>Concert</option>
-        </select>
+        <input type="text" name="q" value="{{ query }}" class="admin-input" placeholder="Search by message or username...">
         <button type="submit" class="admin-btn-table" style="background:#ff6600;">Search</button>
-        {% if query or type_filter %}
-            <a href="{% url 'admin_packages' %}" class="admin-btn-table" style="background:#666;">Reset</a>
+        {% if query %}
+            <a href="{% url 'admin_notifications' %}" class="admin-btn-table" style="background:#666;">Reset</a>
         {% endif %}
       </form>
-      <div style="font-weight: 600; color: #666;">Total: {{ packages.paginator.count }} Packages</div>
+      <div style="font-weight: 600; color: #666;">Total: {{ notifications.paginator.count }} Logs</div>
     </div>
 
     <div class="admin-premium-panel">
@@ -101,30 +94,36 @@
         <table class="admin-premium-table">
           <thead>
             <tr>
-              <th>Package Name</th>
-              <th>Theme</th>
-              <th>Provider</th>
-              <th>Included</th>
-              <th>Price</th>
-              <th>Guests</th>
+              <th>Recipient</th>
+              <th>Message</th>
+              <th>Status</th>
+              <th>Sent At</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {% for package in packages %}
+            {% for note in notifications %}
             <tr>
-              <td><div style="font-weight:700;">{{ package.package_name }}</div></td>
-              <td><span style="font-size:0.8rem; background:#f0f0f0; padding:4px 10px; border-radius:8px;">{{ package.package_type }}</span></td>
-              <td>{{ package.provider.username }}</td>
-              <td style="font-size:0.85rem; color:#666;">{{ package.included_services }}</td>
-              <td><b>₹{{ package.total_price }}</b><br><small>{{ package.pricing_structure }}</small></td>
-              <td>{{ package.max_guests|default:"N/A" }}</td>
+              <td><b>{{ note.user.username }}</b></td>
+              <td style="max-width: 400px; font-size: 0.9rem;">{{ note.message }}</td>
               <td>
-                <form method="POST" onsubmit="return confirm('Delete this package deal permanently?')" style="display: contents;">
+                {% if note.is_read %}
+                  <span class="admin-small-badge approved">Read</span>
+                {% else %}
+                  <span class="admin-small-badge pending">Unread</span>
+                {% endif %}
+              </td>
+              <td style="font-size: 0.8rem; color: #888;">{{ note.created_at|date:"M d, Y H:i" }}</td>
+              <td>
+                <form method="POST" onsubmit="return confirm('Clear this notification?')" style="display: contents;">
                     {% csrf_token %}
-                    <button type="submit" formaction="{% url 'delete_package_admin' package.id %}" class="admin-btn-table danger" style="border:none; cursor:pointer;">Delete</button>
+                    <button type="submit" formaction="{% url 'delete_notification_admin' note.id %}" class="admin-btn-table danger" style="border:none; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
                 </form>
               </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" style="text-align: center; padding: 40px; color: #999;">No notifications found.</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -132,22 +131,22 @@
       </div>
 
       <!-- PAGINATION -->
-      {% if packages.has_other_pages %}
+      {% if notifications.has_other_pages %}
       <div class="admin-pagination">
-          {% if packages.has_previous %}
-              <a href="?page={{ packages.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}" class="admin-page-link">&laquo; Prev</a>
+          {% if notifications.has_previous %}
+              <a href="?page={{ notifications.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="admin-page-link">&laquo; Prev</a>
           {% endif %}
 
-          {% for num in packages.paginator.page_range %}
-              {% if packages.number == num %}
+          {% for num in notifications.paginator.page_range %}
+              {% if notifications.number == num %}
                   <span class="admin-page-link active">{{ num }}</span>
-              {% elif num > packages.number|add:'-3' and num < packages.number|add:'3' %}
-                  <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}" class="admin-page-link">{{ num }}</a>
+              {% elif num > notifications.number|add:'-3' and num < notifications.number|add:'3' %}
+                  <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}" class="admin-page-link">{{ num }}</a>
               {% endif %}
           {% endfor %}
 
-          {% if packages.has_next %}
-              <a href="?page={{ packages.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}" class="admin-page-link">Next &raquo;</a>
+          {% if notifications.has_next %}
+              <a href="?page={{ notifications.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="admin-page-link">Next &raquo;</a>
           {% endif %}
       </div>
       {% endif %}

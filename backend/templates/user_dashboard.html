@@ -24,6 +24,11 @@
             <li><a href="{% url 'wishlist' %}"><i class="fa-solid fa-heart"></i> Wishlist</a></li>
             <li><a href="{% url 'notifications' %}"><i class="fa-solid fa-bell"></i> Notifications</a></li>
             <li><a href="{% url 'settings' %}"><i class="fa-solid fa-gear"></i> Settings</a></li>
+            <li>
+                <a href="javascript:void(0)" id="darkModeToggle">
+                    <i class="fa-solid fa-moon"></i> Dark Mode
+                </a>
+            </li>
         </ul>
 
         <div class="sidebar-footer" style="margin-top: auto;">
@@ -102,12 +107,27 @@
             </div>
 
             <!-- QUICK ACTIONS -->
-            <div class="dash-panel" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
-                <h2 style="margin-bottom: 25px; font-size: 1.3rem;">Need Help?</h2>
-                <p style="color: #666; margin-bottom: 20px; font-size: 0.95rem;">Our support team is available 24/7 to help you with your event planning.</p>
-                <a href="{% url 'contact' %}" class="dash-action-btn" style="background: #fdf9f6; color: #ff6600; padding: 15px; border-radius: 12px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-weight: 600;">
-                    <i class="fa-solid fa-headset"></i> Contact Support
-                </a>
+            <div style="display: flex; flex-direction: column; gap: 30px;">
+                <div class="dash-panel" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+                    <h2 style="margin-bottom: 25px; font-size: 1.3rem;">Latest Notifications</h2>
+                    {% for note in latest_notifications %}
+                        <div style="padding: 12px 0; border-bottom: 1px solid #f5f5f5; {% if forloop.last %}border-bottom: none;{% endif %}">
+                            <p style="font-size: 0.85rem; color: #333; line-height: 1.4;">{{ note.message }}</p>
+                            <span style="font-size: 0.7rem; color: #aaa;">{{ note.created_at|timesince }} ago</span>
+                        </div>
+                    {% empty %}
+                        <p style="color: #888; font-size: 0.9rem;">No new notifications.</p>
+                    {% endfor %}
+                    <a href="{% url 'notifications' %}" style="display: block; text-align: center; margin-top: 15px; font-size: 0.8rem; color: #ff6600; font-weight: 700; text-decoration: none;">View All</a>
+                </div>
+
+                <div class="dash-panel" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+                    <h2 style="margin-bottom: 25px; font-size: 1.3rem;">Need Help?</h2>
+                    <p style="color: #666; margin-bottom: 20px; font-size: 0.95rem;">Our support team is available 24/7 to help you with your event planning.</p>
+                    <a href="{% url 'contact' %}" class="dash-action-btn" style="background: #fdf9f6; color: #ff6600; padding: 15px; border-radius: 12px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-weight: 600;">
+                        <i class="fa-solid fa-headset"></i> Contact Support
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -141,5 +161,29 @@
     </main>
 </div>
 
+<script>
+    const toggleBtn = document.getElementById('darkModeToggle');
+    const body = document.body;
+    const icon = toggleBtn.querySelector('i');
+
+    if (localStorage.getItem('theme') === 'dark') {
+        body.classList.add('dark-mode');
+        icon.classList.replace('fa-moon', 'fa-sun');
+        toggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i> Light Mode';
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        const isDark = body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        if (isDark) {
+            icon.classList.replace('fa-moon', 'fa-sun');
+            toggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i> Light Mode';
+        } else {
+            icon.classList.replace('fa-sun', 'fa-moon');
+            toggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i> Dark Mode';
+        }
+    });
+</script>
 </body>
 </html>

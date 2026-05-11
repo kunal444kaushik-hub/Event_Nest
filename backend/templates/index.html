@@ -19,8 +19,10 @@
       <i class="fa-solid fa-feather-pointed"></i> EventNest
     </a>
 
+
     <ul class="nav-links">
       <li><a href="{% url 'home' %}" class="active">Home</a></li>
+      <li><a href="{% url 'plan_event' %}" style="color: #ff6600; font-weight: 800;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Planner</a></li>
       <li><a href="{% url 'about' %}">About</a></li>
       <li><a href="{% url 'services' %}">Services</a></li>
       <li><a href="{% url 'packages' %}">Packages</a></li>
@@ -129,5 +131,11 @@
     </div>
 </footer>
 
+<script>
+    const body = document.body;
+    if (localStorage.getItem('theme') === 'dark') {
+        body.classList.add('dark-mode');
+    }
+</script>
 </body>
 </html>

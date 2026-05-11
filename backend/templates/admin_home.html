@@ -13,47 +13,59 @@
 <div class="admin-premium-layout">
   <!-- SIDEBAR -->
   <aside class="admin-premium-sidebar">
-    <div class="admin-logo">
-      <i class="fa-solid fa-feather-pointed"></i>
-      <h2>EventNest</h2>
-      <p>Admin Panel</p>
+    <div class="admin-premium-nav-top">
+        <div class="admin-logo">
+            <i class="fa-solid fa-feather-pointed"></i>
+            <h2>EventNest</h2>
+            <p>Admin Panel</p>
+        </div>
+
+        <a href="{% url 'admin_home' %}" class="admin-nav-active">
+            <i class="fa-solid fa-house"></i> Admin Home
+        </a>
+
+        <a href="{% url 'custom_admin_dashboard' %}">
+            <i class="fa-solid fa-chart-line"></i> Analytics
+        </a>
+
+        <a href="{% url 'admin_database_explorer' %}">
+            <i class="fa-solid fa-database"></i> Database Master
+        </a>
+
+        <a href="{% url 'admin_users' %}">
+            <i class="fa-solid fa-users"></i> Users
+        </a>
+
+        <a href="{% url 'admin_providers' %}">
+            <i class="fa-solid fa-store"></i> Providers
+        </a>
+
+        <a href="{% url 'admin_services' %}">
+            <i class="fa-solid fa-briefcase"></i> Services
+        </a>
+
+        <a href="{% url 'admin_packages' %}">
+            <i class="fa-solid fa-box-open"></i> Packages
+        </a>
+
+        <a href="{% url 'admin_bookings' %}">
+            <i class="fa-solid fa-calendar-check"></i> Bookings
+        </a>
+
+        <a href="{% url 'admin_reviews' %}">
+            <i class="fa-solid fa-star"></i> Reviews
+        </a>
+
+        <a href="{% url 'admin_notifications' %}">
+            <i class="fa-solid fa-bell"></i> Notifications
+        </a>
     </div>
 
-    <a href="{% url 'admin_home' %}" class="admin-nav-active">
-      <i class="fa-solid fa-house"></i> Admin Home
-    </a>
-
-    <a href="{% url 'custom_admin_dashboard' %}">
-      <i class="fa-solid fa-chart-line"></i> Analytics
-    </a>
-
-    <a href="{% url 'admin_users' %}">
-      <i class="fa-solid fa-users"></i> Users
-    </a>
-
-    <a href="{% url 'admin_providers' %}">
-      <i class="fa-solid fa-store"></i> Providers
-    </a>
-
-    <a href="{% url 'admin_services' %}">
-      <i class="fa-solid fa-briefcase"></i> Services
-    </a>
-
-    <a href="{% url 'admin_packages' %}">
-      <i class="fa-solid fa-box-open"></i> Packages
-    </a>
-
-    <a href="{% url 'admin_bookings' %}">
-      <i class="fa-solid fa-calendar-check"></i> Bookings
-    </a>
-
-    <a href="{% url 'admin_reviews' %}">
-      <i class="fa-solid fa-star"></i> Reviews
-    </a>
-
-    <a href="{% url 'logout' %}" class="admin-site-link">
-      <i class="fa-solid fa-right-from-bracket"></i> Logout & Back to Site
-    </a>
+    <div class="admin-premium-nav-bottom">
+        <a href="{% url 'logout' %}" class="admin-nav-action">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout & Back
+        </a>
+    </div>
   </aside>
 
   <!-- MAIN CONTENT -->

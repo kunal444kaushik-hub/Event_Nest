@@ -13,21 +13,59 @@
 <div class="admin-premium-layout">
   <!-- SIDEBAR -->
   <aside class="admin-premium-sidebar">
-    <div class="admin-logo">
-      <i class="fa-solid fa-feather-pointed"></i>
-      <h2>EventNest</h2>
-      <p>Admin Panel</p>
+    <div class="admin-premium-nav-top">
+        <div class="admin-logo">
+            <i class="fa-solid fa-feather-pointed"></i>
+            <h2>EventNest</h2>
+            <p>Admin Panel</p>
+        </div>
+
+        <a href="{% url 'admin_home' %}">
+            <i class="fa-solid fa-house"></i> Admin Home
+        </a>
+
+        <a href="{% url 'custom_admin_dashboard' %}">
+            <i class="fa-solid fa-chart-line"></i> Analytics
+        </a>
+
+        <a href="{% url 'admin_database_explorer' %}">
+            <i class="fa-solid fa-database"></i> Database Master
+        </a>
+
+        <a href="{% url 'admin_users' %}">
+            <i class="fa-solid fa-users"></i> Users
+        </a>
+
+        <a href="{% url 'admin_providers' %}" class="admin-nav-active">
+            <i class="fa-solid fa-store"></i> Providers
+        </a>
+
+        <a href="{% url 'admin_services' %}">
+            <i class="fa-solid fa-briefcase"></i> Services
+        </a>
+
+        <a href="{% url 'admin_packages' %}">
+            <i class="fa-solid fa-box-open"></i> Packages
+        </a>
+
+        <a href="{% url 'admin_bookings' %}">
+            <i class="fa-solid fa-calendar-check"></i> Bookings
+        </a>
+
+        <a href="{% url 'admin_reviews' %}">
+            <i class="fa-solid fa-star"></i> Reviews
+        </a>
+
+        <a href="{% url 'admin_notifications' %}">
+            <i class="fa-solid fa-bell"></i> Notifications
+        </a>
     </div>
 
-    <a href="{% url 'admin_home' %}"><i class="fa-solid fa-house"></i> Admin Home</a>
-    <a href="{% url 'admin_users' %}"><i class="fa-solid fa-users"></i> Users</a>
-    <a href="{% url 'admin_providers' %}" class="admin-nav-active"><i class="fa-solid fa-store"></i> Providers</a>
-    <a href="{% url 'admin_services' %}"><i class="fa-solid fa-briefcase"></i> Services</a>
-    <a href="{% url 'admin_bookings' %}"><i class="fa-solid fa-calendar-check"></i> Bookings</a>
-    
-    <a href="{% url 'logout' %}" class="admin-site-link">
-      <i class="fa-solid fa-right-from-bracket"></i> Logout
-    </a>
+    <div class="admin-premium-nav-bottom">
+        <a href="{% url 'logout' %}" class="admin-nav-action">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout & Back
+        </a>
+    </div>
   </aside>
 
   <main class="admin-premium-main">
@@ -60,7 +98,10 @@
                 
                 <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
                 
-                <a href="{% url 'delete_provider_admin' profile.id %}" class="admin-btn-table danger" onclick="return confirm('Are you sure you want to delete this provider? All services and packages will be removed.')" style="width:100%; text-align:center;">Delete Provider Account</a>
+                <form method="POST" onsubmit="return confirm('Are you sure you want to delete this provider? All services and packages will be removed.')" style="width:100%;">
+                    {% csrf_token %}
+                    <button type="submit" formaction="{% url 'delete_provider_admin' profile.id %}" class="admin-btn-table danger" style="width:100%; border:none; cursor:pointer;">Delete Provider Account</button>
+                </form>
             </div>
         </div>
 
@@ -86,7 +127,10 @@
                             <td>₹{{ service.price }}</td>
                             <td>{{ service.created_at|date:"M d, Y" }}</td>
                             <td>
-                                <a href="{% url 'delete_service_admin' service.id %}" class="admin-btn-table danger" onclick="return confirm('Delete this service listing?')">Delete</a>
+                                <form method="POST" onsubmit="return confirm('Delete this service listing?')" style="display: contents;">
+                                    {% csrf_token %}
+                                    <button type="submit" formaction="{% url 'delete_service_admin' service.id %}" class="admin-btn-table danger" style="border:none; cursor:pointer;">Delete</button>
+                                </form>
                             </td>
                         </tr>
                         {% empty %}
@@ -112,7 +156,10 @@
                             <td>₹{{ package.total_price }}</td>
                             <td>{{ package.created_at|date:"M d, Y" }}</td>
                             <td>
-                                <a href="{% url 'delete_package_admin' package.id %}" class="admin-btn-table danger" onclick="return confirm('Delete this package listing?')">Delete</a>
+                                <form method="POST" onsubmit="return confirm('Delete this package listing?')" style="display: contents;">
+                                    {% csrf_token %}
+                                    <button type="submit" formaction="{% url 'delete_package_admin' package.id %}" class="admin-btn-table danger" style="border:none; cursor:pointer;">Delete</button>
+                                </form>
                             </td>
                         </tr>
                         {% empty %}

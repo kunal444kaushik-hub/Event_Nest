@@ -8,117 +8,153 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #f8f9fa; font-family: 'Inter', sans-serif; min-height: 100vh; }
-        .bookings-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
-        .bookings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .bookings-header h1 { font-size: 2rem; color: #1a1a1a; }
-
-        .booking-row { 
-            background: white; border-radius: 20px; padding: 25px; margin-bottom: 15px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.02); border: 1px solid #eee;
-            display: grid; grid-template-columns: 70px 2fr 1.5fr 1fr 200px; align-items: center; gap: 20px;
-            transition: 0.3s;
-        }
-        .booking-row:hover { border-color: #ff6600; box-shadow: 0 10px 30px rgba(255,102,0,0.05); }
-
-        .client-avatar { width: 50px; height: 50px; background: #fdf9f6; color: #ff6600; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; }
+        body { background: var(--bg-body); font-family: 'Outfit', sans-serif; min-height: 100vh; color: var(--text-main); transition: 0.3s; }
+        .bookings-container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
         
-        .client-info h3 { font-size: 1.1rem; color: #1a1a1a; margin-bottom: 4px; }
-        .client-info p { font-size: 0.85rem; color: #888; display: flex; align-items: center; gap: 5px; }
+        .bookings-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 35px; }
+        .bookings-header h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px; }
+        .stats-tag { background: var(--bg-card); padding: 8px 16px; border-radius: 12px; font-size: 0.9rem; font-weight: 700; color: var(--text-muted); box-shadow: var(--shadow-sm); }
 
-        .service-name { font-weight: 700; color: #333; font-size: 1rem; }
-        .booking-meta { font-size: 0.85rem; color: #666; margin-top: 5px; }
-
-        .btn-action { 
-            padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; 
-            text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;
+        .booking-card { 
+            background: var(--bg-card); border-radius: 24px; padding: 25px; margin-bottom: 20px; 
+            box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; overflow: hidden;
         }
-        .btn-accept { background: #1a1a1a; color: white; }
-        .btn-accept:hover { background: #ff6600; transform: translateY(-2px); }
-        .btn-reject { background: #fff5f5; color: #ff4444; border: 1px solid #ffebee; }
-        .btn-reject:hover { background: #ff4444; color: white; }
-        .btn-complete { background: #e8f5e9; color: #2e7d32; }
-        .btn-complete:hover { background: #2e7d32; color: white; }
+        .booking-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); border-color: var(--primary); }
 
-        .status-pill { padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; text-align: center; width: fit-content; }
-        .status-pending { background: #fff8e1; color: #f57f17; }
-        .status-accepted { background: #e8f5e9; color: #2e7d32; }
-        .status-rejected { background: #ffebee; color: #c62828; }
-        .status-completed { background: #e3f2fd; color: #1565c0; }
+        .card-main { display: flex; align-items: center; gap: 25px; flex-grow: 1; text-decoration: none; color: inherit; overflow: hidden; }
+        
+        .client-avatar { 
+            width: 65px; height: 65px; background: var(--primary-soft); 
+            color: var(--primary); border-radius: 20px; display: flex; align-items: center; 
+            justify-content: center; font-weight: 900; font-size: 1.5rem; 
+            border: 2px solid var(--bg-card); box-shadow: 0 8px 15px rgba(255,102,0,0.1);
+            flex-shrink: 0;
+        }
+        
+        .info-group { min-width: 0; }
+        .info-group h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .info-group p { font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
 
-        .message-toast { font-size: 0.8rem; color: #888; font-style: italic; background: #fafafa; padding: 10px; border-radius: 8px; border-left: 3px solid #eee; margin-top: 10px; }
+        .service-info { padding: 0 30px; border-left: 2px solid var(--border-color); min-width: 250px; }
+        .service-info .name { font-weight: 800; color: var(--text-main); font-size: 1.1rem; margin-bottom: 6px; }
+        .service-info .meta { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; background: var(--bg-body); padding: 4px 10px; border-radius: 8px; width: fit-content; }
+
+        .status-section { text-align: center; padding: 0 20px; flex-shrink: 0; }
+        .status-badge { 
+            display: inline-block; padding: 8px 16px; border-radius: 12px; font-weight: 800; 
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .status-pending { background: #fff9db; color: #f59f00; }
+        .status-accepted { background: #ebfbee; color: #2f9e44; }
+        .status-rejected { background: #fff5f5; color: #fa5252; }
+        .status-inprogress { background: #e7f5ff; color: #1c7ed6; }
+        .status-completed { background: #f3f0ff; color: #7950f2; }
+
+        .actions-group { display: flex; gap: 10px; min-width: 120px; justify-content: flex-end; flex-shrink: 0; }
+        .action-btn { 
+            width: 45px; height: 45px; border-radius: 14px; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: 0.3s;
+            font-size: 1.1rem; box-shadow: var(--shadow-sm);
+        }
+        .btn-main { background: var(--text-main); color: var(--bg-card); width: auto; padding: 0 20px; font-weight: 700; font-size: 0.9rem; }
+        .btn-main:hover { background: var(--primary); color: white; transform: scale(1.05); }
+        .btn-danger { background: #fff5f5; color: #fa5252; }
+        .btn-danger:hover { background: #fa5252; color: white; }
+        
+        .btn-finish { background: #2f9e44; color: white; width: auto; padding: 0 20px; font-weight: 700; }
+        .btn-finish:hover { background: #2b8a3e; }
+
+        @media (max-width: 900px) {
+            .bookings-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .booking-card { flex-direction: column; align-items: stretch; gap: 20px; }
+            .service-info { border-left: none; padding: 0; border-top: 2px solid var(--border-color); padding-top: 15px; width: 100%; min-width: 0; }
+            .status-section { text-align: left; padding: 0; }
+            .actions-group { width: 100%; justify-content: flex-start; }
+            .card-main { gap: 15px; }
+        }
     </style>
 </head>
 <body>
 
 <div class="bookings-container">
-    <a href="{% url 'provider_dashboard' %}" class="back-btn" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #888; font-weight: 700; margin-bottom: 25px;">
-        <i class="fa-solid fa-arrow-left"></i> Dashboard
+    <a href="{% url 'provider_dashboard' %}" style="display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: #636e72; font-weight: 700; margin-bottom: 30px; background: white; padding: 10px 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
     </a>
 
     <div class="bookings-header">
         <h1>Manage Booking Requests</h1>
-        <div style="font-size: 0.9rem; color: #888; font-weight: 600;">Total Orders: {{ bookings.count }}</div>
+        <div class="stats-tag">Total Orders: {{ bookings.count }}</div>
     </div>
 
     {% for booking in bookings %}
-    <div class="booking-row">
-        <div class="client-avatar">
-            {{ booking.user.username|slice:":1"|upper }}
-        </div>
-        
-        <div class="client-info">
-            <h3>{{ booking.user.username }}</h3>
-            <p><i class="fa-solid fa-phone" style="font-size: 0.7rem;"></i> {{ booking.user.profile.phone|default:"No contact info" }}</p>
-            
-            <!-- Dynamic Booking Specifics -->
-            {% if booking.extra_booking_details %}
-                <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px;">
-                    {% for key, value in booking.extra_booking_details.items %}
-                        <span style="font-size: 0.7rem; background: #f0f0f0; padding: 4px 10px; border-radius: 6px; font-weight: 600; color: #555;">
-                            <b>{{ key|title }}:</b> {{ value }}
-                        </span>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            {% if booking.message %}
-                <div class="message-toast">"{{ booking.message|truncatewords:10 }}"</div>
-            {% endif %}
-        </div>
-
-        <div class="service-details">
-            {% if booking.package %}
-                <div class="service-name">{{ booking.package.package_name }} <span style="font-size: 0.6rem; color: #6c5ce7; border: 1px solid #6c5ce7; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">PACKAGE</span></div>
-            {% else %}
-                <div class="service-name">{{ booking.service.service_name }}</div>
-            {% endif %}
-            <div class="booking-meta">
-                <i class="fa-regular fa-calendar-check"></i> {{ booking.event_date }}
-                <span style="margin-left: 10px; opacity: 0.6;">| {{ booking.number_of_guests|default:booking.number_of_days }} Qty</span>
+    <div class="booking-card">
+        <a href="{% url 'booking_detail' booking.id %}" class="card-main">
+            <div class="client-avatar">
+                {{ booking.user.username|slice:":1"|upper }}
             </div>
-        </div>
+            
+            <div class="info-group">
+                <h3>{{ booking.user.username }}</h3>
+                <p><i class="fa-solid fa-phone"></i> {{ booking.user.profile.phone|default:"No contact info" }}</p>
+                {% if booking.message %}
+                    <p style="margin-top: 8px; color: #636e72; font-style: italic; background: #f8f9fa; padding: 8px 12px; border-radius: 8px; font-size: 0.8rem;">
+                        <i class="fa-solid fa-quote-left" style="font-size: 0.6rem; opacity: 0.5;"></i> 
+                        {{ booking.message|truncatewords:8 }}
+                    </p>
+                {% endif %}
+            </div>
 
-        <div>
-            <span class="status-pill status-{{ booking.status|lower }}">{{ booking.status }}</span>
-        </div>
+            <div class="service-info">
+                {% if booking.package %}
+                    <div class="name">{{ booking.package.package_name }} <span style="font-size: 0.65rem; background: #f3f0ff; color: #7950f2; padding: 2px 8px; border-radius: 6px; margin-left: 6px; font-weight: 800;">PACKAGE</span></div>
+                {% else %}
+                    <div class="name">{{ booking.service.service_name }}</div>
+                {% endif %}
+                <div class="meta">
+                    <i class="fa-regular fa-calendar-check" style="margin-right: 5px;"></i> {{ booking.event_date|date:"d M Y" }}
+                </div>
+            </div>
 
-        <div style="display: flex; gap: 8px; justify-content: flex-end;">
+            <div class="status-section">
+                <span class="status-badge status-{{ booking.status|lower|cut:' ' }}">{{ booking.status }}</span>
+            </div>
+        </a>
+
+        <div class="actions-group">
             {% if booking.status == "Pending" %}
-                <a href="{% url 'accept_booking' booking.id %}" class="btn-action btn-accept"><i class="fa-solid fa-check"></i> Accept</a>
-                <a href="{% url 'reject_booking' booking.id %}" class="btn-action btn-reject"><i class="fa-solid fa-xmark"></i></a>
+                <form action="{% url 'accept_booking' booking.id %}" method="POST" style="display:contents;">
+                    {% csrf_token %}
+                    <button type="submit" class="action-btn btn-main"><i class="fa-solid fa-check"></i></button>
+                </form>
+                <form action="{% url 'reject_booking' booking.id %}" method="POST" style="display:contents;">
+                    {% csrf_token %}
+                    <button type="submit" class="action-btn btn-danger" onclick="return confirm('Reject this booking?')"><i class="fa-solid fa-xmark"></i></button>
+                </form>
             {% elif booking.status == "Accepted" %}
-                <a href="{% url 'complete_booking' booking.id %}" class="btn-action btn-complete"><i class="fa-solid fa-flag-checkered"></i> Finish</a>
+                <form action="{% url 'start_booking' booking.id %}" method="POST" style="display:contents;">
+                    {% csrf_token %}
+                    <button type="submit" class="action-btn btn-main"><i class="fa-solid fa-truck-fast"></i> Start</button>
+                </form>
+            {% elif booking.status == "In Progress" %}
+                <form action="{% url 'complete_booking' booking.id %}" method="POST" style="display:contents;">
+                    {% csrf_token %}
+                    <button type="submit" class="action-btn btn-finish"><i class="fa-solid fa-flag-checkered"></i> Finish</button>
+                </form>
             {% else %}
-                <span style="color: #bbb; font-size: 0.8rem; font-weight: 600;">No actions available</span>
+                <span style="color: #dfe6e9; font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Closed</span>
             {% endif %}
         </div>
     </div>
     {% empty %}
-    <div style="text-align: center; padding: 100px 0; background: white; border-radius: 30px; border: 2px dashed #eee;">
-        <i class="fa-solid fa-calendar-xmark" style="font-size: 4rem; color: #eee; margin-bottom: 20px;"></i>
-        <h3 style="color: #888;">No booking requests yet</h3>
-        <p style="color: #bbb; margin-top: 10px;">Keep your services updated to attract more customers!</p>
+    <div style="text-align: center; padding: 80px 0; background: white; border-radius: 32px; border: 3px dashed #f1f2f6;">
+        <div style="width: 100px; height: 100px; background: #f8f9fa; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; color: #dfe6e9; font-size: 3rem;">
+            <i class="fa-solid fa-calendar-xmark"></i>
+        </div>
+        <h3 style="color: #2d3436; font-weight: 800; font-size: 1.5rem;">No bookings yet</h3>
+        <p style="color: #636e72; margin-top: 10px; max-width: 300px; margin-left: auto; margin-right: auto; line-height: 1.5;">When customers book your services, they will appear here for your management.</p>
     </div>
     {% endfor %}
 </div>

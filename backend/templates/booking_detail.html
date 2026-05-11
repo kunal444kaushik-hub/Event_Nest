@@ -1,0 +1,515 @@
+{% load static custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking #{{ booking.id }} - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .timeline-container {
+            padding: 40px 20px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 25px;
+            left: 5%;
+            right: 5%;
+            height: 4px;
+            background: #f0f2f5;
+            z-index: 1;
+        }
+        .timeline-step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            width: 20%;
+        }
+        .step-icon {
+            width: 54px;
+            height: 54px;
+            background: #f0f2f5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            color: #888;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            border: 4px solid #fff;
+        }
+        .timeline-step.active .step-icon {
+            background: #ff6600;
+            color: #fff;
+            box-shadow: 0 0 0 4px rgba(255, 102, 0, 0.2);
+        }
+        .timeline-step.completed .step-icon {
+            background: #27ae60;
+            color: #fff;
+        }
+        .step-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555;
+        }
+        .timeline-step.active .step-label {
+            color: #ff6600;
+        }
+
+        .booking-info-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+        .info-card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        .status-pill {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-pending { background: #fff8e1; color: #f57c00; }
+        .status-accepted { background: #e8f5e9; color: #2e7d32; }
+        .status-rejected { background: #ffebee; color: #c62828; }
+        .status-inprogress { background: #e3f2fd; color: #1565c0; }
+        .status-completed { background: #f1f8e9; color: #33691e; }
+        .status-cancelled { background: #f5f5f5; color: #616161; }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .detail-label {
+            width: 150px;
+            font-weight: 600;
+            color: #777;
+        }
+        .detail-value {
+            color: #333;
+            flex: 1;
+        }
+        .action-bar {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+        }
+        .btn-action {
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: #ff6600; color: #fff; }
+        .btn-outline { background: #fff; color: #ff6600; border: 1px solid #ff6600; }
+        .btn-danger { background: #e74c3c; color: #fff; }
+
+        /* Countdown Timer */
+        .countdown-box {
+            background: linear-gradient(135deg, #1a1a1a, #333);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .countdown-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .countdown-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #ff6600;
+        }
+        .countdown-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            opacity: 0.7;
+            letter-spacing: 1px;
+        }
+
+        /* Checklist Styles */
+        .checklist-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            padding: 30px;
+            margin-top: 30px;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        .checklist-item:last-child { border-bottom: none; }
+        .checklist-text {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+        .checklist-text.completed {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+        .checklist-checkbox {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: #ff6600;
+        }
+        .btn-delete-task {
+            color: #ff4d4f;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .checklist-item:hover .btn-delete-task { opacity: 1; }
+
+        @media (max-width: 768px) {
+            .booking-info-grid { grid-template-columns: 1fr; }
+            .timeline { flex-direction: column; height: 300px; }
+            .timeline::before { left: 27px; top: 0; bottom: 0; width: 4px; height: auto; }
+            .timeline-step { display: flex; align-items: center; width: 100%; text-align: left; }
+            .step-icon { margin: 0 20px 0 0; }
+            .countdown-box { gap: 10px; padding: 20px; }
+            .countdown-number { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+{% include 'navbar.html' %}
+
+<div class="container" style="padding-top: 100px; padding-bottom: 50px;">
+    
+    <div class="info-header">
+        <div>
+            <h1 style="margin:0;">Booking Details <span style="color:#888; font-weight:400;">#{{ booking.id }}</span></h1>
+            <p style="color:#666; margin-top:5px;">Placed on {{ booking.created_at|date:"F d, Y" }}</p>
+        </div>
+        <span class="status-pill status-{{ booking.status|lower|cut:' ' }}">
+            {{ booking.status }}
+        </span>
+    </div>
+
+    <!-- COUNTDOWN TIMER -->
+    {% if booking.status != 'Completed' and booking.status != 'Cancelled' and booking.status != 'Rejected' %}
+    <div class="countdown-box" id="eventCountdown">
+        <div class="countdown-item">
+            <div class="countdown-number" id="days">00</div>
+            <div class="countdown-label">Days</div>
+        </div>
+        <div class="countdown-item">
+            <div class="countdown-number" id="hours">00</div>
+            <div class="countdown-label">Hours</div>
+        </div>
+        <div class="countdown-item">
+            <div class="countdown-number" id="minutes">00</div>
+            <div class="countdown-label">Mins</div>
+        </div>
+        <div class="countdown-item">
+            <div class="countdown-number" id="seconds">00</div>
+            <div class="countdown-label">Secs</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- TIMELINE -->
+    <div class="timeline-container">
+        <div class="timeline">
+            <!-- PENDING -->
+            <div class="timeline-step {% if booking.status == 'Pending' %}active{% elif booking.status != 'Rejected' and booking.status != 'Cancelled' %}completed{% endif %}">
+                <div class="step-icon">
+                    {% if booking.status != 'Pending' and booking.status != 'Rejected' and booking.status != 'Cancelled' %}
+                        <i class="fa-solid fa-check"></i>
+                    {% else %}
+                        <i class="fa-solid fa-clock"></i>
+                    {% endif %}
+                </div>
+                <div class="step-label">Requested</div>
+            </div>
+
+            <!-- ACCEPTED -->
+            <div class="timeline-step {% if booking.status == 'Accepted' %}active{% elif booking.status == 'In Progress' or booking.status == 'Completed' %}completed{% endif %}">
+                <div class="step-icon">
+                    {% if booking.status == 'In Progress' or booking.status == 'Completed' %}
+                        <i class="fa-solid fa-check"></i>
+                    {% else %}
+                        <i class="fa-solid fa-thumbs-up"></i>
+                    {% endif %}
+                </div>
+                <div class="step-label">Accepted</div>
+            </div>
+
+            <!-- IN PROGRESS -->
+            <div class="timeline-step {% if booking.status == 'In Progress' %}active{% elif booking.status == 'Completed' %}completed{% endif %}">
+                <div class="step-icon">
+                    {% if booking.status == 'Completed' %}
+                        <i class="fa-solid fa-check"></i>
+                    {% else %}
+                        <i class="fa-solid fa-truck-fast"></i>
+                    {% endif %}
+                </div>
+                <div class="step-label">In Progress</div>
+            </div>
+
+            <!-- COMPLETED -->
+            <div class="timeline-step {% if booking.status == 'Completed' %}active{% endif %}">
+                <div class="step-icon">
+                    <i class="fa-solid fa-flag-checkered"></i>
+                </div>
+                <div class="step-label">Completed</div>
+            </div>
+        </div>
+        
+        {% if booking.status == 'Rejected' %}
+            <div style="text-align:center; margin-top:30px; color:#e74c3c;">
+                <i class="fa-solid fa-circle-xmark" style="font-size:2rem;"></i>
+                <p style="font-weight:600; margin-top:10px;">This booking was rejected by the provider.</p>
+            </div>
+        {% elif booking.status == 'Cancelled' %}
+            <div style="text-align:center; margin-top:30px; color:#888;">
+                <i class="fa-solid fa-ban" style="font-size:2rem;"></i>
+                <p style="font-weight:600; margin-top:10px;">This booking was cancelled.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="booking-info-grid">
+        <!-- LEFT: DETAILS -->
+        <div class="info-card">
+            <h3 style="margin-bottom:20px;"><i class="fa-solid fa-circle-info" style="color:#ff6600;"></i> Event Information</h3>
+            
+            <div class="detail-row">
+                <div class="detail-label">Service/Package</div>
+                <div class="detail-value" style="font-weight:700; color:#ff6600;">{{ booking.booked_item_name }}</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Event Date</div>
+                <div class="detail-value" style="font-weight:600;">{{ booking.event_date|date:"F d, Y" }}</div>
+            </div>
+
+            {% if booking.number_of_guests %}
+            <div class="detail-row">
+                <div class="detail-label">Guest Count</div>
+                <div class="detail-value">{{ booking.number_of_guests }} guests</div>
+            </div>
+            {% endif %}
+
+            {% if booking.number_of_days %}
+            <div class="detail-row">
+                <div class="detail-label">Duration</div>
+                <div class="detail-value">{{ booking.number_of_days }} days</div>
+            </div>
+            {% endif %}
+
+            {% if booking.message %}
+            <div class="detail-row">
+                <div class="detail-label">Your Message</div>
+                <div class="detail-value" style="font-style:italic; color:#666;">"{{ booking.message }}"</div>
+            </div>
+            {% endif %}
+
+            <!-- Dynamic Details -->
+            {% if booking.extra_booking_details %}
+            <h4 style="margin:25px 0 15px; border-top:1px solid #eee; padding-top:20px;">Additional Requirements</h4>
+            {% for key, value in booking.extra_booking_details.items %}
+            <div class="detail-row">
+                <div class="detail-label">{{ key|replace:"_"|title }}</div>
+                <div class="detail-value">{{ value }}</div>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <!-- ACTIONS -->
+            <div class="action-bar">
+                {% if request.user == booking.user %}
+                    {% if booking.status == 'Pending' or booking.status == 'Accepted' %}
+                        <form action="{% url 'cancel_booking' booking.id %}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?')">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action btn-danger">Cancel Booking</button>
+                        </form>
+                    {% endif %}
+                    {% if booking.status == 'Completed' %}
+                        <a href="{% url 'booking_invoice' booking.id %}" target="_blank" class="btn-action btn-outline">View Invoice</a>
+                        {% if not booking.review %}
+                            <a href="{% url 'add_review' booking.id %}" class="btn-action btn-primary">Write a Review</a>
+                        {% else %}
+                            <span style="color:#27ae60; font-weight:700;"><i class="fa-solid fa-star"></i> Reviewed</span>
+                        {% endif %}
+                    {% elif booking.status == 'Accepted' or booking.status == 'In Progress' %}
+                        <a href="{% url 'booking_invoice' booking.id %}" target="_blank" class="btn-action btn-outline">View Bill</a>
+                    {% endif %}
+                {% elif request.user == booking.provider %}
+                    {% if booking.status == 'Pending' %}
+                        <form action="{% url 'accept_booking' booking.id %}" method="POST" style="display:inline-block;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action btn-primary">Accept Request</button>
+                        </form>
+                        <form action="{% url 'reject_booking' booking.id %}" method="POST" style="display:inline-block;" onsubmit="return confirm('Reject this booking?')">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action btn-danger">Reject</button>
+                        </form>
+                    {% elif booking.status == 'Accepted' %}
+                        <form action="{% url 'start_booking' booking.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action btn-primary">Start Event (In Progress)</button>
+                        </form>
+                    {% elif booking.status == 'In Progress' %}
+                        <form action="{% url 'complete_booking' booking.id %}" method="POST" onsubmit="return confirm('Mark as completed?')">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action btn-primary">Mark as Completed</button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+                <a href="javascript:history.back()" class="btn-action btn-outline">Back</a>
+            </div>
+        </div>
+
+        <!-- RIGHT: CONTACT -->
+        <div class="info-card" style="height:fit-content;">
+            <h3 style="margin-bottom:20px;"><i class="fa-solid fa-user-group" style="color:#ff6600;"></i> Contacts</h3>
+            
+            {% if request.user == booking.user %}
+                <div style="margin-bottom:20px;">
+                    <p style="font-size:0.8rem; color:#888; margin-bottom:5px;">Service Provider</p>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="width:50px; height:50px; background:#f0f2f5; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#ff6600;">
+                            <i class="fa-solid fa-store"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight:700;">{{ booking.provider.profile.business_name|default:booking.provider.username }}</div>
+                            <div style="font-size:0.85rem; color:#666;">{{ booking.provider.profile.phone }}</div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div style="margin-bottom:20px;">
+                    <p style="font-size:0.8rem; color:#888; margin-bottom:5px;">Client / User</p>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="width:50px; height:50px; background:#f0f2f5; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#ff6600;">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight:700;">{{ booking.user.first_name }} {{ booking.user.last_name }}</div>
+                            <div style="font-size:0.85rem; color:#666;">{{ booking.user.profile.phone }}</div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div style="background:#fff7f2; padding:15px; border-radius:10px; border-left:4px solid #ff6600;">
+                <p style="font-size:0.85rem; color:#a35200; margin:0;">
+                    <i class="fa-solid fa-circle-exclamation"></i> Contact the {% if request.user == booking.user %}provider{% else %}client{% endif %} directly for any urgent changes.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- CHECKLIST SECTION -->
+    <div class="checklist-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h2 style="margin:0; font-size: 1.3rem;"><i class="fa-solid fa-list-check" style="color: #ff6600; margin-right: 10px;"></i> Event Checklist</h2>
+            <span style="font-size: 0.85rem; color: #888;">Keep track of event tasks</span>
+        </div>
+
+        <form method="POST" style="display: flex; gap: 10px; margin-bottom: 25px;">
+            {% csrf_token %}
+            <input type="text" name="task" placeholder="Add a new task..." style="flex: 1; padding: 12px 20px; border-radius: 10px; border: 2px solid #f0f2f5; font-family: inherit;" required>
+            <button type="submit" name="add_item" class="btn-action btn-primary" style="padding: 12px 25px;">Add Task</button>
+        </form>
+
+        <div class="checklist-items">
+            {% for item in checklist %}
+                <div class="checklist-item">
+                    <div class="checklist-text {% if item.is_completed %}completed{% endif %}">
+                        <input type="checkbox" class="checklist-checkbox" {% if item.is_completed %}checked{% endif %} 
+                               onclick="window.location.href='{% url 'update_checklist_item' item.id %}'">
+                        <span>{{ item.task }}</span>
+                    </div>
+                    <form method="POST" action="{% url 'delete_checklist_item' item.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-delete-task">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </form>
+                </div>
+            {% empty %}
+                <p style="text-align: center; padding: 30px; color: #ccc;">No tasks added yet. Start planning!</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Countdown Logic
+    const eventDate = new Date("{{ booking.event_date|date:'Y-m-d' }}").getTime();
+    
+    const countdown = setInterval(function() {
+        const now = new Date().getTime();
+        const distance = eventDate - now;
+
+        if (distance < 0) {
+            clearInterval(countdown);
+            document.getElementById("eventCountdown").innerHTML = "<h3 style='color:#ff6600'>Event Day is Here!</h3>";
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById("days").innerHTML = days.toString().padStart(2, '0');
+        document.getElementById("hours").innerHTML = hours.toString().padStart(2, '0');
+        document.getElementById("minutes").innerHTML = minutes.toString().padStart(2, '0');
+        document.getElementById("seconds").innerHTML = seconds.toString().padStart(2, '0');
+    }, 1000);
+</script>
+
+</body>
+</html>

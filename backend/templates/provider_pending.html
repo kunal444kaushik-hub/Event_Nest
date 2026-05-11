@@ -18,13 +18,31 @@
         <i class="fa-solid fa-hourglass-half"></i>
     </div>
     
-    <h2>Application Received</h2>
-    <p class="subtitle">Thank you for registering with EventNest!</p>
+    <h2>
+        {% if profile.admin_remark and not profile.is_approved %}
+            Application Update
+        {% else %}
+            Application Received
+        {% endif %}
+    </h2>
+    <p class="subtitle">
+        {% if profile.admin_remark and not profile.is_approved %}
+            There was an issue with your application.
+        {% else %}
+            Thank you for registering with EventNest!
+        {% endif %}
+    </p>
     
     <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 12px; margin-bottom: 25px; color: rgba(255, 255, 255, 0.8); text-align: left; font-size: 0.95rem;">
-        <p style="margin-bottom: 10px;"><i class="fa-solid fa-circle-check" style="color: #27ae60;"></i> Your business profile has been created.</p>
-        <p style="margin-bottom: 10px;"><i class="fa-solid fa-circle-check" style="color: #27ae60;"></i> Documents are queued for verification.</p>
-        <p><i class="fa-solid fa-clock" style="color: #ff6600;"></i> Admin will review your details within 24-48 hours.</p>
+        {% if profile.admin_remark and not profile.is_approved %}
+            <p style="color: #ff4d4d; font-weight: 600; margin-bottom: 10px;"><i class="fa-solid fa-circle-xmark"></i> Rejection Reason:</p>
+            <p style="padding: 10px; background: rgba(255, 77, 77, 0.1); border-left: 3px solid #ff4d4d; border-radius: 4px;">{{ profile.admin_remark }}</p>
+            <p style="margin-top: 15px; font-size: 0.85rem;">Please update your profile information and contact support if you have questions.</p>
+        {% else %}
+            <p style="margin-bottom: 10px;"><i class="fa-solid fa-circle-check" style="color: #27ae60;"></i> Your business profile has been created.</p>
+            <p style="margin-bottom: 10px;"><i class="fa-solid fa-circle-check" style="color: #27ae60;"></i> Documents are queued for verification.</p>
+            <p><i class="fa-solid fa-clock" style="color: #ff6600;"></i> Admin will review your details within 24-48 hours.</p>
+        {% endif %}
     </div>
 
     <p style="color: #fff; margin-bottom: 20px;">We'll notify you via email once your account is approved.</p>

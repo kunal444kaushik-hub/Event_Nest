@@ -1,220 +1,371 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Provider Profile - EventNest</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ profile.business_name|default:provider.username }} - Portfolio</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff6600;
+            --secondary: #1a1a1a;
+            --accent: #f8f9fa;
+            --text-dark: #111;
+            --text-muted: #666;
+            --radius: 20px;
+        }
 
-<link rel="stylesheet" href="{% static 'css/style.css' %}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #fcfcfc;
+            margin: 0;
+        }
 
+        /* Hero Header */
+        .portfolio-hero {
+            height: 400px;
+            position: relative;
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url('{% if profile.cover_image %}{{ profile.cover_image.url }}{% else %}https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80{% endif %}') center/cover;
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 50px;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            color: white;
+        }
+
+        .hero-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid white;
+            object-fit: cover;
+            background: var(--primary);
+        }
+
+        .hero-text h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .hero-text .badge {
+            background: var(--primary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Content Layout */
+        .portfolio-grid {
+            max-width: 1200px;
+            margin: -40px auto 60px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .portfolio-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Sidebar Card */
+        .portfolio-sidebar {
+            background: white;
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            height: fit-content;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            background: var(--accent);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-item span { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+        .stat-item h4 { margin: 5px 0 0 0; font-size: 1.2rem; font-weight: 700; color: var(--primary); }
+
+        .sidebar-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+
+        .team-grid { display: flex; flex-direction: column; gap: 15px; }
+        .team-member { display: flex; align-items: center; gap: 12px; }
+        .team-member img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
+        .team-member h5 { margin: 0; font-size: 0.95rem; }
+        .team-member p { margin: 0; font-size: 0.75rem; color: var(--text-muted); }
+
+        /* Tabs System */
+        .main-content {
+            background: white;
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+        }
+
+        .portfolio-tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .tab-btn {
+            padding: 12px 25px;
+            font-family: inherit;
+            font-weight: 600;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            color: var(--text-muted);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Item Cards */
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .item-card {
+            border: 1px solid #eee;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .item-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+
+        .item-img { height: 180px; width: 100%; object-fit: cover; }
+        .item-body { padding: 15px; }
+        .item-price { color: var(--primary); font-weight: 800; font-size: 1.1rem; }
+
+        /* Gallery Grid */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .gallery-item {
+            height: 200px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+        .gallery-item:hover img { transform: scale(1.1); }
+
+        /* Reviews */
+        .review-card {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .stars { color: #ffb400; font-size: 0.8rem; }
+    </style>
 </head>
+<body>
 
-<body class="provider-profile-body">
+{% include 'navbar.html' %}
 
-<a href="#" onclick="history.back()" class="back-btn">
-  <i class="fa-solid fa-arrow-left"></i> Back
-</a>
-
-<section class="provider-profile-page">
-
-  <div class="provider-cover">
-    {% if profile.cover_image %}
-      <img src="{{ profile.cover_image.url }}">
-    {% else %}
-      <div class="default-cover"></div>
-    {% endif %}
-  </div>
-
-  <div class="provider-main-card">
-
-    <div class="provider-avatar-box">
-      {% if profile.profile_image %}
-        <img src="{{ profile.profile_image.url }}">
-      {% else %}
-        <div class="default-avatar">
-          {{ provider.username|slice:":1"|upper }}
+<header class="portfolio-hero">
+    <div class="hero-content">
+        {% if profile.profile_image %}
+            <img src="{{ profile.profile_image.url }}" class="hero-avatar">
+        {% else %}
+            <div class="hero-avatar" style="display:flex; align-items:center; justify-content:center; color:white; font-size:3rem; font-weight:800;">
+                {{ provider.username|slice:":1"|upper }}
+            </div>
+        {% endif %}
+        <div class="hero-text">
+            <span class="badge">Verified Professional</span>
+            <h1>{{ profile.business_name|default:provider.username }}</h1>
+            <p><i class="fa-solid fa-location-dot"></i> {{ profile.location|default:"Pan India" }} | <i class="fa-solid fa-star" style="color:#ffb400"></i> {{ avg_rating|floatformat:1|default:"0.0" }} ({{ review_count }} Reviews)</p>
         </div>
-      {% endif %}
     </div>
+</header>
 
-    <h1>{{ profile.business_name|default:provider.username }}</h1>
-    {% if request.user.is_authenticated and request.user.id == provider.id %}
-    <div class="edit-profile-btn">
-      <a href="{% url 'edit_provider_profile' %}" class="small-btn">
-        <i class="fa-solid fa-pen"></i> Edit Profile
-      </a>
-    </div>
-    {% endif %}
-</div>
-    <p class="provider-owner">
-      <i class="fa-solid fa-user"></i>
-      Owner: {{ profile.owner_name|default:"Not added" }}
-    </p>
+<div class="portfolio-grid">
+    <!-- SIDEBAR -->
+    <aside class="portfolio-sidebar">
+        <div class="stat-grid">
+            <div class="stat-item">
+                <span>Completed</span>
+                <h4>{{ completed_bookings_count }}+</h4>
+            </div>
+            <div class="stat-item">
+                <span>Experience</span>
+                <h4>{{ profile.experience|default:"5Yrs" }}</h4>
+            </div>
+        </div>
 
-    <p class="provider-location">
-      <i class="fa-solid fa-location-dot"></i>
-      {{ profile.location|default:"Location not added" }}
-    </p>
+        <div class="sidebar-title"><i class="fa-solid fa-circle-info"></i> About</div>
+        <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px;">
+            {{ profile.bio|default:"Experienced event professional dedicated to creating unforgettable moments." }}
+        </p>
 
-    <p class="provider-exp">
-      <i class="fa-solid fa-briefcase"></i>
-      Experience: {{ profile.experience|default:"Not added" }}
-    </p>
-
-    <div class="provider-rating">
-      {% if avg_rating %}
-        <span>{{ avg_rating|floatformat:1 }}</span>
-        {% for i in "12345" %}
-          {% if forloop.counter <= avg_rating %}
-            <i class="fa-solid fa-star"></i>
-          {% else %}
-            <i class="fa-regular fa-star"></i>
-          {% endif %}
-        {% endfor %}
-        <small>({{ review_count }} reviews)</small>
-      {% else %}
-        <span>No ratings yet</span>
-      {% endif %}
-    </div>
-  
-  </div>
-
-  <div class="provider-stats-grid">
-
-    <div class="provider-stat-card">
-      <i class="fa-solid fa-briefcase"></i>
-      <h2>{{ service_count }}</h2>
-      <p>Services</p>
-    </div>
-
-    <div class="provider-stat-card">
-      <i class="fa-solid fa-box-open"></i>
-      <h2>{{ package_count }}</h2>
-      <p>Packages</p>
-    </div>
-
-    <div class="provider-stat-card">
-      <i class="fa-solid fa-calendar-check"></i>
-      <h2>{{ total_bookings }}</h2>
-      <p>Total Bookings</p>
-    </div>
-
-    <div class="provider-stat-card">
-      <i class="fa-solid fa-circle-check"></i>
-      <h2>{{ completed_bookings }}</h2>
-      <p>Completed</p>
-    </div>
-
-  </div>
-
-  <div class="provider-about-box">
-    <h2>About Provider</h2>
-    <p>
-      {{ profile.bio|default:"This provider has not added a bio yet." }}
-    </p>
-  </div>
-
-  <h2 class="section-title">Services</h2>
-
-  <div class="services-grid">
-    {% for service in services %}
-      <div class="service-card">
-        {% if service.image %}
-          <img src="{{ service.image.url }}" class="service-img">
-          <div class="photo-badge" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px);">
-            <i class="fa-solid fa-camera"></i> {{ service.gallery_count|add:1 }}
-          </div>
-        {% else %}
-          <i class="fa-solid fa-calendar-check"></i>
+        {% if team_members %}
+            <div class="sidebar-title"><i class="fa-solid fa-users"></i> Event Team</div>
+            <div class="team-grid">
+                {% for member in team_members %}
+                    <div class="team-member">
+                        <img src="{% if member.image %}{{ member.image.url }}{% else %}https://ui-avatars.com/api/?name={{ member.name }}{% endif %}">
+                        <div>
+                            <h5>{{ member.name }}</h5>
+                            <p>{{ member.role }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
         {% endif %}
+        
+        <a href="{% url 'contact' %}" class="btn" style="width:100%; margin-top:30px; text-align:center; background: var(--primary); color:white; padding:12px; border-radius:10px; display:block; text-decoration:none; font-weight:600;">Enquire Now</a>
+    </aside>
 
-        <h3>{{ service.service_name }}</h3>
-        <p>{{ service.service_type }}</p>
-        <p>{{ service.description }}</p>
-        <p><b>₹{{ service.price }}</b></p>
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div class="portfolio-tabs">
+            <button class="tab-btn active" onclick="openTab(event, 'services-tab')">Services</button>
+            <button class="tab-btn" onclick="openTab(event, 'packages-tab')">Packages</button>
+            <button class="tab-btn" onclick="openTab(event, 'gallery-tab')">Gallery</button>
+            <button class="tab-btn" onclick="openTab(event, 'reviews-tab')">Reviews</button>
+        </div>
 
-        <a href="{% url 'book_service' service.id %}" class="small-btn">Book Now</a>
-      </div>
-    {% empty %}
-      <div class="empty-card">No services listed yet.</div>
-    {% endfor %}
-  </div>
+        <!-- Services Tab -->
+        <div id="services-tab" class="tab-content active">
+            <div class="item-grid">
+                {% for service in services %}
+                    <div class="item-card">
+                        <img src="{% if service.image %}{{ service.image.url }}{% else %}https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80{% endif %}" class="item-img">
+                        <div class="item-body">
+                            <h4 style="margin:0 0 10px 0;">{{ service.service_name }}</h4>
+                            <p style="font-size:0.8rem; color:var(--text-muted); height:40px; overflow:hidden;">{{ service.short_description }}</p>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
+                                <div class="item-price">₹{{ service.price }}</div>
+                                <a href="{% url 'book_service' service.id %}" style="text-decoration:none; color:var(--primary); font-weight:600; font-size:0.9rem;">Book <i class="fa-solid fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p style="text-align:center; grid-column:span 2; padding:40px; color:#ccc;">No services listed yet.</p>
+                {% endfor %}
+            </div>
+        </div>
 
-  <h2 class="section-title">Packages</h2>
+        <!-- Packages Tab -->
+        <div id="packages-tab" class="tab-content">
+            <div class="item-grid">
+                {% for pkg in packages %}
+                    <div class="item-card">
+                        <img src="{% if pkg.image %}{{ pkg.image.url }}{% else %}https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=600&q=80{% endif %}" class="item-img">
+                        <div class="item-body">
+                            <h4 style="margin:0 0 10px 0;">{{ pkg.package_name }}</h4>
+                            <p style="font-size:0.8rem; color:var(--text-muted); height:40px; overflow:hidden;">{{ pkg.short_description }}</p>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
+                                <div class="item-price">₹{{ pkg.total_price }}</div>
+                                <a href="{% url 'book_package' pkg.id %}" style="text-decoration:none; color:var(--primary); font-weight:600; font-size:0.9rem;">Book <i class="fa-solid fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p style="text-align:center; grid-column:span 2; padding:40px; color:#ccc;">No packages listed yet.</p>
+                {% endfor %}
+            </div>
+        </div>
 
-  <div class="services-grid">
-    {% for package in packages %}
-      <div class="service-card">
-        {% if package.image %}
-          <img src="{{ package.image.url }}" class="service-img">
-          <div class="photo-badge" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px);">
-            <i class="fa-solid fa-camera"></i> {{ package.gallery_count|add:1 }}
-          </div>
-        {% else %}
-          <i class="fa-solid fa-box-open"></i>
-        {% endif %}
+        <!-- Gallery Tab -->
+        <div id="gallery-tab" class="tab-content">
+            <div class="gallery-grid">
+                {% for item in event_gallery %}
+                    <div class="gallery-item">
+                        <img src="{{ item.image.url }}" alt="Event Photo">
+                    </div>
+                {% empty %}
+                    <p style="text-align:center; grid-column:span 3; padding:40px; color:#ccc;">The event gallery is empty. Photos will appear after completed events.</p>
+                {% endfor %}
+            </div>
+        </div>
 
-        <h3>{{ package.package_name }}</h3>
-        <p>{{ package.package_type }}</p>
-        <p><b>Includes:</b> {{ package.included_services }}</p>
-        <p><b>₹{{ package.total_price }}</b></p>
-        <a href="{% url 'book_package' package.id %}" class="small-btn">Book Bundle</a>
-      </div>
-    {% empty %}
-      <div class="empty-card">No packages listed yet.</div>
-    {% endfor %}
-  </div>
-
-  <h2 class="section-title">Reviews</h2>
-
-  <div class="reviews-area">
-    {% for review in reviews %}
-      <div class="review-card">
-        <div class="review-header">
-          <b>{{ review.user.username }}</b>
-          <span>
-            {% for i in "12345" %}
-              {% if forloop.counter <= review.rating %}
-                ⭐
-              {% else %}
-                ☆
-              {% endif %}
+        <!-- Reviews Tab -->
+        <div id="reviews-tab" class="tab-content">
+            {% for review in reviews %}
+                <div class="review-card">
+                    <div class="review-header">
+                        <h5 style="margin:0;">{{ review.user.username }}</h5>
+                        <div class="stars">
+                            {% for i in "12345"|make_list %}
+                                <i class="fa-solid fa-star{% if forloop.counter > review.rating %}-half-stroke{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <p style="font-size:0.9rem; color:var(--text-muted); margin:0;">{{ review.comment }}</p>
+                    <small style="color:#aaa;">{{ review.created_at|date:"M d, Y" }}</small>
+                </div>
+            {% empty %}
+                <p style="text-align:center; padding:40px; color:#ccc;">No reviews yet.</p>
             {% endfor %}
-          </span>
         </div>
-        <p>{{ review.comment }}</p>
-      </div>
-    {% empty %}
-      <div class="empty-card">No reviews yet.</div>
-    {% endfor %}
-  </div>
+    </main>
+</div>
 
-  {% if request.user.is_authenticated %}
-  <div class="add-review-box">
-    <h2>Add Review</h2>
+{% include 'footer.html' %}
 
-    <form method="POST" action="{% url 'add_review' provider.id %}">
-      {% csrf_token %}
-
-      <select name="rating" required>
-        <option value="">Select Rating</option>
-        <option value="5">⭐⭐⭐⭐⭐</option>
-        <option value="4">⭐⭐⭐⭐</option>
-        <option value="3">⭐⭐⭐</option>
-        <option value="2">⭐⭐</option>
-        <option value="1">⭐</option>
-      </select>
-
-      <textarea name="comment" placeholder="Write your review"></textarea>
-
-      <button type="submit">Submit Review</button>
-    </form>
-  </div>
-  {% endif %}
-
-</section>
-
-<script src="{% static 'js/main.js' %}"></script>
+<script>
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].classList.remove("active");
+        }
+        tablinks = document.getElementsByClassName("tab-btn");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove("active");
+        }
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+</script>
 
 </body>
 </html>

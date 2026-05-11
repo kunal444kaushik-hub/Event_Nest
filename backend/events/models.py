@@ -39,6 +39,7 @@ class Profile(models.Model):
     id_proof = models.FileField(upload_to='provider_documents/', blank=True, null=True)
     business_certificate = models.FileField(upload_to='provider_documents/', blank=True, null=True)
     is_deactivated = models.BooleanField(default=False)
+    admin_remark = models.TextField(blank=True, null=True)
     
     # New field for multiple service types
     provider_services = models.TextField(blank=True, null=True) # Comma separated types
@@ -65,6 +66,10 @@ class Service(models.Model):
     max_capacity = models.IntegerField(blank=True, null=True)
     advance_payment_required = models.BooleanField(default=False)
     availability_status = models.CharField(max_length=50, default='Available')
+    # Marketplace Features
+    is_trending = models.BooleanField(default=False)
+    is_featured = models.BooleanField(default=False)
+    is_draft = models.BooleanField(default=False)
     
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -99,6 +104,7 @@ class Package(models.Model):
     is_featured = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
     is_outdoor = models.BooleanField(default=False)
+    is_draft = models.BooleanField(default=False)
     discount_percentage = models.IntegerField(default=0)
     
     # Categorization
@@ -156,6 +162,7 @@ class Booking(models.Model):
         ('Pending', 'Pending'),
         ('Accepted', 'Accepted'),
         ('Rejected', 'Rejected'),
+        ('In Progress', 'In Progress'),
         ('Cancelled', 'Cancelled'),
         ('Completed', 'Completed'),
     )
@@ -171,6 +178,10 @@ class Booking(models.Model):
     message = models.TextField(blank=True)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    
+    # Emergency Contact
+    emergency_contact_name = models.CharField(max_length=100, blank=True, null=True)
+    emergency_contact_number = models.CharField(max_length=15, blank=True, null=True)
     
     # New Dynamic Booking Fields
     extra_booking_details = models.JSONField(default=dict, blank=True)
@@ -191,6 +202,7 @@ class Booking(models.Model):
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     provider = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
+    booking = models.OneToOneField(Booking, on_delete=models.CASCADE, null=True, blank=True, related_name='review')
 
     rating = models.IntegerField()  # 1 to 5
     comment = models.TextField(blank=True)
@@ -235,3 +247,47 @@ class ActivityLog(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.action}"
+
+class AvailabilityBlock(models.Model):
+    provider = models.ForeignKey(User, on_delete=models.CASCADE, related_name='availability_blocks')
+    start_date = models.DateField()
+    end_date = models.DateField()
+    reason = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.provider.username} blocked {self.start_date} to {self.end_date}"
+
+class TeamMember(models.Model):
+    ROLE_CHOICES = (
+        ('Photographer', 'Photographer'),
+        ('Decorator', 'Decorator'),
+        ('Caterer', 'Caterer'),
+        ('Assistant', 'Assistant'),
+        ('Manager', 'Manager'),
+        ('Other', 'Other'),
+    )
+    provider = models.ForeignKey(User, on_delete=models.CASCADE, related_name='team_members')
+    name = models.CharField(max_length=100)
+    role = models.CharField(max_length=50, choices=ROLE_CHOICES)
+    contact = models.CharField(max_length=15, blank=True)
+    image = models.ImageField(upload_to='team_members/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.role})"
+
+class EventGallery(models.Model):
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='event_gallery')
+    image = models.ImageField(upload_to='event_galleries/')
+    video_url = models.URLField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class ChecklistItem(models.Model):
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='checklist')
+    title = models.CharField(max_length=100)
+    is_completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.booking.booked_item_name}"

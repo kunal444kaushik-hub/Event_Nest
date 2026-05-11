@@ -154,8 +154,13 @@
                 </div>
 
                 <div class="package-body">
-                    <p style="font-size: 0.75rem; color: #ff6600; font-weight: 800; text-transform: uppercase; margin-bottom: 5px;">{{ package.package_type }}</p>
-                    <h3>{{ package.package_name }}</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px;">
+                        <p style="font-size: 0.75rem; color: #ff6600; font-weight: 800; text-transform: uppercase;">{{ package.package_type }}</p>
+                        {% if package.avg_rating %}
+                            <div style="font-size: 0.8rem; color: #f1c40f; font-weight: 700;"><i class="fa-solid fa-star"></i> {{ package.avg_rating|floatformat:1 }}</div>
+                        {% endif %}
+                    </div>
+                    <h3 style="margin-bottom: 8px;">{{ package.package_name }}</h3>
                     
                     <div class="package-info-row">
                         <span><i class="fa-solid fa-users"></i> Up to {{ package.max_guests|default:"500" }}</span>

@@ -58,6 +58,7 @@
             {% if profile.role == "user" %}
             <li><button class="settings-nav-btn" onclick="showSection(event, 'preferences')"><i class="fa-solid fa-heart-pulse"></i> Event Needs</button></li>
             {% endif %}
+            <li><button class="settings-nav-btn" onclick="showSection(event, 'display')"><i class="fa-solid fa-palette"></i> Display</button></li>
             <li><button class="settings-nav-btn" onclick="showSection(event, 'notifications')"><i class="fa-solid fa-bell-concierge"></i> Notifications</button></li>
             <li><button class="settings-nav-btn" onclick="showSection(event, 'activity')"><i class="fa-solid fa-clock-rotate-left"></i> Activity Log</button></li>
             <li><button class="settings-nav-btn" onclick="showSection(event, 'danger')" style="color: #ff4444;"><i class="fa-solid fa-trash-can"></i> Danger Zone</button></li>
@@ -391,6 +392,23 @@
                 <p>No recent activity found.</p>
             </div>
             {% endfor %}
+        <!-- DISPLAY SECTION -->
+        <section id="display-section" class="settings-section-content">
+            <div class="section-header-box">
+                <h2>Display Preferences</h2>
+                <p>Customize how EventNest looks on your screen.</p>
+            </div>
+            <div class="toggle-item" style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); margin-bottom: 20px;">
+                <div>
+                    <h4 style="margin-bottom: 5px;">Dark Mode</h4>
+                    <p style="color: #888; font-size: 0.85rem; margin: 0;">Switch between light and dark themes for better viewing experience.</p>
+                </div>
+                <button id="settingsDarkModeToggle" style="background: #f1f5f9; border: none; width: 60px; height: 32px; border-radius: 20px; cursor: pointer; position: relative; transition: 0.3s; padding: 4px; flex-shrink: 0;">
+                    <div id="toggleCircle" style="width: 24px; height: 24px; background: white; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: absolute; left: 4px; transition: 0.3s; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 0.8rem;">
+                        <i class="fa-solid fa-sun"></i>
+                    </div>
+                </button>
+            </div>
         </section>
 
         <!-- DANGER ZONE SECTION -->
@@ -459,6 +477,40 @@
         // Scroll to top of content area
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    // DARK MODE LOGIC FOR SETTINGS
+    const toggleBtn = document.getElementById('settingsDarkModeToggle');
+    const toggleCircle = document.getElementById('toggleCircle');
+    const icon = toggleCircle.querySelector('i');
+    const body = document.body;
+
+    function updateToggleUI(isDark) {
+        if (isDark) {
+            toggleBtn.style.background = '#ff6600';
+            toggleCircle.style.left = '32px';
+            icon.classList.replace('fa-sun', 'fa-moon');
+            icon.style.color = '#ff6600';
+            body.classList.add('dark-mode');
+        } else {
+            toggleBtn.style.background = '#f1f5f9';
+            toggleCircle.style.left = '4px';
+            icon.classList.replace('fa-moon', 'fa-sun');
+            icon.style.color = '#64748b';
+            body.classList.remove('dark-mode');
+        }
+    }
+
+    // Initial load
+    const currentTheme = localStorage.getItem('theme');
+    if (currentTheme === 'dark') {
+        updateToggleUI(true);
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        const isDark = !body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        updateToggleUI(isDark);
+    });
 </script>
 
 </body>

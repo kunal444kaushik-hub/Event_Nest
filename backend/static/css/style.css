@@ -25,10 +25,22 @@
   --radius-md: 15px;
 }
 
+body.dark-mode {
+  --bg-body: #121212;
+  --bg-card: #1e1e1e;
+  --text-main: #e0e0e0;
+  --text-muted: #aaa;
+  --border-color: #333;
+  --primary-soft: #2a1b12;
+  --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
 body {
   background: var(--bg-body);
   color: var(--text-main);
   line-height: 1.6;
+  transition: background 0.3s, color 0.3s;
 }
 
 /* =========================================================
@@ -36,12 +48,12 @@ body {
    Used in: index, user_home, provider_home, services, packages, contact
    ========================================================= */
 header {
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--bg-card);
   backdrop-filter: blur(20px);
   position: sticky;
   top: 0;
   z-index: 2000;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--shadow-sm);
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -86,7 +98,7 @@ nav ul li {
 
 nav ul li a {
   text-decoration: none;
-  color: #444;
+  color: var(--text-main);
   font-size: 15px;
   font-weight: 600;
   transition: 0.3s;
@@ -5081,69 +5093,105 @@ textarea:focus {
 
 .admin-premium-sidebar {
   width: 280px;
-  background: #0f172a;
-  /* Professional Dark Navy */
+  background: #0f172a; /* Professional Dark Navy */
   color: white;
-  padding: 30px 20px;
+  padding: 30px 0; /* Remove horizontal padding from sidebar itself */
   display: flex;
   flex-direction: column;
   position: sticky;
   top: 0;
   height: 100vh;
   border-right: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden; /* Prevent whole sidebar scroll */
+}
+
+.admin-premium-nav-top {
+  flex-grow: 1;
+  overflow-y: auto; /* Links container scrolls */
+  padding: 0 15px; /* Add padding here */
+}
+
+/* Scrollbar for nav container */
+.admin-premium-nav-top::-webkit-scrollbar {
+  width: 4px;
+}
+.admin-premium-nav-top::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+}
+
+.admin-premium-nav-bottom {
+  margin-top: 0;
+  padding: 20px 15px 0;
+  border-top: 1px solid rgba(255,255,255,0.05);
 }
 
 .admin-logo {
-  margin-bottom: 50px;
+  margin-bottom: 40px;
   text-align: center;
+  padding: 0 10px;
 }
 
 .admin-logo i {
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   color: #ff6600;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  display: block;
 }
 
 .admin-logo h2 {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   letter-spacing: 1px;
+  font-weight: 800;
 }
 
 .admin-logo p {
-  font-size: 0.75rem;
-  color: #666;
+  font-size: 0.7rem;
+  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 2px;
+  margin-top: 4px;
 }
 
 .admin-premium-sidebar a {
-  color: #888;
+  color: #94a3b8;
   text-decoration: none;
-  padding: 15px 20px;
+  padding: 12px 18px;
   border-radius: 12px;
   display: flex;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 8px;
-  transition: 0.3s;
+  gap: 12px;
+  margin-bottom: 4px;
+  transition: all 0.3s ease;
   font-weight: 600;
+  font-size: 0.95rem;
 }
 
 .admin-premium-sidebar a i {
-  width: 20px;
+  width: 24px;
   text-align: center;
   font-size: 1.1rem;
+  opacity: 0.8;
 }
 
 .admin-premium-sidebar a:hover {
-  background: rgba(255, 102, 0, 0.15);
+  background: rgba(255, 102, 0, 0.1);
   color: #ff6600;
+  transform: translateX(5px);
+}
+
+.admin-premium-sidebar a:hover i {
+  opacity: 1;
 }
 
 .admin-premium-sidebar a.admin-nav-active {
-  background: #ff6600;
+  background: linear-gradient(135deg, #ff6600, #ff8c42);
   color: white;
-  box-shadow: 0 10px 25px rgba(255, 102, 0, 0.3);
+  box-shadow: 0 10px 20px rgba(255, 102, 0, 0.2);
+}
+
+.admin-premium-sidebar a.admin-nav-active i {
+  opacity: 1;
 }
 
 /* Global Back Button */
@@ -5176,10 +5224,18 @@ textarea:focus {
   font-size: 1rem;
 }
 
-.admin-site-link {
-  margin-top: auto;
-  border-top: 1px solid #333;
-  padding-top: 20px !important;
+.admin-nav-action {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  margin-top: 8px !important;
+  color: #fff !important;
+}
+
+.admin-nav-action:hover {
+  background: rgba(255, 102, 0, 0.1) !important;
+  border-color: rgba(255, 102, 0, 0.2) !important;
+  color: #ff6600 !important;
+  transform: translateY(-2px) !important;
 }
 
 /* Main Content */
@@ -5456,3 +5512,17 @@ textarea:focus {
   justify-content: center;
   text-align: center;
 }
+/* --- ENHANCED ADMIN UI --- */
+.admin-filters-bar { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; justify-content: space-between; }
+.admin-search-form { display: flex; gap: 10px; flex: 1; min-width: 300px; }
+.admin-input { padding: 10px 15px; border: 1px solid #eee; border-radius: 12px; font-size: 0.9rem; outline: none; transition: 0.3s; }
+.admin-input:focus { border-color: #ff6600; box-shadow: 0 0 0 3px rgba(255,102,0,0.1); }
+.admin-select { padding: 10px 15px; border: 1px solid #eee; border-radius: 12px; background: white; cursor: pointer; }
+.admin-pagination { display: flex; justify-content: center; gap: 10px; margin-top: 30px; }
+.admin-page-link { padding: 8px 16px; background: white; border: 1px solid #eee; border-radius: 10px; text-decoration: none; color: #333; transition: 0.3s; }
+.admin-page-link.active { background: #ff6600; color: white; border-color: #ff6600; }
+.admin-page-link:hover:not(.active) { background: #f8f9fa; }
+.admin-badge-pending { background: #fff7e6; color: #ffa940; border: 1px solid #ffd591; }
+.admin-badge-approved { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+.admin-badge-danger { background: #fff1f0; color: #ff4d4f; border: 1px solid #ffa39e; }
+

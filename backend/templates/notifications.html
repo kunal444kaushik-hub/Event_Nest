@@ -43,12 +43,18 @@
         </div>
         {% if notifications %}
         <div style="display: flex; gap: 10px;">
-            <a href="{% url 'mark_all_read' %}" class="mark-read-all">
-                <i class="fa-solid fa-check-double"></i> Mark all read
-            </a>
-            <a href="{% url 'clear_all_notifications' %}" class="mark-read-all" style="background: #fff5f5; color: #ff4444;" onclick="return confirm('Clear all notifications?')">
-                <i class="fa-solid fa-trash-can"></i> Clear all
-            </a>
+            <form action="{% url 'mark_all_read' %}" method="POST" style="display: contents;">
+                {% csrf_token %}
+                <button type="submit" class="mark-read-all" style="border:none; cursor:pointer;">
+                    <i class="fa-solid fa-check-double"></i> Mark all read
+                </button>
+            </form>
+            <form action="{% url 'clear_all_notifications' %}" method="POST" style="display: contents;">
+                {% csrf_token %}
+                <button type="submit" class="mark-read-all" style="background: #fff5f5; color: #ff4444; border:none; cursor:pointer;" onclick="return confirm('Clear all notifications?')">
+                    <i class="fa-solid fa-trash-can"></i> Clear all
+                </button>
+            </form>
         </div>
         {% endif %}
     </div>
@@ -85,9 +91,12 @@
                             {% endif %}
                             
                             {% if not n.is_read %}
-                                <a href="{% url 'mark_as_read' n.id %}" class="notif-btn-small notif-btn-outline">
-                                    Mark as read
-                                </a>
+                                <form action="{% url 'mark_as_read' n.id %}" method="POST" style="display: inline-block;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="notif-btn-small notif-btn-outline" style="background:none; cursor:pointer;">
+                                        Mark as read
+                                    </button>
+                                </form>
                             {% endif %}
                         </div>
                     </div>

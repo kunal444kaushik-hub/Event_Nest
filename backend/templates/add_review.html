@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Service - EventNest</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #fdfdfd; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .review-card { background: white; padding: 40px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; max-width: 500px; width: 100%; text-align: center; }
+        .star-rating { display: flex; flex-direction: row-reverse; justify-content: center; gap: 10px; margin: 30px 0; }
+        .star-rating input { display: none; }
+        .star-rating label { font-size: 2.5rem; color: #ddd; cursor: pointer; transition: 0.3s; }
+        .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #fbc02d; }
+        
+        .textarea-group label { display: block; text-align: left; margin-bottom: 10px; font-weight: 700; color: #333; }
+        .textarea-group textarea { width: 100%; padding: 15px; border-radius: 15px; border: 2px solid #f0f0f0; background: #fafafa; font-size: 1rem; resize: none; }
+        .textarea-group textarea:focus { border-color: #ff6600; outline: none; background: white; }
+        
+        .btn-submit { background: #ff6600; color: white; border: none; width: 100%; padding: 18px; border-radius: 15px; font-weight: 800; font-size: 1.1rem; cursor: pointer; transition: 0.3s; margin-top: 30px; }
+        .btn-submit:hover { background: #e65c00; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="review-card">
+    <a href="{% url 'user_bookings' %}" style="color: #888; text-decoration: none; font-size: 0.9rem; display: block; margin-bottom: 20px;"><i class="fa-solid fa-arrow-left"></i> Cancel</a>
+    
+    <h1 style="font-size: 1.8rem; color: #1a1a1a;">Share Your Experience</h1>
+    <p style="color: #666; margin-top: 5px;">Reviewing: <b>{{ booking.booked_item_name }}</b></p>
+    
+    <form method="POST">
+        {% csrf_token %}
+        <div class="star-rating">
+            <input type="radio" name="rating" value="5" id="5" required><label for="5">★</label>
+            <input type="radio" name="rating" value="4" id="4"><label for="4">★</label>
+            <input type="radio" name="rating" value="3" id="3"><label for="3">★</label>
+            <input type="radio" name="rating" value="2" id="2"><label for="2">★</label>
+            <input type="radio" name="rating" value="1" id="1"><label for="1">★</label>
+        </div>
+        
+        <div class="textarea-group">
+            <label>Detailed Feedback</label>
+            <textarea name="comment" rows="5" placeholder="What did you like the most? Any suggestions?" required></textarea>
+        </div>
+        
+        <button type="submit" class="btn-submit">Submit Review</button>
+    </form>
+</div>
+
+</body>
+</html>

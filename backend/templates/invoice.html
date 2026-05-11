@@ -1,0 +1,130 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice #INV-{{ booking.id }} - EventNest</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f5f5f5; font-family: 'Inter', sans-serif; padding: 50px 0; }
+        .invoice-box { max-width: 800px; margin: auto; padding: 50px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
+        
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 50px; }
+        .logo { font-size: 1.8rem; font-weight: 800; color: #1a1a1a; display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .logo i { color: #ff6600; }
+        
+        .invoice-details { text-align: right; }
+        .invoice-details h1 { font-size: 2.5rem; margin: 0; color: #ff6600; text-transform: uppercase; }
+        .invoice-details p { color: #888; margin: 5px 0; }
+
+        .billing-info { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; margin-bottom: 50px; }
+        .billing-info h4 { text-transform: uppercase; color: #888; font-size: 0.8rem; margin-bottom: 15px; letter-spacing: 1px; }
+        .billing-info p { margin: 5px 0; line-height: 1.4; color: #333; }
+
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
+        .items-table th { text-align: left; padding: 15px; background: #fafafa; color: #888; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid #eee; }
+        .items-table td { padding: 20px 15px; border-bottom: 1px solid #eee; }
+        
+        .total-section { margin-left: auto; width: 300px; }
+        .total-row { display: flex; justify-content: space-between; padding: 10px 0; }
+        .total-row.grand-total { border-top: 2px solid #eee; margin-top: 10px; padding-top: 20px; font-weight: 800; font-size: 1.5rem; color: #ff6600; }
+
+        .footer { margin-top: 60px; padding-top: 30px; border-top: 1px solid #eee; text-align: center; color: #aaa; font-size: 0.85rem; }
+        
+        @media print {
+            body { background: white; padding: 0; }
+            .invoice-box { box-shadow: none; border: none; padding: 0; }
+            .no-print { display: none; }
+        }
+        
+        .btn-print { background: #1a1a1a; color: white; border: none; padding: 12px 25px; border-radius: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; margin-bottom: 30px; }
+        .btn-print:hover { background: #ff6600; }
+    </style>
+</head>
+<body>
+
+<div style="text-align: center;" class="no-print">
+    <button onclick="window.print()" class="btn-print"><i class="fa-solid fa-print"></i> Print Invoice</button>
+</div>
+
+<div class="invoice-box">
+    <div class="header">
+        <div class="logo">
+            <i class="fa-solid fa-feather-pointed"></i> EventNest
+        </div>
+        <div class="invoice-details">
+            <h1>Invoice</h1>
+            <p>ID: #INV-{{ booking.id }}{{ booking.created_at|date:"Ymd" }}</p>
+            <p>Date: {{ booking.created_at|date:"d M Y" }}</p>
+        </div>
+    </div>
+
+    <div class="billing-info">
+        <div>
+            <h4>Provider (Billed By)</h4>
+            <p><b>{{ booking.provider.profile.business_name|default:booking.provider.username }}</b></p>
+            <p>{{ booking.provider.profile.location|default:"N/A" }}</p>
+            <p>Phone: {{ booking.provider.profile.phone|default:"N/A" }}</p>
+            {% if booking.provider.profile.gst_number %}
+                <p>GST: {{ booking.provider.profile.gst_number }}</p>
+            {% endif %}
+        </div>
+        <div>
+            <h4>Customer (Billed To)</h4>
+            <p><b>{{ booking.user.get_full_name|default:booking.user.username }}</b></p>
+            <p>Email: {{ booking.user.email }}</p>
+            <p>Event Date: {{ booking.event_date|date:"d M Y" }}</p>
+        </div>
+    </div>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th style="text-align: center;">Qty / Units</th>
+                <th style="text-align: right;">Price</th>
+                <th style="text-align: right;">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <div style="font-weight: 700; font-size: 1.1rem;">{{ booking.booked_item_name }}</div>
+                    <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">{{ booking.service.service_type|default:booking.package.package_type }} Booking</div>
+                </td>
+                <td style="text-align: center;">{{ booking.number_of_guests|default:booking.number_of_days|default:"1" }}</td>
+                <td style="text-align: right;">₹{{ booking.service.price|default:booking.package.total_price }}</td>
+                <td style="text-align: right; font-weight: 700;">₹{{ booking.service.price|default:booking.package.total_price }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="total-section">
+        <div class="total-row">
+            <span>Subtotal</span>
+            <span>₹{{ booking.service.price|default:booking.package.total_price }}</span>
+        </div>
+        <div class="total-row">
+            <span>Platform Fee</span>
+            <span>₹0.00</span>
+        </div>
+        <div class="total-row grand-total">
+            <span>Grand Total</span>
+            <span>₹{{ booking.service.price|default:booking.package.total_price }}</span>
+        </div>
+    </div>
+
+    <div style="margin-top: 60px; background: #fff8f1; padding: 25px; border-radius: 15px; border: 1px solid #ffe8d6;">
+        <h4 style="margin: 0 0 10px; color: #ff6600;">Payment Status: {% if booking.status == "Completed" %}Paid{% else %}Awaiting Confirmation{% endif %}</h4>
+        <p style="margin: 0; font-size: 0.85rem; color: #8d6e63; line-height: 1.5;">This is a computer-generated invoice. No signature required. Thank you for booking with EventNest!</p>
+    </div>
+
+    <div class="footer">
+        <p>© 2026 EventNest | www.eventnest.com</p>
+        <p>Jorhat, Assam, India</p>
+    </div>
+</div>
+
+</body>
+</html>

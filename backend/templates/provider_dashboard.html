@@ -25,6 +25,11 @@
             <li><a href="{% url 'list_package' %}"><i class="fa-solid fa-layer-group"></i> Add Package</a></li>
             <li><a href="{% url 'my_profile' %}"><i class="fa-solid fa-store"></i> My Profile</a></li>
             <li><a href="{% url 'settings' %}"><i class="fa-solid fa-gear"></i> Settings</a></li>
+            <li>
+                <a href="javascript:void(0)" id="darkModeToggle">
+                    <i class="fa-solid fa-moon"></i> Dark Mode
+                </a>
+            </li>
         </ul>
 
         <div class="sidebar-footer" style="margin-top: auto;">
@@ -250,9 +255,12 @@
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid #f5f5f5;">
                         <span style="font-weight: 800; color: #ff6600; font-size: 1.2rem;">₹{{ service.price }}</span>
-                        <div style="text-align: right;">
-                            <p style="font-size: 0.8rem; color: #666; font-weight: 700;"><i class="fa-solid fa-calendar-check" style="color: #ff6600;"></i> {{ service.booking_count }}</p>
-                            <p style="font-size: 0.7rem; color: #aaa; text-transform: uppercase;">Bookings</p>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="{% url 'edit_service' service.id %}" class="btn" style="padding: 6px 12px; font-size: 0.75rem; background: #eee; color: #333; border: none;"><i class="fa-solid fa-edit"></i></a>
+                            <form action="{% url 'delete_service' service.id %}" method="POST" onsubmit="return confirm('Delete this service listing?')" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn" style="padding: 6px 12px; font-size: 0.75rem; background: #fff1f0; color: #ff4444; border: 1px solid #ffa39e; cursor: pointer;"><i class="fa-solid fa-trash"></i></button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -285,8 +293,12 @@
                     <p style="font-size: 0.8rem; color: #888; margin-bottom: 15px; line-height: 1.4;">{{ package.included_services|truncatechars:60 }}</p>
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid #f5f5f5;">
                         <span style="font-weight: 800; color: #1a1a1a; font-size: 1.2rem;">₹{{ package.total_price }}</span>
-                        <div style="text-align: right;">
-                            <span style="font-size: 0.7rem; color: #2e7d32; font-weight: 800; background: #e8f5e9; padding: 4px 8px; border-radius: 5px;">{{ package.pricing_structure|upper }}</span>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="{% url 'edit_package' package.id %}" class="btn" style="padding: 6px 12px; font-size: 0.75rem; background: #eee; color: #333; border: none;"><i class="fa-solid fa-edit"></i></a>
+                            <form action="{% url 'delete_package' package.id %}" method="POST" onsubmit="return confirm('Delete this package listing?')" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn" style="padding: 6px 12px; font-size: 0.75rem; background: #fff1f0; color: #ff4444; border: 1px solid #ffa39e; cursor: pointer;"><i class="fa-solid fa-trash"></i></button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -298,5 +310,29 @@
     </main>
 </div>
 
+<script>
+    const toggleBtn = document.getElementById('darkModeToggle');
+    const body = document.body;
+    const icon = toggleBtn.querySelector('i');
+
+    if (localStorage.getItem('theme') === 'dark') {
+        body.classList.add('dark-mode');
+        icon.classList.replace('fa-moon', 'fa-sun');
+        toggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i> Light Mode';
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        const isDark = body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        if (isDark) {
+            icon.classList.replace('fa-moon', 'fa-sun');
+            toggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i> Light Mode';
+        } else {
+            icon.classList.replace('fa-sun', 'fa-moon');
+            toggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i> Dark Mode';
+        }
+    });
+</script>
 </body>
 </html>
