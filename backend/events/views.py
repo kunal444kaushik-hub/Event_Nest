@@ -520,6 +520,9 @@ def contact(request):
 def login_choice(request):
     return render(request, 'login_choice.html')
 
+def register_choice(request):
+    return render(request, 'register_choice.html')
+
 
 def register_view(request):
     if request.method == "POST":
@@ -539,7 +542,7 @@ def user_details(request):
     otp_verified = request.session.get("user_otp_verified")
 
     if not email or not otp_verified:
-        return redirect("register")
+        return redirect("user_register")
 
     if request.method == "POST":
         first_name = request.POST.get("first_name")
@@ -962,7 +965,7 @@ def verify_user_otp(request):
     email = request.session.get("user_register_email")
 
     if not email:
-        return redirect("register")
+        return redirect("user_register")
 
     if request.method == "POST":
         otp = request.POST.get("otp")
