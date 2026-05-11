@@ -33,8 +33,16 @@
         
         <input type="text" name="username" placeholder="Username" required>
         <input type="text" name="phone" placeholder="Phone Number" required>
-        <input type="password" name="password" placeholder="Create Password" required>
-        <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+        
+        <div class="password-container">
+            <input type="password" name="password" id="password" placeholder="Create Password" required>
+            <i class="fa-solid fa-eye toggle-password" onclick="togglePass('password', this)"></i>
+        </div>
+
+        <div class="password-container">
+            <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required>
+            <i class="fa-solid fa-eye toggle-password" onclick="togglePass('confirm_password', this)"></i>
+        </div>
 
         {% if error %}
             <div class="error-msg">{{ error }}</div>
@@ -43,6 +51,15 @@
         <button type="submit">Complete Registration</button>
     </form>
 </div>
+
+<script>
+    function togglePass(id, el) {
+        const password = document.getElementById(id);
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        el.classList.toggle('fa-eye-slash');
+    }
+</script>
 
 </body>
 </html>
